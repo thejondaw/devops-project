@@ -28,7 +28,7 @@ jobs:
       run: |
         cd apps/api
         if [ -f "package.json" ]; then
-          npm ci
+          npm install
         else
           echo "package.json not found in apps/api"
           exit 1
