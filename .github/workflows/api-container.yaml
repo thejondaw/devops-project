@@ -18,14 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '14'
+
     - name: Install dependencies
       run: |
         cd apps/api
-        npm ci
+        if [ -f "package.json" ]; then
+          npm ci
+        else
+          echo "package.json not found in apps/api"
+          exit 1
+        fi
+
     - name: Run tests
       run: |
         cd apps/api
@@ -66,33 +74,3 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
-
-  # deploy-develop:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/develop'
-  #   steps:
-  #   - name: Deploy to develop environment
-  #     run: |
-  #       echo "Deploying ${{ env.DOCKER_REPO }}:develop to develop environment"
-  #       # Здесь код для деплоя в develop окружение
-
-  # deploy-stage:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/stage'
-  #   steps:
-  #   - name: Deploy to staging environment
-  #     run: |
-  #       echo "Deploying ${{ env.DOCKER_REPO }}:stage to staging environment"
-  #       # Здесь код для деплоя в staging окружение
-
-  # deploy-production:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/master'
-  #   steps:
-  #   - name: Deploy to production
-  #     run: |
-  #       echo "Deploying ${{ env.DOCKER_REPO }}:latest to production"
-  #       # Здесь код для деплоя в production окружение
