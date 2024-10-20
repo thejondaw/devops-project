@@ -37,7 +37,7 @@ jobs:
     - name: Run security audit
       run: |
         cd apps/api
-        npm audit
+        npm audit fix --force
 
     - name: Run tests
       run: |
