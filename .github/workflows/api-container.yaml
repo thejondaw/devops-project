@@ -79,21 +79,3 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
-
-    - name: Run Snyk to check Docker image for vulnerabilities
-      uses: snyk/actions/docker@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        image: ${{ env.DOCKER_REPO }}:${{ github.sha }}
-        args: --file=apps/api/Dockerfile
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    steps:
-    - name: Deploy to production
-      run: |
-        echo "Deploying ${{ env.DOCKER_REPO }}:latest to production"
-        # Здесь должен быть твой код для деплоя
