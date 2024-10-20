@@ -1,0 +1,98 @@
+name: API CI/CD
+
+on:
+  push:
+    branches: [ "master", "stage", "develop" ]
+    paths:
+      - 'apps/api/**'
+  pull_request:
+    branches: [ "develop", "stage", "master" ]
+    paths:
+      - 'apps/api/**'
+
+env:
+  DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+    - name: Install dependencies
+      run: |
+        cd apps/api
+        npm ci
+    - name: Run tests
+      run: |
+        cd apps/api
+        npm test
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master')
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: ./apps/api
+        file: ./apps/api/Dockerfile
+        push: ${{ github.event_name == 'push' }}
+        tags: |
+          ${{ env.DOCKER_REPO }}:${{ github.sha }}
+          ${{ env.DOCKER_REPO }}:${{ github.ref == 'refs/heads/master' && 'latest' || github.ref == 'refs/heads/stage' && 'stage' || 'develop' }}
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: '${{ env.DOCKER_REPO }}:${{ github.sha }}'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
+  # deploy-develop:
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/develop'
+  #   steps:
+  #   - name: Deploy to develop environment
+  #     run: |
+  #       echo "Deploying ${{ env.DOCKER_REPO }}:develop to develop environment"
+  #       # Здесь код для деплоя в develop окружение
+
+  # deploy-stage:
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/stage'
+  #   steps:
+  #   - name: Deploy to staging environment
+  #     run: |
+  #       echo "Deploying ${{ env.DOCKER_REPO }}:stage to staging environment"
+  #       # Здесь код для деплоя в staging окружение
+
+  # deploy-production:
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/master'
+  #   steps:
+  #   - name: Deploy to production
+  #     run: |
+  #       echo "Deploying ${{ env.DOCKER_REPO }}:latest to production"
+  #       # Здесь код для деплоя в production окружение
