@@ -14,6 +14,26 @@ env:
   DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api
 
 jobs:
+  # Добавляем новый job для SonarQube
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Важно для SonarQube, чтобы видеть историю изменений
+
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      with:
+        args: >
+          -Dsonar.projectKey=devops-api
+          -Dsonar.sources=apps/api
+          -Dsonar.javascript.lcov.reportPaths=apps/api/coverage/lcov.info
+
   test:
     runs-on: ubuntu-20.04
     steps:
@@ -40,7 +60,8 @@ jobs:
         npm test
 
   build-and-push:
-    needs: test
+    # Добавляем sonarqube в needs, чтобы убедиться, что анализ прошел перед сборкой
+    needs: [test, sonarqube]
     runs-on: ubuntu-20.04
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master')
     steps:
