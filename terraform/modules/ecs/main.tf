@@ -19,7 +19,7 @@ data "aws_subnet" "alb" {
   cidr_block = var.subnet_alb_cidr
 }
 
-# Fetch "Private Subnet #3 (API)" info:
+# Fetch "Private Subnet #3 (web)" info:
 data "aws_subnet" "api" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_api_cidr

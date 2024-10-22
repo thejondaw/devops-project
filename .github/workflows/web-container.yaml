@@ -1,31 +1,31 @@
-name: API CI/CD
+name: WEB CI/CD
 
 on:
   workflow_dispatch:
   push:
     branches: [ "master", "stage", "develop" ]
     paths:
-      - 'apps/api/**'
-      - 'apps/api/src/**'
-      - 'apps/api/tests/**'
-      - 'apps/api/package.json'
-      - 'apps/api/Dockerfile'
-      - 'sonar-project-api.properties'
+      - 'apps/web/**'
+      - 'apps/web/src/**'
+      - 'apps/web/tests/**'
+      - 'apps/web/package.json'
+      - 'apps/web/Dockerfile'
+      - 'sonar-project-web.properties'
       - '.github/workflows/**'
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [ "develop", "stage", "master" ]
     paths:
-      - 'apps/api/**'
-      - 'apps/api/src/**'
-      - 'apps/api/tests/**'
-      - 'apps/api/package.json'
-      - 'apps/api/Dockerfile'
-      - 'sonar-project-api.properties'
+      - 'apps/web/**'
+      - 'apps/web/src/**'
+      - 'apps/web/tests/**'
+      - 'apps/web/package.json'
+      - 'apps/web/Dockerfile'
+      - 'sonar-project-web.properties'
       - '.github/workflows/**'
 
 env:
-  DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api
+  DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-web
 
 jobs:
   sonarcloud:
@@ -53,17 +53,17 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd apps/api
+        cd apps/web
         if [ -f "package.json" ]; then
           npm install --verbose
         else
-          echo "package.json not found in apps/api"
+          echo "package.json not found in apps/web"
           exit 1
         fi
 
     - name: Run tests
       run: |
-        cd apps/api
+        cd apps/web
         npm test
 
   build-and-push:
@@ -85,8 +85,8 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        context: ./apps/api
-        file: ./apps/api/Dockerfile
+        context: ./apps/web
+        file: ./apps/web/Dockerfile
         push: ${{ github.event_name == 'push' }}
         tags: |
           ${{ env.DOCKER_REPO }}:${{ github.sha }}
