@@ -1,14 +1,15 @@
 name: API CI/CD
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master", "stage", "develop" ]
-    paths:
-      - 'apps/api/**'
+#    paths:
+#      - 'apps/api/**'
   pull_request:
     branches: [ "develop", "stage", "master" ]
-    paths:
-      - 'apps/api/**'
+#    paths:
+#      - 'apps/api/**'
 
 env:
   DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api
