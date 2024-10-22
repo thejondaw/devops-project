@@ -1,5 +1,8 @@
+# Main CI/CD pipeline for the API application
 name: API CI/CD
 
+# Trigger pipeline on push and pull requests to specific branches
+# Only trigger when changes occur in the apps/api directory
 on:
   push:
     branches: [ "master", "stage", "develop" ]
@@ -10,20 +13,47 @@ on:
     paths:
       - 'apps/api/**'
 
+# Environment variables used across jobs
 env:
   DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api
 
 jobs:
+  # Static code analysis job using SonarQube
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-20.04
+    steps:
+    # Checkout repository with full history for better analysis
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    # Run SonarQube analysis
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      with:
+        args: >
+          -Dsonar.projectKey=devops-api
+          -Dsonar.sources=apps/api
+          -Dsonar.javascript.lcov.reportPaths=apps/api/coverage/lcov.info
+
+  # Run tests and install dependencies
   test:
     runs-on: ubuntu-20.04
     steps:
+    # Checkout the repository
     - uses: actions/checkout@v3
 
+    # Setup Node.js environment (using v14 for legacy compatibility)
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '14'
 
+    # Install project dependencies
     - name: Install dependencies
       run: |
         cd apps/api
@@ -34,27 +64,36 @@ jobs:
           exit 1
         fi
 
+    # Run test suite
     - name: Run tests
       run: |
         cd apps/api
         npm test
 
+  # Build Docker image and push to registry
   build-and-push:
-    needs: test
+    # Only run this job after test and sonarqube jobs complete successfully
+    needs: [test, sonarqube]
     runs-on: ubuntu-20.04
+    # Run on push or when PR is targeting master branch
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master')
     steps:
+    # Checkout the repository
     - uses: actions/checkout@v3
 
+    # Setup Docker Buildx for multi-platform builds
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
+    # Log in to Docker Hub using credentials from secrets
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    # Build and push Docker image
+    # Tags are based on git SHA and branch name
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
@@ -65,6 +104,8 @@ jobs:
           ${{ env.DOCKER_REPO }}:${{ github.sha }}
           ${{ env.DOCKER_REPO }}:${{ github.ref == 'refs/heads/master' && 'latest' || github.ref == 'refs/heads/stage' && 'stage' || 'develop' }}
 
+    # Scan Docker image for vulnerabilities using Trivy
+    # exit-code is set to 0 to prevent pipeline failure for legacy codebase
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
