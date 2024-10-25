@@ -80,7 +80,7 @@ jobs:
   build-and-push:
     needs: [test, sonarcloud]
     runs-on: ubuntu-20.04
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master')
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master')
     steps:
     - uses: actions/checkout@v3
 
@@ -98,7 +98,7 @@ jobs:
       with:
         context: ./apps/api
         file: ./apps/api/Dockerfile
-        push: ${{ github.event_name == 'push' }}
+        push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
         tags: |
           ${{ env.DOCKER_REPO }}:${{ github.sha }}
           ${{ env.DOCKER_REPO }}:${{ github.ref == 'refs/heads/master' && 'latest' || github.ref == 'refs/heads/stage' && 'stage' || 'develop' }}
