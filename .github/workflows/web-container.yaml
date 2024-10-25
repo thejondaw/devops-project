@@ -92,8 +92,23 @@ jobs:
           ${{ env.DOCKER_REPO }}:${{ github.sha }}
           ${{ env.DOCKER_REPO }}:${{ github.ref == 'refs/heads/master' && 'latest' || github.ref == 'refs/heads/stage' && 'stage' || 'develop' }}
 
+    - name: Cache Trivy vulnerability database
+      uses: actions/cache@v3
+      with:
+        path: .trivycache/
+        key: trivy-${{ runner.os }}-db-${{ github.sha }}
+        restore-keys: |
+          trivy-${{ runner.os }}-db-
+
+    - name: Download Trivy DB
+      run: |
+        mkdir -p .trivycache/
+        docker run --rm -v .trivycache/:/root/.cache/ aquasec/trivy:latest --download-db-only --no-progress
+
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         image-ref: '${{ env.DOCKER_REPO }}:${{ github.sha }}'
         format: 'table'
@@ -101,3 +116,5 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+        cache-dir: .trivycache/
+        skip-db-update: true
