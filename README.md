@@ -36,3 +36,5 @@ devops-project/
 ├── README.md
 └── docker-compose.yml      # For Local development
 ```
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thejondaw_devops-project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=thejondaw_devops-project)
