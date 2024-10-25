@@ -50,7 +50,7 @@ jobs:
         with:
           args: >
             -Dsonar.branch.name=${{ github.ref_name }}
-            -Dsonar.branch.target=${{ github.base_ref || 'master' }}
+            ${{ github.ref_name != 'master' && format('-Dsonar.branch.target={0}', 'master') || '' }}
 
   test:
     runs-on: ubuntu-20.04
