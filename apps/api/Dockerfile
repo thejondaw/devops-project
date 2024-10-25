@@ -1,14 +1,14 @@
-FROM node:14
+FROM node:14-alpine
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --verbose
 COPY . .
-
-ENV PORT=3000
-ENV DBUSER='user'
-ENV DB='toptal'
-ENV DBPASS='password'
-ENV DBHOST='IP'
-ENV DBPORT=5432
-
+ENV PORT=3000 \
+    DBUSER='user' \
+    DB='toptal' \
+    DBPASS='password' \
+    DBHOST='IP' \
+    DBPORT=5432
+EXPOSE 3000
+USER node
 CMD [ "npm", "start" ]

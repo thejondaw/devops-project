@@ -1,0 +1,114 @@
+name: WEB CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master", "stage", "develop" ]
+    paths:
+      - 'apps/web/**'
+      - 'apps/web/src/**'
+      - 'apps/web/tests/**'
+      - 'apps/web/package.json'
+      - 'apps/web/Dockerfile'
+      - 'sonar-project.properties'
+      - '.github/workflows/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ "develop", "stage", "master" ]
+    paths:
+      - 'apps/web/**'
+      - 'apps/web/src/**'
+      - 'apps/web/tests/**'
+      - 'apps/web/package.json'
+      - 'apps/web/Dockerfile'
+      - 'sonar-project.properties'
+      - '.github/workflows/**'
+
+env:
+  DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-web
+
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Debug Branch Info
+        run: |
+          echo "Analyzing branch: ${{ github.ref_name }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Event type: ${{ github.event_name }}"
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.branch.name=${{ github.ref_name }}
+            ${{ github.ref_name != 'master' && format('-Dsonar.branch.target={0}', 'master') || '' }}
+
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: |
+        cd apps/web
+        if [ -f "package.json" ]; then
+          npm install --verbose
+        else
+          echo "package.json not found in apps/web"
+          exit 1
+        fi
+
+    - name: Run tests
+      run: |
+        cd apps/web
+        npm test
+
+  build-and-push:
+    needs: [test, sonarcloud]
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master')
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: ./apps/web
+        file: ./apps/web/Dockerfile
+        push: ${{ github.event_name == 'push' }}
+        tags: |
+          ${{ env.DOCKER_REPO }}:${{ github.sha }}
+          ${{ env.DOCKER_REPO }}:${{ github.ref == 'refs/heads/master' && 'latest' || github.ref == 'refs/heads/stage' && 'stage' || 'develop' }}
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: '${{ env.DOCKER_REPO }}:${{ github.sha }}'
+        format: 'table'
+        exit-code: '0'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
