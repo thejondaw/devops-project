@@ -10,7 +10,7 @@ on:
       - 'apps/web/tests/**'
       - 'apps/web/package.json'
       - 'apps/web/Dockerfile'
-      - 'sonar-project-web.properties'
+      - 'sonar-project.properties'
       - '.github/workflows/**'
   pull_request:
     types: [opened, synchronize, reopened]
@@ -21,7 +21,7 @@ on:
       - 'apps/web/tests/**'
       - 'apps/web/package.json'
       - 'apps/web/Dockerfile'
-      - 'sonar-project-web.properties'
+      - 'sonar-project.properties'
       - '.github/workflows/**'
 
 env:
