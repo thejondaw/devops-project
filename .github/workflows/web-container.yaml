@@ -3,7 +3,7 @@ name: WEB CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [ "master", "stage", "develop" ]
+    branches: [ "develop" ]
     paths:
       - 'apps/web/**'
       - 'apps/web/src/**'
@@ -14,7 +14,7 @@ on:
       - '.github/workflows/**'
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [ "develop", "stage", "master" ]
+    branches: [ "stage", "master" ]
     paths:
       - 'apps/web/**'
       - 'apps/web/src/**'
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Важно для анализа веток
+          fetch-depth: 0
 
       - name: Debug Branch Info
         run: |
@@ -50,7 +50,7 @@ jobs:
         with:
           args: >
             -Dsonar.branch.name=${{ github.ref_name }}
-            -Dsonar.branch.target=${{ github.base_ref || 'master' }}
+            ${{ github.ref_name != 'master' && format('-Dsonar.branch.target={0}', 'master') || '' }}
 
   test:
     runs-on: ubuntu-20.04
