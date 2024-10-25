@@ -3,7 +3,7 @@ name: WEB CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [ "master", "stage", "develop" ]
+    branches: [ "develop" ]
     paths:
       - 'apps/web/**'
       - 'apps/web/src/**'
@@ -14,7 +14,7 @@ on:
       - '.github/workflows/**'
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [ "develop", "stage", "master" ]
+    branches: [ "stage", "master" ]
     paths:
       - 'apps/web/**'
       - 'apps/web/src/**'
