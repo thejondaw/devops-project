@@ -1,0 +1,41 @@
+name: VPC Infrastructure
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master", "stage", "develop" ]
+    paths:
+      - 'terraform/modules/vpc/**'
+      - 'terraform/develop/terraform.tfvars'
+      - '.github/workflows/vpc-module-run.yaml'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init VPC
+        run: make init-vpc
+
+      - name: Terraform Plan VPC
+        run: make plan-vpc
+
+      - name: Terraform Apply VPC
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: make apply-vpc
