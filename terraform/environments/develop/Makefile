@@ -55,15 +55,15 @@ init-vpc:
 
 # Планирование изменений только для VPC модуля:
 plan-vpc:
-	cd terraform/modules/vpc && terraform plan -var-file=$(pwd)./terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform plan -var-file=$(pwd)terraform/environments/develop/terraform.tfvars
 
 # Применение изменений только для VPC модуля:
 apply-vpc:
-	cd terraform/modules/vpc && terraform apply --auto-approve -var-file=$(pwd)./terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform apply --auto-approve -var-file=$(pwd)terraform/environments/develop/terraform.tfvars
 
 # Удаление ресурсов только для VPC модуля:
 destroy-vpc:
-	cd terraform/modules/vpc && terraform destroy --auto-approve -var-file=$(pwd)./terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform destroy --auto-approve -var-file=$(pwd)terraform/environments/develop/terraform.tfvars
 
 # ======================== RDS ======================== #
 
