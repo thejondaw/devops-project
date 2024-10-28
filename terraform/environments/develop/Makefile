@@ -22,11 +22,11 @@ cache:
 # Инициализация и валидация всех модулей:
 init:
 	git pull
-	cd terraform/modules/vpc && terraform init -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/vpc && terraform validate
-	cd terraform/modules/rds && terraform init -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/rds && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/rds && terraform validate
-	cd terraform/modules/ecs && terraform init -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/ecs && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/ecs && terraform validate
 
 # Планирование изменений:
@@ -50,20 +50,20 @@ cache-vpc:
 # Инициализация и валидация VPC модуля:
 init-vpc:
 	git pull
-	cd terraform/modules/vpc && terraform init -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/vpc && terraform validate
 
 # Планирование изменений только для VPC модуля:
 plan-vpc:
-	cd terraform/modules/vpc && terraform plan -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform plan -var-file=../../environments/develop/terraform.tfvars
 
 # Применение изменений только для VPC модуля:
 apply-vpc:
-	cd terraform/modules/vpc && terraform apply --auto-approve -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # Удаление ресурсов только для VPC модуля:
 destroy-vpc:
-	cd terraform/modules/vpc && terraform destroy --auto-approve -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/vpc && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # ======================== RDS ======================== #
 
@@ -74,20 +74,20 @@ cache-rds:
 # Инициализация и валидация RDS модуля:
 init-rds:
 	git pull
-	cd terraform/modules/rds && terraform init -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/rds && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/rds && terraform validate
 
 # Планирование изменений только для RDS модуля:
 plan-rds:
-	cd terraform/modules/rds && terraform plan -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/rds && terraform plan -var-file=../../environments/develop/terraform.tfvars
 
 # Применение изменений только для RDS модуля:
 apply-rds:
-	cd terraform/modules/rds && terraform apply --auto-approve -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/rds && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # Удаление ресурсов только для RDS модуля:
 destroy-rds:
-	cd terraform/modules/rds && terraform destroy --auto-approve -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/rds && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # ======================== ECS ======================== #
 
@@ -98,19 +98,19 @@ cache-ecs:
 # Инициализация и валидация ECS модуля:
 init-ecs:
 	git pull
-	cd terraform/modules/ecs && terraform init -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/ecs && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/ecs && terraform validate
 
 # Планирование изменений только для ECS модуля:
 plan-ecs:
-	cd terraform/modules/ecs && terraform plan -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/ecs && terraform plan -var-file=../../environments/develop/terraform.tfvars
 
 # Применение изменений только для ECS модуля:
 apply-ecs:
-	cd terraform/modules/ecs && terraform apply --auto-approve -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/ecs && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # Удаление ресурсов только для ECS модуля:
 destroy-ecs:
-	cd terraform/modules/ecs && terraform destroy --auto-approve -var-file=$(pwd)/terraform/environments/develop/terraform.tfvars
+	cd terraform/modules/ecs && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # ===================================================== #
