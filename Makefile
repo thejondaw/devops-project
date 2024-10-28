@@ -1,5 +1,8 @@
 # ==================== Terraform ===================== #
 
+# Путь к файлу переменных для разработки
+TFVARS_PATH = terraform/environments/develop/terraform.tfvars
+
 # Установка Terraform:
 terraform:
 	sudo yum install -y yum-utils
@@ -31,15 +34,15 @@ init:
 
 # Планирование изменений:
 plan:
-	cd terraform/environments/develop && terraform plan -var-file=terraform.tfvars
+	cd terraform/modules/vpc && terraform plan -var-file=$(abspath $(TFVARS_PATH))
 
 # Применение изменений:
 apply:
-	cd terraform/environments/develop && terraform apply --auto-approve -var-file=terraform.tfvars
+	cd terraform/modules/vpc && terraform apply --auto-approve -var-file=$(abspath $(TFVARS_PATH))
 
 # Удаление ресурсов:
 destroy:
-	cd terraform/environments/develop && terraform destroy --auto-approve -var-file=terraform.tfvars
+	cd terraform/modules/vpc && terraform destroy --auto-approve -var-file=$(abspath $(TFVARS_PATH))
 
 # ======================== VPC ======================== #
 

@@ -30,6 +30,13 @@ jobs:
           echo "Terraform environments/develop contents:"
           ls -la terraform/environments/develop/ || echo "No terraform/environments/develop directory"
 
+      - name: Check if terraform.tfvars exists
+        run: |
+          if [ ! -f terraform/environments/develop/terraform.tfvars ]; then
+            echo "Error: terraform.tfvars not found in terraform/environments/develop/"
+            exit 1
+          fi
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
