@@ -12,13 +12,20 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform/develop
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Debug directory structure
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          echo "Terraform directory:"
+          ls -la terraform || echo "No terraform directory"
+          echo "Terraform/develop directory:"
+          ls -la terraform/develop || echo "No terraform/develop directory"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -31,11 +38,14 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Terraform Init VPC
+        working-directory: terraform/develop
         run: make init-vpc
 
       - name: Terraform Plan VPC
+        working-directory: terraform/develop
         run: make plan-vpc
 
       - name: Terraform Apply VPC
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        working-directory: terraform/develop
         run: make apply-vpc
