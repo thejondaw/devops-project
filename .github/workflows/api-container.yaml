@@ -11,18 +11,18 @@ on:
       - 'apps/api/package.json'
       - 'apps/api/Dockerfile'
       - 'sonar-project.properties'
-      - '.github/workflows/**'
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches: [ "stage", "master" ]
-    paths:
-      - 'apps/api/**'
-      - 'apps/api/src/**'
-      - 'apps/api/tests/**'
-      - 'apps/api/package.json'
-      - 'apps/api/Dockerfile'
-      - 'sonar-project.properties'
-      - '.github/workflows/**'
+      - '.github/workflows/api-container.yaml'
+#  pull_request:
+#    types: [opened, synchronize, reopened]
+#    branches: [ "stage", "master" ]
+#    paths:
+#      - 'apps/api/**'
+#      - 'apps/api/src/**'
+#      - 'apps/api/tests/**'
+#      - 'apps/api/package.json'
+#      - 'apps/api/Dockerfile'
+#      - 'sonar-project.properties'
+#      - '.github/workflows/**'
 
 env:
   DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api
