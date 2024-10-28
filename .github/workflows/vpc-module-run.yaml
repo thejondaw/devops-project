@@ -1,13 +1,13 @@
 name: VPC Infrastructure
 
 on:
-  workflow_dispatch:  # Ручной запуск
+  workflow_dispatch:
   push:
     branches: [ "master", "stage", "develop" ]
     paths:
       - 'terraform/modules/vpc/**'
-      - 'terraform/develop/terraform.tfvars'
-      - 'terraform/develop/Makefile'
+      - 'terraform/environments/develop/terraform.tfvars'
+      - 'terraform/environments/develop/Makefile'
       - '.github/workflows/vpc-module-run.yaml'
 
 jobs:
@@ -25,10 +25,10 @@ jobs:
           ls -la
           echo "Terraform directory contents:"
           ls -la terraform/ || echo "No terraform directory"
-          echo "Terraform develop contents:"
-          ls -la terraform/develop/ || echo "No terraform/develop directory"
-          echo "Terraform modules contents:"
-          ls -la terraform/modules/ || echo "No terraform/modules directory"
+          echo "Terraform environments contents:"
+          ls -la terraform/environments/ || echo "No terraform/environments directory"
+          echo "Terraform environments/develop contents:"
+          ls -la terraform/environments/develop/ || echo "No terraform/environments/develop directory"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -41,7 +41,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Copy Makefile to root
-        run: cp terraform/develop/Makefile .
+        run: cp terraform/environments/develop/Makefile .
 
       - name: Terraform Init VPC
         run: make init-vpc
