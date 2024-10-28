@@ -30,11 +30,11 @@ cache:
 # Update repository, dependencies and validate:
 init:
 	git pull
-	cd $(VPC_MODULE_PATH) && terraform init -var-file=../environments/develop/terraform.tfvars
+	cd $(VPC_MODULE_PATH) && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd $(VPC_MODULE_PATH) && terraform validate
-	cd $(RDS_MODULE_PATH) && terraform init -var-file=../environments/develop/terraform.tfvars
+	cd $(RDS_MODULE_PATH) && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd $(RDS_MODULE_PATH) && terraform validate
-	cd $(ECS_MODULE_PATH) && terraform init -var-file=../environments/develop/terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd $(ECS_MODULE_PATH) && terraform validate
 
 # Target for planning changes:
@@ -58,20 +58,20 @@ cache-vpc:
 # Update repository, dependencies and validate in VPC Module:
 init-vpc:
 	git pull
-	cd $(VPC_MODULE_PATH) && terraform init -var-file=../environments/develop/terraform.tfvars
+	cd $(VPC_MODULE_PATH) && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd $(VPC_MODULE_PATH) && terraform validate
 
 # Target for planning changes only in VPC Module:
 plan-vpc:
-	cd $(VPC_MODULE_PATH) && terraform plan -var-file=../environments/develop/terraform.tfvars
+	cd $(VPC_MODULE_PATH) && terraform plan -var-file=../../environments/develop/terraform.tfvars
 
 # Target for applying only VPC Module:
 apply-vpc:
-	cd $(VPC_MODULE_PATH) && terraform apply --auto-approve -var-file=../environments/develop/terraform.tfvars
+	cd $(VPC_MODULE_PATH) && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # Target for destroying only VPC Module:
 destroy-vpc:
-	cd $(VPC_MODULE_PATH) && terraform destroy --auto-approve -var-file=../environments/develop/terraform.tfvars
+	cd $(VPC_MODULE_PATH) && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # ======================== RDS ======================= #
 
@@ -82,20 +82,20 @@ cache-rds:
 # Update repository, dependencies and validate in RDS Module:
 init-rds:
 	git pull
-	cd $(RDS_MODULE_PATH) && terraform init -var-file=../environments/develop/terraform.tfvars
+	cd $(RDS_MODULE_PATH) && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd $(RDS_MODULE_PATH) && terraform validate
 
 # Target for planning changes only in RDS Module:
 plan-rds:
-	cd $(RDS_MODULE_PATH) && terraform plan -var-file=../environments/develop/terraform.tfvars
+	cd $(RDS_MODULE_PATH) && terraform plan -var-file=../../environments/develop/terraform.tfvars
 
 # Target for applying only RDS Module:
 apply-rds:
-	cd $(RDS_MODULE_PATH) && terraform apply --auto-approve -var-file=../environments/develop/terraform.tfvars
+	cd $(RDS_MODULE_PATH) && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # Target for destroying only RDS Module:
 destroy-rds:
-	cd $(RDS_MODULE_PATH) && terraform destroy --auto-approve -var-file=../environments/develop/terraform.tfvars
+	cd $(RDS_MODULE_PATH) && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # ======================== ECS ======================= #
 
@@ -106,19 +106,19 @@ cache-ecs:
 # Update repository, dependencies and validate in ECS Module:
 init-ecs:
 	git pull
-	cd $(ECS_MODULE_PATH) && terraform init -var-file=../environments/develop/terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd $(ECS_MODULE_PATH) && terraform validate
 
 # Target for planning changes only in ECS Module:
 plan-ecs:
-	cd $(ECS_MODULE_PATH) && terraform plan -var-file=../environments/develop/terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform plan -var-file=../../environments/develop/terraform.tfvars
 
 # Target for applying only ECS Module:
 apply-ecs:
-	cd $(ECS_MODULE_PATH) && terraform apply --auto-approve -var-file=../environments/develop/terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # Target for destroying only ECS Module:
 destroy-ecs:
-	cd $(ECS_MODULE_PATH) && terraform destroy --auto-approve -var-file=../environments/develop/terraform.tfvars
+	cd $(ECS_MODULE_PATH) && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
 # ==================================================== #
