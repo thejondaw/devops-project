@@ -11,7 +11,7 @@ provider "aws" {
 
 # "VPC" Module:
 module "vpc" {
-  source          = "../modules/vpc"
+  source          = "../terraform/modules/vpc"
   region          = var.region_rv
   vpc_cidr        = var.vpc_cidr_rv
   subnet_web_cidr = var.subnet_web_cidr_rv
@@ -22,7 +22,7 @@ module "vpc" {
 
 # "RDS" Module:
 module "rds" {
-  source          = "../modules/rds"
+  source          = "../terraform/modules/rds"
   region          = var.region_rv
   vpc_cidr        = module.vpc.vpc_arn
   subnet_api_cidr = var.subnet_api_cidr_rv
@@ -31,7 +31,7 @@ module "rds" {
 
 # "ECS" Module:
 module "ecs" {
-  source          = "../modules/ecs"
+  source          = "../terraform/modules/ecs"
   region          = var.region_rv
   vpc_cidr        = module.vpc.vpc_arn
   subnet_web_cidr = module.vpc.subnet_web_cidr_rv
