@@ -7,7 +7,7 @@ on:
     paths:
       - 'terraform/modules/vpc/**'
       - 'terraform/environments/develop/terraform.tfvars'
-      - 'terraform/environments/develop/Makefile'
+      - 'Makefile'
       - '.github/workflows/vpc-module-run.yaml'
 
 jobs:
@@ -39,9 +39,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
-
-      - name: Copy Makefile to root
-        run: cp terraform/environments/develop/Makefile .
 
       - name: Terraform Init VPC
         run: make init-vpc
