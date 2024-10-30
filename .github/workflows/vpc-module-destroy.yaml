@@ -28,16 +28,13 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      - name: Terraform Init VPC
+        run: make init-vpc
+
       - name: Warning
         run: |
           echo "⚠️ WARNING: VPC WILL BE DESTROYED IN 10 SECONDS ⚠️"
           sleep 10
-
-      - name: Terraform Init VPC
-        run: make init-vpc
-
-      - name: Terraform Plan VPC
-        run: make plan-vpc
 
       - name: Terraform Destroy VPC
         run: make destroy-vpc
