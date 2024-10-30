@@ -1,0 +1,65 @@
+name: VPC Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Select environment to destroy'
+        required: true
+        options:
+        - develop
+        - stage
+      confirm_destroy:
+        type: boolean
+        description: 'I understand this will DESTROY the VPC infrastructure'
+        required: true
+      double_confirm:
+        type: string
+        description: 'Type DESTROY to confirm'
+        required: true
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Verify Destruction Command
+        if: github.event.inputs.double_confirm != 'DESTROY' || github.event.inputs.confirm_destroy != true
+        run: |
+          echo "Destruction not properly confirmed"
+          echo "You must check the confirmation box AND type DESTROY"
+          exit 1
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: make init-vpc
+
+      - name: Terraform Plan Destroy
+        run: make plan-vpc -destroy
+
+      - name: Pause for Review
+        run: |
+          echo "Review the plan above."
+          echo "Destruction will proceed in 30 seconds..."
+          sleep 30
+
+      - name: Terraform Destroy
+        run: make destroy-vpc
+
+      - name: Notify Destruction Complete
+        run: |
+          echo "VPC infrastructure in ${{ github.event.inputs.environment }} has been destroyed"
