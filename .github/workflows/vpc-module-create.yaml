@@ -8,7 +8,7 @@ on:
       - 'terraform/modules/vpc/**'
       - 'terraform/environments/develop/terraform.tfvars'
       - 'Makefile'
-      - '.github/workflows/vpc-module-run.yaml'
+      - '.github/workflows/vpc-module-create.yaml'
 
 jobs:
   terraform:

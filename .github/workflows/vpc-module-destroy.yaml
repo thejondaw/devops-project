@@ -2,6 +2,13 @@ name: VPC Module - Destroy
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ "master", "stage", "develop" ]
+    paths:
+      - 'terraform/modules/vpc/**'
+      - 'terraform/environments/develop/terraform.tfvars'
+      - 'Makefile'
+      - '.github/workflows/vpc-module-create.yaml'
 
 jobs:
   terraform:
