@@ -1,4 +1,4 @@
-name: VPC Create
+name: VPC Infrastructure
 
 on:
   workflow_dispatch:
