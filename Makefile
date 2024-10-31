@@ -116,4 +116,28 @@ apply-ecs:
 destroy-ecs:
 	cd terraform/modules/ecs && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
 
+# ======================== EKS ======================== #
+
+# Очистка временных и кэшированных файлов для EKS модуля:
+cache-eks:
+	cd terraform/modules/eks && find / -type d -name ".terraform" -exec rm -rf {} \;
+
+# Инициализация и валидация EKS модуля:
+init-eks:
+	git pull
+	cd terraform/modules/eks && terraform init -var-file=../../environments/develop/terraform.tfvars
+	cd terraform/modules/eks && terraform validate
+
+# Планирование изменений только для EKS модуля:
+plan-eks:
+	cd terraform/modules/eks && terraform plan -var-file=../../environments/develop/terraform.tfvars
+
+# Применение изменений только для EKS модуля:
+apply-eks:
+	cd terraform/modules/eks && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
+
+# Удаление ресурсов только для EKS модуля:
+destroy-eks:
+	cd terraform/modules/eks && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
+
 # ===================================================== #

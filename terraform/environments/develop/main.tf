@@ -20,6 +20,16 @@ module "vpc" {
   subnet_db_cidr  = var.subnet_db_cidr_rv
 }
 
+# "EKS" Module:
+module "eks" {
+  source          = "../terraform/modules/eks"
+  region          = var.region_rv
+  vpc_cidr        = module.vpc.vpc_arn
+  subnet_web_cidr = module.vpc.subnet_web_cidr_rv
+  subnet_alb_cidr = module.vpc.subnet_alb_cidr_rv
+  subnet_api_cidr = module.vpc.subnet_api_cidr_rv
+}
+
 # "RDS" Module:
 module "rds" {
   source          = "../terraform/modules/rds"
