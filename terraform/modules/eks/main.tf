@@ -31,10 +31,13 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-  cluster_name    = "my-cluster"
+  cluster_name    = "devops-project"
   cluster_version = "1.31"
 
-  cluster_endpoint_public_access = true
+  cluster_endpoint_private_access = true
+  cluster_endpoint_public_access  = true
+
+  enable_irsa = true # Enables IAM Roles for Service Accounts
 
   # Минимальный набор аддонов
   cluster_addons = {
@@ -51,10 +54,24 @@ module "eks" {
     data.aws_subnet.api.id
   ]
 
-  # Минимальная конфигурация нод
+  # aws-auth configmap
+  manage_aws_auth_configmap = false
+
+  aws_auth_roles = [
+    {
+      rolearn  = aws_iam_role.eks_cluster.arn
+      username = "role1"
+      groups   = ["system:masters"]
+    }
+  ]
+
+  # Self Managed Node Group(s)
   eks_managed_node_groups = {
     main = {
       instance_types = ["t3.small"]
+      iam_role_additional_policies = {
+      AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    }
 
       min_size     = 2
       max_size     = 2
