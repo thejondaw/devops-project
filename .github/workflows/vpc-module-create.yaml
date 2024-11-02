@@ -1,9 +1,13 @@
+# Workflow name - Create VPC infrastructure using Terraform
 name: VPC Module - Create
 
+# Trigger workflow on:
+# - Manual dispatch from GitHub Actions UI
+# - Push to main branches with changes in VPC related files
 on:
   workflow_dispatch:
   push:
-    branches: [ "master", "stage", "develop" ]
+    branches: [ "develop" ]
     paths:
       - 'terraform/modules/vpc/**'
       - 'terraform/environments/develop/terraform.tfvars'
@@ -11,25 +15,16 @@ on:
       - '.github/workflows/vpc-module-create.yaml'
 
 jobs:
+  # Infrastructure deployment job
   terraform:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Debug directory structure
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Repository contents:"
-          ls -la
-          echo "Terraform directory contents:"
-          ls -la terraform/ || echo "No terraform directory"
-          echo "Terraform environments contents:"
-          ls -la terraform/environments/ || echo "No terraform/environments directory"
-          echo "Terraform environments/develop contents:"
-          ls -la terraform/environments/develop/ || echo "No terraform/environments/develop directory"
-
+      # Setup AWS credentials for Terraform
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -37,15 +32,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
+      # Install Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      # Initialize Terraform working directory
       - name: Terraform Init VPC
         run: make init-vpc
 
+      # Plan Terraform changes
       - name: Terraform Plan VPC
         run: make plan-vpc
 
+      # Apply Terraform changes
       - name: Terraform Apply VPC
         run: make apply-vpc
-

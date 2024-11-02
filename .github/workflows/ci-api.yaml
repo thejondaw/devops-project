@@ -21,7 +21,6 @@ env:
   DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api
 
 jobs:
-
   # First job: Run unit tests
   test:
     runs-on: ubuntu-20.04
