@@ -1,4 +1,3 @@
-# Workflow name - Destroy VPC infrastructure using Terraform
 name: VPC Module - Destroy
 
 # Trigger workflow on:
@@ -43,8 +42,7 @@ jobs:
       # Safety delay with warning message
       - name: Warning
         run: |
-          echo "⚠️ WARNING: VPC WILL BE DESTROYED IN 10 SECONDS ⚠️"
-          sleep 10
+          echo "⚠️ WARNING: VPC WILL BE DESTROYED ⚠️"
 
       # Destroy VPC infrastructure
       - name: Terraform Destroy VPC
