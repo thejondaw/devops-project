@@ -1,4 +1,4 @@
-name: VPC Module - Destroy
+name: Destroy VPC
 
 # Trigger workflow on:
 # - Manual dispatch from GitHub Actions UI (primary trigger for controlled destruction)

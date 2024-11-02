@@ -1,4 +1,4 @@
-name: VPC Module - Create
+name: Create/Update VPC
 
 # Trigger workflow on:
 # - Manual dispatch from GitHub Actions UI
@@ -43,6 +43,6 @@ jobs:
       - name: Terraform Plan VPC
         run: make plan-vpc
 
-      # Apply Terraform changes
+      # Apply Terraform changes to Create/Update VPC Module
       - name: Terraform Apply VPC
         run: make apply-vpc
