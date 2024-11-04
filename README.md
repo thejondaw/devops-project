@@ -46,6 +46,7 @@ npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 ```
 
 - Added **ESLint** linter
+- Added **Prettier**
 - _Node.js_ **dependencies** 
 - Run **tests**
 - Build via **Docker**
