@@ -48,9 +48,6 @@ module "eks" {
     kube-proxy = {}
     vpc-cni    = {}
     aws-ebs-csi-driver = {} # Для работы с volumes
-    metrics-server = {      # Базовый мониторинг
-      most_recent = true
-    }
   }
 
   vpc_id = data.aws_vpc.main.id
@@ -66,7 +63,7 @@ module "eks" {
   access_entries = {
     # Доступ для пользователя
     admin = {
-      kubernetes_groups = ["system:masters"]
+      kubernetes_groups = ["cluster-admin"]
       principal_arn    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/your-username"
       type            = "STANDARD"
     }
