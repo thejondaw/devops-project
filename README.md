@@ -18,7 +18,7 @@
 >    - RDS: Aurora PostgreSQL 15.3 (Serverless v2)
 ---
 
-## Stadia I - Local tests
+## Step I - Local tests
 
 Developers gave me the code of applications without documentation:
 
@@ -26,7 +26,7 @@ Applications require PostgreSQL database to function correctly
 - Setting up a Linux environment through Docker/VirtualBox
 - Installing PostgreSQL and successfully running applications within this setup
 
-## Stadia II - CI (Continuous Integration)
+## Step II - CI (Continuous Integration)
 
 Workflows for **API** & **WEB** applications:
 
@@ -52,7 +52,7 @@ npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 - **Trivy** vulnerability scann
 - **SonarQube** code scan
 
-## Stadia III - CD (Continuous Delivery)
+## Step III - CD (Continuous Delivery)
 
 1. Workflows for _creating/updating_ and _deleting_ of **VPC** module with Terraform
 2. Workflows for _creating/updating_ and _deleting_ of **EKS** module with Terraform
