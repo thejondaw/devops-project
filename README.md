@@ -44,8 +44,8 @@ npm install -D eslint eslint-config-airbnb-base eslint-plugin-import
 npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 ```
 
-- Added **ESLint** linter
-- Added **Prettier**
+- Run **ESLint** linter
+- Run **Prettier**
 - _Node.js_ **dependencies** 
 - Run **tests**
 - Build via **Docker**
