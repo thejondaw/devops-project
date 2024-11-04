@@ -60,16 +60,17 @@ module "eks" {
     data.aws_subnet.api.id
   ]
 
-  # aws-auth configmap для управления доступом
-  manage_aws_auth_configmap = true
+  # Управление доступом через authentication_mode
+  authentication_mode = "API_AND_CONFIG_MAP"
 
-  aws_auth_users = [
-    {
-      userarn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${var.aws_user}"
-      username = "admin"
-      groups   = ["system:masters"]
+  access_entries = {
+    # Доступ для пользователя
+    admin = {
+      kubernetes_groups = ["system:masters"]
+      principal_arn    = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${var.aws_user}"
+      type            = "IAM_USER"
     }
-  ]
+  }
 
   # Self Managed Node Group(s)
   eks_managed_node_groups = {
