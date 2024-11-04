@@ -21,8 +21,44 @@ env:
   DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-web
 
 jobs:
-  # First job: Run unit tests
+  # First job: Code linting
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+
+    # Setup Node.js environment
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    # Install Project dependencies
+    - name: Install dependencies
+      run: |
+        cd apps/web
+        if [ -f "package.json" ]; then
+          npm install
+        else
+          echo "package.json not found in apps/web"
+          exit 1
+        fi
+
+    # Run ESLint
+    - name: Run linting
+      run: |
+        cd apps/web
+        npm run lint
+
+    # Run Prettier check
+    - name: Check code formatting
+      run: |
+        cd apps/web
+        npm run format:check
+
+  # Second job: Run unit tests
   test:
+    needs: [lint]
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
@@ -50,7 +86,7 @@ jobs:
         cd apps/web
         npm test
 
-  # Second job: Build Docker image
+  # Third job: Build Docker image
   build:
     needs: [test]
     runs-on: ubuntu-20.04
@@ -80,7 +116,7 @@ jobs:
           ${{ env.DOCKER_REPO }}:${{ github.sha }}
           ${{ env.DOCKER_REPO }}:${{ github.ref == 'refs/heads/master' && 'latest' || github.ref == 'refs/heads/stage' && 'stage' || 'develop' }}
 
-  # Third job: Security scanning
+  # Fourth job: Security scanning
   security-scan:
     needs: [build]
     runs-on: ubuntu-20.04
@@ -96,7 +132,7 @@ jobs:
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
 
-  # Fourth job: Code quality analysis using SonarQube & SonarCloud
+  # Fifth job: Code quality analysis using SonarQube & SonarCloud
   sonarcloud:
     needs: [security-scan]
     name: SonarCloud

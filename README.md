@@ -16,7 +16,6 @@
 >      - ArgoCD
 >      - AWS Secret Manager
 >    - RDS: Aurora PostgreSQL 15.3 (Serverless v2)
-
 ---
 
 ## Stadia I - Local tests
@@ -133,7 +132,7 @@ devops-project/
 
 ### Variables for .TFVars
 
-``` Shell
+```shell
 # Set "AWS Region"
 region = "us-east-2" # Ohio
 
