@@ -96,22 +96,11 @@ module "eks" {
         Environment = "learning"
         Type       = "managed"
       }
-
-      # Теги для EC2 инстансов
-      tags = {
-        "k8s.io/cluster-autoscaler/enabled" = "true"
-        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
-      }
     }
   }
 
   # Базовый доступ
   enable_cluster_creator_admin_permissions = true
-
-  tags = {
-    Environment = "learning"
-    Terraform   = "true"
-  }
 }
 
 # Output для настройки kubectl

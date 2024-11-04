@@ -31,3 +31,14 @@ variable "subnet_api_cidr" {
 }
 
 # ==================================================== #
+
+variable "aws_user" {
+  description = "AWS IAM username"
+  type        = string
+}
+
+variable "cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+  default     = "devops-project"
+}
