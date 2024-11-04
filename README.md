@@ -31,6 +31,20 @@ Applications require PostgreSQL database to function correctly
 
 Workflows for **API** & **WEB** applications:
 
+```shell
+# For Linters. Locally:
+cd apps/api
+
+# Creating and configuring files:
+touch .eslintignore .eslintrc.json .gitignore
+
+# Installation of Linter:
+npm install -D eslint eslint-config-airbnb-base eslint-plugin-import
+
+# Installation of Prettier:
+npm install -D prettier eslint-config-prettier eslint-plugin-prettier
+```
+
 - Added **ESLint** linter
 - _Node.js_ **dependencies** 
 - Run **tests**
