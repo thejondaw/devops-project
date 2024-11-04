@@ -5,13 +5,13 @@ name: Create/Update VPC
 # - Push to main branches with changes in VPC related files
 on:
   workflow_dispatch:
-#  push:
-#    branches: [ "develop" ]
-#    paths:
-#      - 'terraform/modules/vpc/**'
-#      - 'terraform/environments/develop/terraform.tfvars'
-#      - 'Makefile'
-#      - '.github/workflows/vpc-module-create.yaml'
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'terraform/modules/vpc/**'
+      - 'terraform/environments/develop/terraform.tfvars'
+      - 'Makefile'
+      - '.github/workflows/vpc-module-create.yaml'
 
 jobs:
   # Infrastructure deployment job
