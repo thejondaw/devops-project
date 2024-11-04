@@ -54,16 +54,16 @@ module "eks" {
     data.aws_subnet.api.id
   ]
 
-  # aws-auth configmap
-  manage_aws_auth_configmap = false
-
-  aws_auth_roles = [
-    {
-      rolearn  = aws_iam_role.eks_cluster.arn
-      username = "role1"
-      groups   = ["system:masters"]
-    }
-  ]
+  # # aws-auth configmap
+  # manage_aws_auth_configmap = false
+  #
+  # aws_auth_roles = [
+  #   {
+  #     rolearn  = aws_iam_role.eks_cluster.arn
+  #     username = "role1"
+  #     groups   = ["system:masters"]
+  #   }
+  # ]
 
   # Self Managed Node Group(s)
   eks_managed_node_groups = {
