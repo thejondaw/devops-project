@@ -2,15 +2,16 @@ name: Create/Update EKS
 
 # Trigger workflow ONLY on:
 # - Manual dispatch from GitHub Actions UI
+# - Push to main branches with changes in VPC related files
 on:
- workflow_dispatch:
-#  push:
-#    branches: [ "master", "stage", "develop" ]
-#    paths:
-#      - 'terraform/modules/eks/**'
-#      - 'terraform/environments/develop/terraform.tfvars'
-#      - 'Makefile'
-#      - '.github/workflows/eks-module-create.yaml'
+  workflow_dispatch:
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'terraform/modules/eks/**'
+      - 'terraform/environments/develop/terraform.tfvars'
+      - 'Makefile'
+      - '.github/workflows/eks-module-create.yaml'
 
 jobs:
  # Infrastructure deployment job
