@@ -39,15 +39,13 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-  cluster_name    = "thejondaw-devops-project"
+  cluster_name    = "jondaw-devops-project-a"
   cluster_version = "1.31"
 
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
 
   enable_irsa = true
-
-  create_aws_access_entry = false
 
   cluster_addons = {
     coredns    = {}
@@ -62,13 +60,14 @@ module "eks" {
     data.aws_subnet.api.id
   ]
 
-  # Access control via "Authentication Mode":
+  # Изменяем конфигурацию доступа
   authentication_mode = "API_AND_CONFIG_MAP"
 
+  # Или укажем другое имя для entry
   access_entries = {
-    admin = {
+    devops-admin = {
       kubernetes_groups = ["admin"]
-      principal_arn    = data.aws_iam_user.existing_user.arn  # Use existing user's ARN
+      principal_arn    = data.aws_iam_user.existing_user.arn
       type            = "STANDARD"
     }
   }
