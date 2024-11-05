@@ -6,22 +6,6 @@ output "configure_kubectl" {
   value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
 }
 
-# Output for "Access Key"
-output "access_key_id" {
-  value = aws_iam_access_key.eks_user.id
-}
-
-# Output for "Secret Key":
-output "secret_access_key" {
-  value     = aws_iam_access_key.eks_user.secret
-  sensitive = true
-}
-
-# Output for "User ARN":
-output "user_arn" {
-  value = aws_iam_user.eks_user.arn
-}
-
 # Output for "Cluster Name":
 output "cluster_name" {
   value = module.eks.cluster_name

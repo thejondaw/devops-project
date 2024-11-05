@@ -28,51 +28,9 @@ data "aws_subnet" "api" {
 # Current "AWS User":
 data "aws_caller_identity" "current" {}
 
-# =================== IAM USER ==================== #
-
-# Create "IAM User":
-resource "aws_iam_user" "eks_user" {
-  name = "kuber-user"
-  path = "/"
-
-  tags = {
-    Name = "EKS Admin User"
-  }
-}
-
-# Create "Access Policy" to EKS:
-resource "aws_iam_user_policy" "eks_user_policy" {
-  name = "eks-user-policy"
-  user = aws_iam_user.eks_user.name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "eks:*",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeVpcs",
-          "iam:GetRole",
-          "iam:ListRoles",
-          "iam:ListRolePolicies",
-          "iam:ListAttachedRolePolicies",
-          "iam:ListInstanceProfiles",
-          "iam:ListRolePolicies",
-          "iam:GetInstanceProfile",
-          "iam:GetPolicy",
-          "iam:GetPolicyVersion"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-# Create "Access Keys":
-resource "aws_iam_access_key" "eks_user" {
-  user = aws_iam_user.eks_user.name
+# Fetch existing "IAM User":
+data "aws_iam_user" "existing_user" {
+  user_name = "devops-project"
 }
 
 # =================== EKS CLUSTER ==================== #
@@ -81,7 +39,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-  cluster_name    = "jondaw-devops-project"
+  cluster_name    = "thejondaw-devops-project"
   cluster_version = "1.31"
 
   cluster_endpoint_private_access = true
@@ -108,7 +66,7 @@ module "eks" {
   access_entries = {
     admin = {
       kubernetes_groups = ["admin"]
-      principal_arn    = aws_iam_user.eks_user.arn  # Use ARN of created User
+      principal_arn    = data.aws_iam_user.existing_user.arn  # Use existing user's ARN
       type            = "STANDARD"
     }
   }
