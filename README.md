@@ -56,6 +56,23 @@ npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 
 1. Workflows for _creating/updating_ and _deleting_ of **VPC** module with Terraform
 2. Workflows for _creating/updating_ and _deleting_ of **EKS** module with Terraform
+
+```shell
+# AWS Authorization:
+aws configure
+- AWS Access Key ID:
+- AWS Secret Access Key:
+- Default region name: us-east-2
+- Default output format: json
+
+# Configure kubectl for work with Cluster:
+aws eks update-kubeconfig --region <ваш_регион> --name mrjondaw-devops-project
+
+# Check:
+kubectl get nodes
+kubectl get pods -A
+```
+
 3. Workflows for _creating/updating_ and _deleting_ of **RDS** module with Terraform
 
 ### Map of Project
