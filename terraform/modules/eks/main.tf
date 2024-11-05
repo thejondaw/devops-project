@@ -1,5 +1,5 @@
 # ==================================================== #
-# ==================== EKS CLUSTER =================== #
+# ==================== Data Sources ==================== #
 # ==================================================== #
 
 # Fetch VPC info:
@@ -28,34 +28,35 @@ data "aws_iam_user" "existing_user" {
   user_name = "devops-project"
 }
 
+# Get current region
+data "aws_region" "current" {}
+
 # ==================== IAM Role for EKS ==================== #
-
-# Trust policy for EKS
-data "aws_iam_policy_document" "eks_assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["eks.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
-}
 
 # EKS Cluster Role
 resource "aws_iam_role" "eks_cluster" {
-  name               = "study-eks-cluster-role"
-  assume_role_policy = data.aws_iam_policy_document.eks_assume_role.json
+  name = "study-eks-cluster-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
 
   tags = {
-    Name = "study-eks-cluster-role"
+    Name        = "study-eks-cluster-role"
     Environment = "study"
   }
 }
 
-# Attach required policies
+# Attach required policy
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.eks_cluster.name
@@ -63,27 +64,25 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 
 # ==================== Node Group IAM ==================== #
 
-# Trust policy for node group
-data "aws_iam_policy_document" "node_assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
-}
-
 # Node group role
 resource "aws_iam_role" "node_group" {
-  name               = "study-eks-node-group-role"
-  assume_role_policy = data.aws_iam_policy_document.node_assume_role.json
+  name = "study-eks-node-group-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
 
   tags = {
-    Name = "study-eks-node-group-role"
+    Name        = "study-eks-node-group-role"
     Environment = "study"
   }
 }
@@ -102,13 +101,12 @@ resource "aws_iam_role_policy_attachment" "node_group_minimum_policies" {
 
 # ==================== CloudWatch Log Group ==================== #
 
-# Create log group beforehand to avoid naming conflicts
 resource "aws_cloudwatch_log_group" "eks" {
-  name              = "/aws/eks/mrjondaw-devops-project-a/cluster"
+  name              = "/aws/eks/study-cluster/cluster"
   retention_in_days = 7  # Минимальное время хранения для экономии
 
   tags = {
-    Name = "study-eks-logs"
+    Name        = "study-eks-logs"
     Environment = "study"
   }
 }
@@ -116,11 +114,10 @@ resource "aws_cloudwatch_log_group" "eks" {
 # ==================== EKS Cluster ==================== #
 
 resource "aws_eks_cluster" "study" {
-  name     = "mrjondaw-devops-project-a"
+  name     = "study-cluster"
   role_arn = aws_iam_role.eks_cluster.arn
-  version  = "1.28"  # Стабильная версия
+  version  = "1.28"
 
-  # Минимальная конфигурация VPC
   vpc_config {
     subnet_ids = [
       data.aws_subnet.web.id,
@@ -131,17 +128,15 @@ resource "aws_eks_cluster" "study" {
     endpoint_public_access  = true
   }
 
-  # Минимальные, но необходимые логи
-  enabled_cluster_log_types = ["api"]  # Только критические API логи
+  enabled_cluster_log_types = ["api"]
 
-  # Важно: явные зависимости
   depends_on = [
     aws_cloudwatch_log_group.eks,
     aws_iam_role_policy_attachment.eks_cluster_policy
   ]
 
   tags = {
-    Name = "mrjondaw-devops-project-a"
+    Name        = "study-cluster"
     Environment = "study"
   }
 }
@@ -153,34 +148,51 @@ resource "aws_eks_node_group" "study" {
   node_group_name = "study-nodes"
   node_role_arn   = aws_iam_role.node_group.arn
 
-  # Используем только одну подсеть для экономии
-  subnet_ids      = [data.aws_subnet.web.id]
+  # Используем одну подсеть для экономии
+  subnet_ids = [data.aws_subnet.web.id]
 
-  # Минимальная конфигурация
   scaling_config {
-    desired_size = 1  # ВНИМАНИЕ: уменьшил до 1 ноды!
+    desired_size = 1
     max_size     = 1
     min_size     = 1
   }
 
-  # Самый дешевый инстанс, поддерживающий EKS
   instance_types = ["t3.small"]
-  disk_size = 20
+  disk_size      = 20
 
   # Отключаем автообновление
   update_config {
     max_unavailable = 1
   }
 
-  # Важные зависимости
   depends_on = [
     aws_iam_role_policy_attachment.node_group_minimum_policies
   ]
 
   tags = {
-    Name = "study-node-group"
+    Name        = "study-node-group"
     Environment = "study"
   }
 }
 
-# ==================================================== #
+# ==================== Outputs ==================== #
+
+output "cluster_endpoint" {
+  description = "Endpoint for your Kubernetes API server"
+  value       = aws_eks_cluster.study.endpoint
+}
+
+output "cluster_name" {
+  description = "EKS cluster name"
+  value       = aws_eks_cluster.study.name
+}
+
+output "cluster_certificate_authority" {
+  description = "Certificate authority data for cluster authentication"
+  value       = aws_eks_cluster.study.certificate_authority[0].data
+}
+
+output "configure_kubectl" {
+  description = "Command to configure kubectl"
+  value       = "aws eks update-kubeconfig --name ${aws_eks_cluster.study.name} --region ${data.aws_region.current.name}"
+}
