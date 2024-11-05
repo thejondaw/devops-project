@@ -37,10 +37,6 @@ jobs:
       - name: Terraform Init EKS
         run: make init-eks
 
-      # Plan destroy for EKS
-      - name: Terraform Plan Destroy EKS
-        run: make plan-destroy-eks
-
       # Destroy EKS Module
       - name: Terraform Destroy EKS
         run: make destroy-eks
