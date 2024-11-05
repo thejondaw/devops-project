@@ -1,0 +1,49 @@
+name: Destroy EKS
+
+# Trigger workflow ONLY on manual dispatch
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup AWS credentials for Terraform
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      # Install Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      # Initialize Terraform working directory for EKS
+      - name: Terraform Init EKS
+        run: make init-eks
+
+      # Plan destroy for EKS
+      - name: Terraform Plan Destroy EKS
+        run: make plan-destroy-eks
+
+      # Add confirmation step
+      - name: Manual Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.token }}
+          approvers: thejondaw
+          minimum-approvals: 1
+          issue-title: "Approve EKS Destruction"
+          issue-body: "Please approve or deny the destruction of the EKS cluster"
+          exclude-workflow-initiator-as-approver: false
+
+      # Destroy EKS Module
+      - name: Terraform Destroy EKS
+        run: make destroy-eks
