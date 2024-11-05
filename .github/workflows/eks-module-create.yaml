@@ -1,4 +1,4 @@
-name: Create/Update EKS
+name: CD - Create/Update EKS
 
 # Trigger workflow ONLY on:
 # - Manual dispatch from GitHub Actions UI

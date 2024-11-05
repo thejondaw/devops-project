@@ -1,4 +1,4 @@
-name: CI - API
+name: CI - Create/Update API
 
 # Trigger workflow on:
 # - Manual dispatch from GitHub Actions UI

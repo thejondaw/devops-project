@@ -25,14 +25,14 @@ data "aws_subnet" "api" {
   cidr_block = var.subnet_api_cidr
 }
 
-# Получаем текущего пользователя AWS
+# Current "AWS User":
 data "aws_caller_identity" "current" {}
 
 # =================== IAM USER ==================== #
 
-# Создание IAM пользователя
+# Create "IAM User":
 resource "aws_iam_user" "eks_user" {
-  name = "mrjondaw"
+  name = "kuber-user"
   path = "/"
 
   tags = {
@@ -40,7 +40,7 @@ resource "aws_iam_user" "eks_user" {
   }
 }
 
-# Создание политики доступа к EKS
+# Create "Access Policy" to EKS:
 resource "aws_iam_user_policy" "eks_user_policy" {
   name = "eks-user-policy"
   user = aws_iam_user.eks_user.name
@@ -70,7 +70,7 @@ resource "aws_iam_user_policy" "eks_user_policy" {
   })
 }
 
-# Создание access keys
+# Create "Access Keys":
 resource "aws_iam_access_key" "eks_user" {
   user = aws_iam_user.eks_user.name
 }
@@ -81,7 +81,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
 
-  cluster_name    = "mrjondaw-devops-project"
+  cluster_name    = "devops-project"
   cluster_version = "1.31"
 
   cluster_endpoint_private_access = true
@@ -102,13 +102,13 @@ module "eks" {
     data.aws_subnet.api.id
   ]
 
-  # Управление доступом через authentication_mode
+  # Access control via "Authentication Mode":
   authentication_mode = "API_AND_CONFIG_MAP"
 
   access_entries = {
     admin = {
       kubernetes_groups = ["admin"]
-      principal_arn    = aws_iam_user.eks_user.arn  # используем ARN созданного пользователя
+      principal_arn    = aws_iam_user.eks_user.arn  # Use ARN of created User
       type            = "STANDARD"
     }
   }
@@ -138,53 +138,6 @@ module "eks" {
   }
 
   enable_cluster_creator_admin_permissions = true
-
-  tags = {
-    Environment = "learning"
-    Terraform   = "true"
-  }
 }
 
-# =================== OUTPUTS ==================== #
-
-# Output для настройки kubectl
-output "configure_kubectl" {
-  description = "Configure kubectl: run the following command to update your kubeconfig"
-  value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
-}
-
-# Output для access key
-output "access_key_id" {
-  value = aws_iam_access_key.eks_user.id
-}
-
-# Output для secret key (sensitive)
-output "secret_access_key" {
-  value     = aws_iam_access_key.eks_user.secret
-  sensitive = true
-}
-
-# Output для ARN пользователя
-output "user_arn" {
-  value = aws_iam_user.eks_user.arn
-}
-
-# Output для имени кластера
-output "cluster_name" {
-  value = module.eks.cluster_name
-}
-
-# Output для endpoint кластера
-output "cluster_endpoint" {
-  value = module.eks.cluster_endpoint
-}
-
-# Output для ID кластера
-output "cluster_id" {
-  value = module.eks.cluster_id
-}
-
-# Показываем команду для получения токена
-output "get_token_command" {
-  value = "aws eks get-token --cluster-name ${module.eks.cluster_name} --region ${var.region}"
-}
+# ==================================================== #

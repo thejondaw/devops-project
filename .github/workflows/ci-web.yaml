@@ -1,4 +1,4 @@
-name: CI - WEB
+name: CI - Create/Update WEB
 
 # Trigger workflow on:
 # - Manual dispatch from GitHub Actions UI

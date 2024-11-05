@@ -1,4 +1,4 @@
-name: EKS Module - Destroy
+name: CD - Destroy EKS
 
 # - Trigger workflow ONLY on manual dispatch
 # - Push to main branches with changes in VPC related files

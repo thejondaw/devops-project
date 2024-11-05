@@ -1,4 +1,4 @@
-name: Create/Update VPC
+name: CD - Create/Update VPC
 
 # Trigger workflow on:
 # - Manual dispatch from GitHub Actions UI
