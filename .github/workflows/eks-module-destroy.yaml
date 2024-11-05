@@ -41,17 +41,6 @@ jobs:
       - name: Terraform Plan Destroy EKS
         run: make plan-destroy-eks
 
-      # Add confirmation step
-      - name: Manual Approval
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ github.token }}
-          approvers: thejondaw
-          minimum-approvals: 1
-          issue-title: "Approve EKS Destruction"
-          issue-body: "Please approve or deny the destruction of the EKS cluster"
-          exclude-workflow-initiator-as-approver: false
-
       # Destroy EKS Module
       - name: Terraform Destroy EKS
         run: make destroy-eks
