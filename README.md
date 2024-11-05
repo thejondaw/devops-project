@@ -66,7 +66,7 @@ aws configure
 - Default output format: json
 
 # Configure kubectl for work with Cluster:
-aws eks update-kubeconfig --region <ваш_регион> --name mrjondaw-devops-project
+aws eks update-kubeconfig --region us-east-2 --name mrjondaw-devops-project
 
 # Check:
 kubectl get nodes
