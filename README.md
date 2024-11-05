@@ -24,7 +24,7 @@ Developers gave me the code of applications without documentation:
 
 - Applications require **PostgreSQL** database to function correctly
 - Setting up a _Linux_ environment through **Docker**/**VirtualBox**
-- Installing **PostgreSQL** and successfully running applications within this setup
+- Installing **PostgreSQL** and successfully running applications within this setup **LOCALLY**
 
 ## Step II - CI (Continuous Integration)
 
