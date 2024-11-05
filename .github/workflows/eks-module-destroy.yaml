@@ -4,13 +4,13 @@ name: CD - Destroy EKS
 # - Push to main branches with changes in VPC related files
 on:
   workflow_dispatch:
-#  push:
-#    branches: [ "develop" ]
-#    paths:
-#      - 'terraform/modules/eks/**'
-#      - 'terraform/environments/develop/terraform.tfvars'
-#      - 'Makefile'
-#      - '.github/workflows/eks-module-destroy.yaml'
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'terraform/modules/eks/**'
+      - 'terraform/environments/develop/terraform.tfvars'
+      - 'Makefile'
+      - '.github/workflows/eks-module-destroy.yaml'
 
 jobs:
   terraform:
