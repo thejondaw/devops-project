@@ -47,6 +47,8 @@ module "eks" {
 
   enable_irsa = true
 
+  create_aws_access_entry = false
+
   cluster_addons = {
     coredns    = {}
     kube-proxy = {}
