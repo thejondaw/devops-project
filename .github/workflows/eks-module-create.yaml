@@ -5,13 +5,13 @@ name: CD - Create/Update EKS
 # - Push to main branches with changes in EKS related files
 on:
   workflow_dispatch:
-#  push:
-#    branches: [ "develop" ]
-#    paths:
-#      - 'terraform/modules/eks/**'
-#      - 'terraform/environments/develop/terraform.tfvars'
-#      - 'Makefile'
-#      - '.github/workflows/eks-module-create.yaml'
+  push:
+   branches: [ "develop" ]
+   paths:
+     - 'terraform/modules/eks/**'
+     - 'terraform/environments/develop/terraform.tfvars'
+     - 'Makefile'
+     - '.github/workflows/eks-module-create.yaml'
 
 jobs:
  # Infrastructure deployment job

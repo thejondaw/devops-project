@@ -1,16 +1,16 @@
 name: CD - Destroy EKS
 
 # - Trigger workflow ONLY on manual dispatch
-# - Push to main branches with changes in VPC related files
+# - Push to main branches with changes in EKS related files
 on:
   workflow_dispatch:
   push:
     branches: [ "develop" ]
-    paths:
-      - 'terraform/modules/eks/**'
-      - 'terraform/environments/develop/terraform.tfvars'
-      - 'Makefile'
-      - '.github/workflows/eks-module-destroy.yaml'
+    # paths:
+    #   - 'terraform/modules/eks/**'
+    #   - 'terraform/environments/develop/terraform.tfvars'
+    #   - 'Makefile'
+    #   - '.github/workflows/eks-module-destroy.yaml'
 
 jobs:
   terraform:
