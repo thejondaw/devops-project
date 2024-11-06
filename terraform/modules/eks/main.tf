@@ -1,5 +1,5 @@
 # ==================================================== #
-# ==================== Data Sources ==================== #
+# ==================== EKS MODULE ==================== #
 # ==================================================== #
 
 # Fetch VPC info:
@@ -7,33 +7,41 @@ data "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 }
 
-# Fetch subnets:
+# Fetch Data of "WEB Subnet":
 data "aws_subnet" "web" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_web_cidr
 }
 
+# Fetch Data of "ALB Subnet":
 data "aws_subnet" "alb" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_alb_cidr
 }
 
+# Fetch Data of "API Subnet":
 data "aws_subnet" "api" {
   vpc_id     = data.aws_vpc.main.id
   cidr_block = var.subnet_api_cidr
 }
 
-# Fetch existing user:
+# Fetch existing User:
 data "aws_iam_user" "existing_user" {
   user_name = "devops-project"
 }
 
-# Get current region
+# Get current Region:
 data "aws_region" "current" {}
+
+# # "Secrets Manager" with "Database" credentials:
+# data "aws_secretsmanager_secret" "aurora_secret" {
+#   name = "aurora-secret-project"
+#   # arn = var.aurora_secret.arn
+# }
 
 # ==================== IAM Role for EKS ==================== #
 
-# EKS Cluster Role
+# EKS Cluster Role:
 resource "aws_iam_role" "eks_cluster" {
   name = "study-eks-cluster-role"
 
@@ -56,7 +64,7 @@ resource "aws_iam_role" "eks_cluster" {
   }
 }
 
-# Attach required policy
+# Attach required policy:
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.eks_cluster.name
@@ -64,7 +72,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 
 # ==================== Node Group IAM ==================== #
 
-# Node group role
+# Node group role:
 resource "aws_iam_role" "node_group" {
   name = "study-eks-node-group-role"
 
@@ -87,7 +95,7 @@ resource "aws_iam_role" "node_group" {
   }
 }
 
-# Attach minimum required policies for node group
+# Attach minimum required policies for node group:
 resource "aws_iam_role_policy_attachment" "node_group_minimum_policies" {
   for_each = toset([
     "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
@@ -103,7 +111,7 @@ resource "aws_iam_role_policy_attachment" "node_group_minimum_policies" {
 
 resource "aws_cloudwatch_log_group" "eks" {
   name              = "/aws/eks/study-cluster/cluster"
-  retention_in_days = 7  # Минимальное время хранения для экономии
+  retention_in_days = 7  # Minimum time for storage
 
   tags = {
     Name        = "study-eks-logs"
@@ -148,7 +156,7 @@ resource "aws_eks_node_group" "study" {
   node_group_name = "study-nodes"
   node_role_arn   = aws_iam_role.node_group.arn
 
-  # Используем одну подсеть для экономии
+  # One subnet for cost economy:
   subnet_ids = [data.aws_subnet.web.id]
 
   scaling_config {
@@ -160,7 +168,7 @@ resource "aws_eks_node_group" "study" {
   instance_types = ["t3.small"]
   disk_size      = 20
 
-  # Отключаем автообновление
+  # Disable auto-update:
   update_config {
     max_unavailable = 1
   }
@@ -175,24 +183,4 @@ resource "aws_eks_node_group" "study" {
   }
 }
 
-# ==================== Outputs ==================== #
-
-output "cluster_endpoint" {
-  description = "Endpoint for your Kubernetes API server"
-  value       = aws_eks_cluster.study.endpoint
-}
-
-output "cluster_name" {
-  description = "EKS cluster name"
-  value       = aws_eks_cluster.study.name
-}
-
-output "cluster_certificate_authority" {
-  description = "Certificate authority data for cluster authentication"
-  value       = aws_eks_cluster.study.certificate_authority[0].data
-}
-
-output "configure_kubectl" {
-  description = "Command to configure kubectl"
-  value       = "aws eks update-kubeconfig --name ${aws_eks_cluster.study.name} --region ${data.aws_region.current.name}"
-}
+# ==================================================== #

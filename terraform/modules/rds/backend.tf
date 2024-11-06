@@ -7,7 +7,7 @@ terraform {
   backend "s3" {
     region = "us-east-2"
     bucket = "alexsuff"
-    key    = "toptal/RDS/terraform.tfstate"
+    key    = "rds/terraform.tfstate"
   }
 }
 
