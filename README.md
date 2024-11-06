@@ -4,6 +4,7 @@
 
 - добавить секрет менеджер
 - сделать вариейблы под секрет менеджер и всего что с ним связано
+- имя датабазы в tfvars
 
 > 1. CI via GitHub Actions with linter, scanners and containerization
 >    - ESLint
