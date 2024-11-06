@@ -4,8 +4,8 @@ COPY package*.json ./
 RUN npm install --verbose
 COPY . .
 ENV PORT=3000 \
-    DBUSER='user' \
-    DB='project' \
+    DBUSER='jondaw' \
+    DB='devopsdb' \
     DBPASS='password' \
     DBHOST='IP' \
     DBPORT=5432
