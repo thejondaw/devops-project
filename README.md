@@ -1,5 +1,10 @@
 # DevOps Project. CI/CD/CD Pipeline
 
+## TODO List
+
+- добавить секрет менеджер
+- сделать вариейблы под секрет менеджер и всего что с ним связано
+
 > 1. CI via GitHub Actions with linter, scanners and containerization
 >    - ESLint
 >    - Docker

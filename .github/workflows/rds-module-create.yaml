@@ -2,7 +2,7 @@ name: CD - Create/Update RDS
 
 # Trigger workflow ONLY on:
 # - Manual dispatch from GitHub Actions UI
-# - Push to main branches with changes in VPC related files
+# - Push to main branches with changes in RDS related files
 on:
   workflow_dispatch:
   push:
