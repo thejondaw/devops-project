@@ -27,7 +27,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
-  database_name          = "devops-project-database"    #! VARS
+  database_name          = "devopsdb"                   #! VARS
   master_username        = "jondaw"                     #! VARS
   master_password        = "password"                   #! VARS
   storage_encrypted      = true
