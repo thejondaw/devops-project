@@ -57,7 +57,7 @@ resource "aws_db_subnet_group" "aurora_subnet_group" {
   subnet_ids = [data.aws_subnet.api.id, data.aws_subnet.db.id]
 }
 
-# ================= Security Group  ================== #
+# ================= Security Group =================== #
 
 # "Security Group" to "Aurora PostgreSQL" Database access:
 resource "aws_security_group" "sg_aurora" {

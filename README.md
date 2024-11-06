@@ -46,7 +46,7 @@ npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 
 - Run **ESLint** linter
 - Run **Prettier**
-- _Node.js_ **dependencies** 
+- _Node.js_ **dependencies**
 - Run **tests**
 - Build via **Docker**
 - **Trivy** vulnerability scann
@@ -133,34 +133,34 @@ kubectl get deployment metrics-server -n kube-system
 ```markdown
 devops-project/
 │
-├── apps/                   # Web Application
-│   ├── api/                # API Application
-│   │    ├── src/           # Source code of API
-│   │    ├── tests/         # Tests for API
-│   │    └── Dockerfile     # Dockerfile for API
+├── apps/                     # WEB Application
+│   ├── api/                  # API Application
+│   │   ├── src/              # Source code of API
+│   │   ├── tests/            # Tests for API
+│   │   └── Dockerfile        # Dockerfile for API
 │   │
 │   └── web/
-│       ├── src/            # Source code of Web
-│       ├── tests/          # Tests for Web
-│       └── Dockerfile      # Dockerfile for Web
+│       ├── src/              # Source code of WEB
+│       ├── tests/            # Tests for WEB
+│       └── Dockerfile        # Dockerfile for WEB
 │
-├── k8s/                    # Kubernetes manifests
-│   ├── api/                # Manifests для API
-│   ├── web/                # Manifests для Web
-│   └── infra/              # Manifests for infrastructure components
+├── terraform/                # Terraform configuration
+│   ├── modules/              # Terraform modules
+│   └── environments/         # Configuration for other envs
 │
-├── terraform/              # Terraform configuration
-│   ├── modules/            # Terraform modules
-│   └── environments/       # Configuration for other envs
+├── k8s/                      # Kubernetes manifests
+│   ├── api/                  # Manifests для API
+│   ├── web/                  # Manifests для WEB
+│   └── infra/                # Manifests for infrastructure components
 │
-├── .github/workflows/      # GitHub Actions Workflow files
+├── .github/workflows/        # GitHub Actions Workflow files
 │
-│
-├── docs/                   # Documentation of Project
+├── docs/                     # Documentation of Project
 │
 ├── .gitignore
+├── Makefile
 ├── README.md
-└── docker-compose.yml      # For Local development
+└── sonar-project.properties  # Config file for SonarQube
 ```
 
 ### Diagram

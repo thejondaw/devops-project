@@ -6,6 +6,10 @@
 resource "aws_vpc" "main" {
   cidr_block       = var.vpc_cidr
   instance_tenancy = "default"
+
+  tags = {
+  Name = "devops-project-vpc"
+  }
 }
 
 # ===================== Subnets ====================== #
@@ -16,6 +20,10 @@ resource "aws_subnet" "subnet_web" {
   cidr_block              = var.subnet_web_cidr
   map_public_ip_on_launch = true
   availability_zone       = "us-east-2a"
+
+  tags = {
+  Name = "subnet-web"
+  }
 }
 
 # "Public Subnet #2" - "ALB" (Application Load Balancer):
@@ -24,6 +32,10 @@ resource "aws_subnet" "subnet_alb" {
   cidr_block              = var.subnet_alb_cidr
   map_public_ip_on_launch = true
   availability_zone       = "us-east-2b"
+
+  tags = {
+  Name = "subnet-alb"
+  }
 }
 
 # "Private Subnet #3" - "API":
@@ -31,6 +43,10 @@ resource "aws_subnet" "subnet_api" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.subnet_api_cidr
   availability_zone = "us-east-2a"
+
+  tags = {
+  Name = "subnet-api"
+  }
 }
 
 # "Private Subnet #4" - "Database" (DB):
@@ -38,6 +54,10 @@ resource "aws_subnet" "subnet_db" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.subnet_db_cidr
   availability_zone = "us-east-2c"
+
+  tags = {
+  Name = "subnet-db"
+  }
 }
 
 # ========= Internet Gateway and Route Table ========= #
@@ -45,6 +65,10 @@ resource "aws_subnet" "subnet_db" {
 # "Internet Gateway" (IGW):
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
+
+  tags = {
+  Name = "devops-project-igw"
+  }
 }
 
 # "Route Table" - Attach "IGW" to "Public Subnets":

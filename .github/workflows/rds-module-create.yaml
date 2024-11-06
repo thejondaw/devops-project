@@ -1,0 +1,48 @@
+name: CD - Create/Update RDS
+
+# Trigger workflow ONLY on:
+# - Manual dispatch from GitHub Actions UI
+# - Push to main branches with changes in VPC related files
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'terraform/modules/rds/**'
+      - 'terraform/environments/develop/terraform.tfvars'
+      - 'Makefile'
+      - '.github/workflows/rds-module-create.yaml'
+
+jobs:
+ # Infrastructure deployment job
+ terraform:
+   runs-on: ubuntu-latest
+
+   steps:
+     # Checkout repository
+     - name: Checkout repository
+       uses: actions/checkout@v3
+
+     # Setup AWS credentials for Terraform
+     - name: Configure AWS Credentials
+       uses: aws-actions/configure-aws-credentials@v4
+       with:
+         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         aws-region: us-east-2
+
+     # Install Terraform
+     - name: Setup Terraform
+       uses: hashicorp/setup-terraform@v2
+
+     # Initialize Terraform working directory for RDS
+     - name: Terraform Init RDS
+       run: make init-rds
+
+     # Plan Terraform changes for RDS
+     - name: Terraform Plan RDS
+       run: make plan-rds
+
+     # Apply Terraform changes to Create/Update RDS Module
+     - name: Terraform Apply RDS
+       run: make apply-rds
