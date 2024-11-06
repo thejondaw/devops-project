@@ -7,7 +7,7 @@ ENV PORT=3000 \
     DBUSER='jondaw' \
     DB='devopsdb' \
     DBPASS='password' \
-    DBHOST='IP' \
+    DBHOST='' \
     DBPORT=5432
 EXPOSE 3000
 USER node
