@@ -3,7 +3,7 @@
  "version": "0.0.0",
  "private": true,
  "scripts": {
-   "start": "node ./bin/www",
+   "start": "node ./scr/bin/www",
    "lint": "eslint ./src || true",
    "lint:fix": "eslint ./src --fix || true",
    "format": "prettier --write \"src/**/*.{js,jsx}\" || true",
