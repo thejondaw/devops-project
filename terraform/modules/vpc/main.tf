@@ -8,7 +8,7 @@ resource "aws_vpc" "main" {
   instance_tenancy = "default"
 
   tags = {
-  Name = "devops-project-vpc"
+    Name = "devops-project-vpc"
   }
 }
 
@@ -22,7 +22,7 @@ resource "aws_subnet" "subnet_web" {
   availability_zone       = "us-east-2a"
 
   tags = {
-  Name = "subnet-web"
+    Name = "subnet-web"
   }
 }
 
@@ -34,7 +34,7 @@ resource "aws_subnet" "subnet_alb" {
   availability_zone       = "us-east-2b"
 
   tags = {
-  Name = "subnet-alb"
+    Name = "subnet-alb"
   }
 }
 
@@ -45,7 +45,7 @@ resource "aws_subnet" "subnet_api" {
   availability_zone = "us-east-2a"
 
   tags = {
-  Name = "subnet-api"
+    Name = "subnet-api"
   }
 }
 
@@ -56,7 +56,7 @@ resource "aws_subnet" "subnet_db" {
   availability_zone = "us-east-2c"
 
   tags = {
-  Name = "subnet-db"
+    Name = "subnet-db"
   }
 }
 
@@ -67,7 +67,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-  Name = "devops-project-igw"
+    Name = "devops-project-igw"
   }
 }
 

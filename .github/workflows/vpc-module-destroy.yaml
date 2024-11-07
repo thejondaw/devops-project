@@ -6,12 +6,12 @@ name: CD - Destroy VPC
 on:
   workflow_dispatch:
   push:
-    branches: [ "master", "stage", "develop" ]
+    branches: ["master", "stage", "develop"]
     paths:
-      - 'terraform/modules/vpc/**'
-      - 'terraform/environments/develop/terraform.tfvars'
-      - 'Makefile'
-      - '.github/workflows/vpc-module-create.yaml'
+      - "terraform/modules/vpc/**"
+      - "terraform/environments/develop/terraform.tfvars"
+      - "Makefile"
+      - ".github/workflows/vpc-module-create.yaml"
 
 jobs:
   # Infrastructure destruction job
@@ -38,6 +38,10 @@ jobs:
       # Initialize Terraform working directory
       - name: Terraform Init VPC
         run: make init-vpc
+
+      # Initialize Terraform Plan
+      - name: Terraform Plan VPC
+        run: make plan-vpc
 
       # Safety delay with warning message
       - name: Warning

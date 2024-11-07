@@ -27,9 +27,9 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
-  database_name          = "devopsdb"                   #! VARS
-  master_username        = "jondaw"                     #! VARS
-  master_password        = "password"                   #! VARS
+  database_name          = "devopsdb" #! VARS
+  master_username        = "jondaw"   #! VARS
+  master_password        = "password" #! VARS
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]

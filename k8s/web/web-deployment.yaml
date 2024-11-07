@@ -13,13 +13,49 @@ spec:
         app: web
     spec:
       containers:
-      - name: web
-        image: jondaw/devops-web:develop
-        ports:
-        - containerPort: 3000
-        env:
-        - name: API_URL
-          valueFrom:
-            configMapKeyRef:
-              name: web-config
-              key: API_URL
+        - name: web
+          image: jondaw/devops-web:develop
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+          startupProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
+          env:
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: web-config
+                  key: API_URL
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL

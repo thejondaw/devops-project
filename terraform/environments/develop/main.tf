@@ -39,14 +39,4 @@ module "rds" {
   subnet_db_cidr  = var.subnet_db_cidr_rv
 }
 
-# "ECS" Module:
-module "ecs" {
-  source          = "../terraform/modules/ecs"
-  region          = var.region_rv
-  vpc_cidr        = module.vpc.vpc_arn
-  subnet_web_cidr = module.vpc.subnet_web_cidr_rv
-  subnet_alb_cidr = module.vpc.subnet_alb_cidr_rv
-  subnet_api_cidr = module.vpc.subnet_api_cidr_rv
-}
-
 # ==================================================== #
