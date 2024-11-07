@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: jondaw/devops-web:develop
+        ports:
+        - containerPort: 3000
+        env:
+        - name: API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: web-config
+              key: API_URL

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-config
+data:
+  # URL нашего API сервиса внутри кластера
+  API_URL: "172.20.55.75:80"
