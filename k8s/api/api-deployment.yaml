@@ -37,28 +37,35 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
           env:
-            - name: DB_HOST
+            - name: DBHOST
               valueFrom:
                 configMapKeyRef:
                   name: db-config
                   key: DB_HOST
-            - name: DB_PORT
+            - name: DBPORT
               valueFrom:
                 configMapKeyRef:
                   name: db-config
                   key: DB_PORT
-            - name: DB_NAME
+            - name: DB
               valueFrom:
                 configMapKeyRef:
                   name: db-config
                   key: DB_NAME
-            - name: DB_USER
+            - name: DBUSER
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
                   key: username
-            - name: DB_PASSWORD
+            - name: DBPASS
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
                   key: password
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL

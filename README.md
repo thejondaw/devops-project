@@ -5,6 +5,7 @@
 - добавить секрет менеджер
 - сделать вариейблы под секрет менеджер и всего что с ним связано
 - имя датабазы в tfvars
+- посмотреть хелз и лайвнес пробу в коде веба
 
 > 1. CI via GitHub Actions with linter, scanners and containerization
 >    - ESLint
@@ -79,6 +80,8 @@ aws configure
 
 # Configure kubectl for work with Cluster:
 aws eks update-kubeconfig --name study-cluster --region us-east-2
+
+aws rds describe-db-instances --query 'DBInstances[*].[Endpoint.Address,Endpoint.Port,DBInstanceIdentifier]' --output table
 
 # ==================================================== #
 
