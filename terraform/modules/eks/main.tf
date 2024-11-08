@@ -110,7 +110,7 @@ resource "aws_iam_role_policy_attachment" "node_group_minimum_policies" {
 # ==================== CloudWatch Log Group ==================== #
 
 resource "aws_cloudwatch_log_group" "eks" {
-  name              = "/aws/eks/study-cluster-b/cluster"
+  name              = "/aws/eks/study-cluster-с/cluster"
   retention_in_days = 7 # Minimum time for storage
 
   tags = {
@@ -122,7 +122,7 @@ resource "aws_cloudwatch_log_group" "eks" {
 # ==================== EKS Cluster ==================== #
 
 resource "aws_eks_cluster" "study" {
-  name     = "study-cluster-b"
+  name     = "study-cluster-с"
   role_arn = aws_iam_role.eks_cluster.arn
   version  = "1.28"
 
@@ -144,7 +144,7 @@ resource "aws_eks_cluster" "study" {
   ]
 
   tags = {
-    Name        = "study-cluster-b"
+    Name        = "study-cluster-с"
     Environment = "study"
   }
 }
