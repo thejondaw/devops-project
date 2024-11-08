@@ -122,7 +122,7 @@ resource "aws_cloudwatch_log_group" "eks" {
 # ==================== EKS Cluster ==================== #
 
 resource "aws_eks_cluster" "study" {
-  name     = "study-cluster-с"
+  name     = "studycluster"
   role_arn = aws_iam_role.eks_cluster.arn
   version  = "1.28"
 
@@ -144,7 +144,7 @@ resource "aws_eks_cluster" "study" {
   ]
 
   tags = {
-    Name        = "study-cluster-с"
+    Name        = "studycluster"
     Environment = "study"
   }
 }
