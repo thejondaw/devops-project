@@ -110,7 +110,7 @@ resource "aws_iam_role_policy_attachment" "node_group_minimum_policies" {
 # ==================== CloudWatch Log Group ==================== #
 
 resource "aws_cloudwatch_log_group" "eks" {
-  name              = "/aws/eks/study-cluster-с/cluster"
+  name              = "studycluster"
   retention_in_days = 7 # Minimum time for storage
 
   tags = {
