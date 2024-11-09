@@ -1,17 +1,17 @@
-name: CD - Destroy VPC
+name: CD - Destroy RDS
 
 # Trigger workflow on:
 # - Manual dispatch from GitHub Actions UI (primary trigger for controlled destruction)
-# - Push to main branches with changes in VPC related files
+# - Push to main branches with changes in RDS related files
 on:
   workflow_dispatch:
   push:
     branches: ["master", "stage", "develop"]
     paths:
-      - "terraform/modules/vpc/**"
+      - "terraform/modules/rds/**"
       - "terraform/environments/develop/terraform.tfvars"
       - "Makefile"
-      - ".github/workflows/vpc-module-destroy.yaml"
+      - ".github/workflows/rds-module-destroy.yaml"
 
 jobs:
   # Infrastructure destruction job
@@ -36,18 +36,18 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       # Initialize Terraform working directory
-      - name: Terraform Init VPC
-        run: make init-vpc
+      - name: Terraform Init RDS
+        run: make init-rds
 
       # Initialize Terraform Plan
-      - name: Terraform Plan VPC
-        run: make plan-vpc
+      - name: Terraform Plan RDS
+        run: make plan-rds
 
       # Safety delay with warning message
       - name: Warning
         run: |
-          echo "⚠️ WARNING: VPC WILL BE DESTROYED ⚠️"
+          echo "⚠️ WARNING: RDS WILL BE DESTROYED ⚠️"
 
-      # Destroy VPC infrastructure
-      - name: Terraform Destroy VPC
-        run: make destroy-vpc
+      # Destroy RDS infrastructure
+      - name: Terraform Destroy RDS
+        run: make destroy-rds

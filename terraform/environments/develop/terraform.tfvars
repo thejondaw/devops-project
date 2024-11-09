@@ -11,7 +11,4 @@ subnet_web_cidr = "10.0.1.0/24"
 subnet_alb_cidr = "10.0.2.0/24"
 subnet_api_cidr = "10.0.3.0/24"
 subnet_db_cidr  = "10.0.4.0/24"
-
-# "IAM User" for Kubernetes:
-aws_user = "kuber-user"
 # ==================================================== #

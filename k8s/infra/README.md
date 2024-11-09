@@ -33,6 +33,8 @@ k apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller
 ```
 
 ```shell
+# Change HOST of Databese in api/db-config.yaml
+
 # Run manifests:
 
 # API
@@ -42,6 +44,9 @@ k apply -f api-service.yaml && k apply -f api-deployment.yaml
 # WEB
 k apply -f web-config.yaml && k apply -f web-service.yaml
 k apply -f web-ingress.yaml && k apply -f web-deployment.yaml
+
+# To show ADDRESS of website:
+k get ingress
 ```
 
 ```shell
