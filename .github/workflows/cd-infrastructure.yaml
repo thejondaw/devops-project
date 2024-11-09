@@ -20,6 +20,20 @@ on:
         - apply
         - destroy
         default: 'apply'
+  push:
+    branches: ["master", "stage", "develop"]
+    paths:
+      # Infrastructure related changes
+      - "terraform/modules/vpc/**"
+      - "terraform/modules/eks/**"
+      - "terraform/modules/rds/**"
+      - "terraform/environments/**/*.tfvars"
+      - ".github/workflows/cd-infrastructure.yaml"
+      # Configuration files
+      - "terraform/environments/develop/main.tf"
+      - "terraform/environments/stage/main.tf"
+      - "terraform/environments/prod/main.tf"
+      - "Makefile"
 
 env:
   TF_STATE_BUCKET: "alexsuff"
@@ -28,7 +42,8 @@ env:
 jobs:
   infrastructure:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    # Use environment from input for manual triggers, default to branch name for push events
+    environment: ${{ github.event.inputs.environment || github.ref_name }}
 
     steps:
       - uses: actions/checkout@v3
@@ -49,40 +64,40 @@ jobs:
           cd terraform/modules/vpc
           terraform init \
             -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=environments/${{ github.event.inputs.environment }}/vpc.tfstate" \
+            -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/vpc.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
-          if [[ "${{ github.event.inputs.action }}" == "apply" ]]; then
-            terraform plan -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars -out=plan.tfplan
-            terraform apply -auto-approve plan.tfplan
+          if [[ "${{ github.event.inputs.action }}" == "destroy" ]]; then
+            terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars
           else
-            terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
+            terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
+            terraform apply -auto-approve plan.tfplan
           fi
 
       # EKS Deployment
       - name: Deploy EKS
-        if: success() && github.event.inputs.action == 'apply'
+        if: success() && (github.event.inputs.action != 'destroy')
         run: |
           cd terraform/modules/eks
           terraform init \
             -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=environments/${{ github.event.inputs.environment }}/eks.tfstate" \
+            -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/eks.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
-          terraform plan -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars -out=plan.tfplan
+          terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
           terraform apply -auto-approve plan.tfplan
 
       # RDS Deployment
       - name: Deploy RDS
-        if: success() && github.event.inputs.action == 'apply'
+        if: success() && (github.event.inputs.action != 'destroy')
         run: |
           cd terraform/modules/rds
           terraform init \
             -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=environments/${{ github.event.inputs.environment }}/rds.tfstate" \
+            -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/rds.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
 
-          terraform plan -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars -out=plan.tfplan
+          terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
           terraform apply -auto-approve plan.tfplan
 
       # Reverse order for destruction
@@ -97,7 +112,7 @@ jobs:
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
       - name: Destroy EKS
-        if: github.event.inputs.action == 'destroy'
+        if: success() && github.event.inputs.action == 'destroy'
         run: |
           cd terraform/modules/eks
           terraform init \
