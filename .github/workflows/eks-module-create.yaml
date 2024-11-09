@@ -1,48 +1,48 @@
-name: CD - Create/Update EKS
+# name: CD - Create/Update EKS
 
-# Trigger workflow ONLY on:
-# - Manual dispatch from GitHub Actions UI
-# - Push to main branches with changes in EKS related files
-on:
-  workflow_dispatch:
-  push:
-    branches: ["develop"]
-    paths:
-      - "terraform/modules/eks/**"
-      - "terraform/environments/develop/terraform.tfvars"
-      - "Makefile"
-      - ".github/workflows/eks-module-create.yaml"
+# # Trigger workflow ONLY on:
+# # - Manual dispatch from GitHub Actions UI
+# # - Push to main branches with changes in EKS related files
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: ["master", "stage", "develop"]
+#     paths:
+#       - "terraform/modules/eks/**"
+#       - "terraform/environments/develop/terraform.tfvars"
+#       - "Makefile"
+#       - ".github/workflows/eks-module-create.yaml"
 
-jobs:
-  # Infrastructure deployment job
-  terraform:
-    runs-on: ubuntu-latest
+# jobs:
+#   # Infrastructure deployment job
+#   terraform:
+#     runs-on: ubuntu-latest
 
-    steps:
-      # Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+#     steps:
+#       # Checkout repository
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
 
-      # Setup AWS credentials for Terraform
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+#       # Setup AWS credentials for Terraform
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: us-east-2
 
-      # Install Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+#       # Install Terraform
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v2
 
-      # Initialize Terraform working directory for EKS
-      - name: Terraform Init EKS
-        run: make init-eks
+#       # Initialize Terraform working directory for EKS
+#       - name: Terraform Init EKS
+#         run: make init-eks
 
-      # Plan Terraform changes for EKS
-      - name: Terraform Plan EKS
-        run: make plan-eks
+#       # Plan Terraform changes for EKS
+#       - name: Terraform Plan EKS
+#         run: make plan-eks
 
-      # Apply Terraform changes to Create/Update EKS Module
-      - name: Terraform Apply EKS
-        run: make apply-eks
+#       # Apply Terraform changes to Create/Update EKS Module
+#       - name: Terraform Apply EKS
+#         run: make apply-eks

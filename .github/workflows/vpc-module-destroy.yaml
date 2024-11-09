@@ -1,53 +1,48 @@
-name: CD - Destroy VPC
+# name: CD - Destroy VPC
 
-# Trigger workflow on:
-# - Manual dispatch from GitHub Actions UI (primary trigger for controlled destruction)
-# - Push to main branches with changes in VPC related files
-on:
-  workflow_dispatch:
-  push:
-    branches: ["master", "stage", "develop"]
-    paths:
-      - "terraform/modules/vpc/**"
-      - "terraform/environments/develop/terraform.tfvars"
-      - "Makefile"
-      - ".github/workflows/vpc-module-destroy.yaml"
+# # Trigger workflow on:
+# # - Manual dispatch from GitHub Actions UI (primary trigger for controlled destruction)
+# # - Push to main branches with changes in VPC related files
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: ["master", "stage", "develop"]
+#     paths:
+#       - "terraform/modules/vpc/**"
+#       - "terraform/environments/develop/terraform.tfvars"
+#       - "Makefile"
+#       - ".github/workflows/vpc-module-destroy.yaml"
 
-jobs:
-  # Infrastructure destruction job
-  terraform:
-    runs-on: ubuntu-latest
+# jobs:
+#   # Infrastructure destruction job
+#   terraform:
+#     runs-on: ubuntu-latest
 
-    steps:
-      # Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+#     steps:
+#       # Checkout repository
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
 
-      # Setup AWS credentials for Terraform
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+#       # Setup AWS credentials for Terraform
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: us-east-2
 
-      # Install Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+#       # Install Terraform
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v2
 
-      # Initialize Terraform working directory
-      - name: Terraform Init VPC
-        run: make init-vpc
+#       # Initialize Terraform working directory
+#       - name: Terraform Init VPC
+#         run: make init-vpc
 
-      # Initialize Terraform Plan
-      - name: Terraform Plan VPC
-        run: make plan-vpc
+#       # Initialize Terraform Plan
+#       - name: Terraform Plan VPC
+#         run: make plan-vpc
 
-      # Safety delay with warning message
-      - name: Warning
-        run: |
-          echo "⚠️ WARNING: VPC WILL BE DESTROYED ⚠️"
-
-      # Destroy VPC infrastructure
-      - name: Terraform Destroy VPC
-        run: make destroy-vpc
+#       # Destroy VPC infrastructure
+#       - name: Terraform Destroy VPC
+#         run: make destroy-vpc

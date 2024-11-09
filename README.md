@@ -5,9 +5,20 @@
 - добавить секрет менеджер
 - сделать вариейблы под секрет менеджер и всего что с ним связано
 - имя датабазы в tfvars
+- appArmor
+- trivy
+- sissdyg
+- iptables
+- grafana
+- prometheus
+- vault
+- ansible
+- helm
+- имя кластера автоматизировать
 
 > 1. CI via GitHub Actions with linter, scanners and containerization
 >    - ESLint
+>    - Prettier
 >    - Docker
 >    - Trivy
 >    - SonarQube
@@ -24,13 +35,14 @@
 >    - RDS: Aurora PostgreSQL 15.3 (Serverless v2)
 ---
 
-## Step I - Local tests
+## Step I - Local testst
 
 Developers gave me the code of applications without documentation:
 
 - Applications require **PostgreSQL** database to function correctly
 - Setting up a _Linux_ environment through **Docker**/**VirtualBox**
 - Installing **PostgreSQL** and successfully running applications within this setup **LOCALLY**
+
 
 ## Step II - CI (Continuous Integration)
 

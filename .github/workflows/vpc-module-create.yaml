@@ -1,48 +1,48 @@
-name: CD - Create/Update VPC
+# name: CD - Create/Update VPC
 
-# Trigger workflow on:
-# - Manual dispatch from GitHub Actions UI
-# - Push to main branches with changes in VPC related files
-on:
-  workflow_dispatch:
-#  push:
-#    branches: [ "develop" ]
-#    paths:
-#      - 'terraform/modules/vpc/**'
-#      - 'terraform/environments/develop/terraform.tfvars'
-#      - 'Makefile'
-#      - '.github/workflows/vpc-module-create.yaml'
+# # Trigger workflow on:
+# # - Manual dispatch from GitHub Actions UI
+# # - Push to main branches with changes in VPC related files
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: ["master", "stage", "develop"]
+#     paths:
+#       - "terraform/modules/vpc/**"
+#       - "terraform/environments/develop/terraform.tfvars"
+#       - "Makefile"
+#       - ".github/workflows/vpc-module-create.yaml"
 
-jobs:
-  # Infrastructure deployment job
-  terraform:
-    runs-on: ubuntu-latest
+# jobs:
+#   # Infrastructure deployment job
+#   terraform:
+#     runs-on: ubuntu-latest
 
-    steps:
-      # Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+#     steps:
+#       # Checkout repository
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
 
-      # Setup AWS credentials for Terraform
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+#       # Setup AWS credentials for Terraform
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: us-east-2
 
-      # Install Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+#       # Install Terraform
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v2
 
-      # Initialize Terraform working directory
-      - name: Terraform Init VPC
-        run: make init-vpc
+#       # Initialize Terraform working directory
+#       - name: Terraform Init VPC
+#         run: make init-vpc
 
-      # Plan Terraform changes
-      - name: Terraform Plan VPC
-        run: make plan-vpc
+#       # Plan Terraform changes
+#       - name: Terraform Plan VPC
+#         run: make plan-vpc
 
-      # Apply Terraform changes to Create/Update VPC Module
-      - name: Terraform Apply VPC
-        run: make apply-vpc
+#       # Apply Terraform changes to Create/Update VPC Module
+#       - name: Terraform Apply VPC
+#         run: make apply-vpc

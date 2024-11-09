@@ -16,6 +16,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: web-service
+                name: web-svc
                 port:
                   number: 4000
