@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: web-config
 data:
-  API_HOST: "http://api-service:80"
+  API_HOST: "http://api-service"
