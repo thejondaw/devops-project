@@ -14,7 +14,7 @@ on:
   push:
     branches: ["master", "stage", "develop"]
     paths:
-      - ".github/workflows/cd-infrastructure-destroy.yml"
+      - ".github/workflows/cd-infrastructure-destroy.yaml"
       - "terraform/modules/**"
       - "terraform/environments/**"
 
