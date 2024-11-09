@@ -15,6 +15,12 @@ on:
         description: "Type 'YES' to confirm destruction"
         required: true
         type: string
+  push:
+    branches: ["master", "stage", "develop"]
+    paths:
+      - ".github/workflows/cd-infrastructure-destroy.yaml"
+      - "terraform/modules/**"
+      - "terraform/environments/**"
 
 env:
   TF_STATE_BUCKET: "alexsuff"
