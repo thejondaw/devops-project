@@ -2,19 +2,48 @@
 
 ## TODO List
 
-- добавить секрет менеджер
-- сделать вариейблы под секрет менеджер и всего что с ним связано
-- имя датабазы в tfvars
-- appArmor
-- trivy
-- sissdyg
-- iptables
-- grafana
-- prometheus
-- vault
-- ansible
-- helm
-- имя кластера автоматизировать
+```markdown
+### 1. Security (CRITICAL)
+- [ ] Vault (бесплатная версия)
+  - [ ] Перенести все креды из RDS
+  - [ ] Настроить rotation secrets
+  - [ ] Интеграция с K8s через ServiceAccount
+- [ ] Security Hardening
+  - [ ] AppArmor базовые профили для подов
+  - [ ] Network Policies в K8s
+  - [ ] Базовые iptables правила
+  - [ ] Pod Security Context
+
+### 2. Monitoring (HIGH)
+- [ ] Prometheus Stack
+  - [ ] Prometheus Operator через helm
+  - [ ] Node Exporter для метрик нод
+  - [ ] kube-state-metrics для K8s метрик
+- [ ] Grafana
+  - [ ] Дашборд для Node metrics
+  - [ ] Дашборд для K8s metrics
+  - [ ] Дашборд для RDS metrics
+  - [ ] Алерты на критические метрики
+
+### 3. Helm (HIGH)
+- [ ] Базовые чарты для:
+  - [ ] API app
+  - [ ] Web app
+  - [ ] Prometheus stack
+  - [ ] Vault
+
+### 4. Security Scanning (MEDIUM)
+- [ ] Trivy в CI/CD для:
+  - [v] Сканирования контейнеров
+  - [v] Сканирования кода
+  - [ ] Сканирования IaC
+
+### 5. Automation & IaC
+- [ ] Рефакторинг Terraform
+  - [ ] Вынести все переменные в tfvars
+  - [ ] Добавить теги для всех ресурсов
+  - [ ] Автоматизация имен (кластера, ресурсов)
+```
 
 > 1. CI via GitHub Actions with linter, scanners and containerization
 >    - ESLint
@@ -82,6 +111,23 @@ npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 devops-project/
 |
 ├── .github/workflows/        # GitHub Actions Workflow files
+│
+├── ansible/                  # Ansible configurations
+│   ├── inventory/            # Inventory files
+│   │   ├── aws_ec2.yml       # Dynamic AWS inventory
+│   │   └── group_vars/       # Variables for groups
+│   │       └── eks_workers.yml
+│   │
+│   ├── playbooks/            # Playbook files
+│   │   ├── worker-setup.yml
+│   │   └── security.yml
+│   │
+│   ├── roles/                # Ansible roles
+│   │   ├── common/           # Common settings for all
+│   │   ├── monitoring/       # Prometheus/Node Exporter
+│   │   └── security/         # AppArmor, IPtables etc
+│   │
+│   └── ansible.cfg           # Ansible config
 │
 ├── apps/
 │   ├── api/                  # API Application

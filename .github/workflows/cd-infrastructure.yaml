@@ -4,22 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to deploy to'
+        description: "Environment to deploy to"
         required: true
-        default: 'develop'
+        default: "develop"
         type: choice
         options:
-        - develop
-        - stage
-        - prod
+          - develop
+          - stage
+          - prod
       action:
-        description: 'Action to perform'
+        description: "Action to perform"
         required: true
         type: choice
         options:
-        - apply
-        - destroy
-        default: 'apply'
+          - apply
+          - destroy
+        default: "apply"
   push:
     branches: ["master", "stage", "develop"]
     paths:
