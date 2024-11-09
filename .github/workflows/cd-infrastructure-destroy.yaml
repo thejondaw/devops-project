@@ -15,8 +15,17 @@ on:
     branches: ["master", "stage", "develop"]
     paths:
       - ".github/workflows/cd-infrastructure-destroy.yaml"
-      - "terraform/modules/**"
-      - "terraform/environments/**"
+      # Infrastructure related changes
+      - "terraform/modules/vpc/**"
+      - "terraform/modules/eks/**"
+      - "terraform/modules/rds/**"
+      - "terraform/environments/**/*.tfvars"
+      - ".github/workflows/cd-infrastructure.yaml"
+      # Configuration files
+      - "terraform/environments/develop/main.tf"
+      - "terraform/environments/stage/main.tf"
+      - "terraform/environments/prod/main.tf"
+      - "Makefile"
 
 env:
   TF_STATE_BUCKET: "alexsuff"
