@@ -68,14 +68,16 @@ npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 
 ```markdown
 devops-project/
+|
+├── .github/workflows/        # GitHub Actions Workflow files
 │
-├── apps/                     # WEB Application
+├── apps/
 │   ├── api/                  # API Application
 │   │   ├── src/              # Source code of API
 │   │   ├── tests/            # Tests for API
 │   │   └── Dockerfile        # Dockerfile for API
 │   │
-│   └── web/
+│   └── web/                  # WEB Application
 │       ├── src/              # Source code of WEB
 │       ├── tests/            # Tests for WEB
 │       └── Dockerfile        # Dockerfile for WEB
@@ -86,10 +88,8 @@ devops-project/
 │
 ├── k8s/                      # Kubernetes manifests
 │   ├── api/                  # Manifests для API
-│   ├── web/                  # Manifests для WEB
-│   └── infra/                # Manifests for infrastructure components
-│
-├── .github/workflows/        # GitHub Actions Workflow files
+│   ├── infra/                # Manifests for infrastructure components
+│   └── web/                  # Manifests для WEB
 │
 ├── docs/                     # Documentation of Project
 │
@@ -105,7 +105,7 @@ devops-project/
                 +----------------------------------------------------+
                 |                         VPC                        |
                 | +------------------------------------------------+ |
-                | |               (3 Private Subnets)              | |
+                | |               (2 Private Subnets)              | |
                 | |   +----------------------------------------+   | |
                 | |   |             Tier 1: DATABASE           |   | |
                 | |   +---+----------+----------+----------+---+   | |
@@ -124,7 +124,7 @@ devops-project/
                 |         API_HOST                API_PORT           |
                 |             |                       |              |
                 | +-----------|-----------------------|------------+ |
-                | |           |  (3 Public Subnets)   |            | |
+                | |           |  (2 Public Subnets)   |            | |
                 | |   +-------+-----------------------+--------+   | |
                 | |   |              Tier 3: WEB               |   | |
                 | |   +-------------------+--------------------+   | |
@@ -134,32 +134,76 @@ devops-project/
                 +-----------------------+ | +------------------------+
                                           v
                                         CLIENT
+
+
+
+
+                +----------------------------------------------------------+
+                |                        "VPC"                             |
+                | +------------------------------------------------------+ |
+                | |                  (2 Private Subnets)                 | |
+                | |   +----------------------------------------------+   | |
+                | |   |               "Tier 1: DATABASE"             |   | |
+                | |   +----+-----------+------------+----------+----+    | |
+                | |        |           |            |          |         | |
+                | |        |           |            |          |         | |
+                | |     DB_NAME     DB_PORT      DB_USER    DB_PASS      | |
+                | |        |           |            |          |         | |
+                | |        v           v            v          v         | |
+                | | +══════════════════════════════════════════════════+ | |
+                | | ║  +---+-----------+------------+-----------+---+  ║ | |
+                | | ║  |               "Tier 2: API"                |  ║ | |
+                | | ║  +----------+----------------------+----------+  ║ | |
+                | | ║             ^                      ^             ║ | |
+                | | ║             | (KUBERNETES CLUSTER) |             ║ | |
+                | +-║-------------|----------------------|-------------║-+ |
+                |   ║             |                      |             ║   |
+                |   ║          API_HOST               API_PORT         ║   |
+                |   ║             |                      |             ║   |
+                | +-║-------------|----------------------|-------------║-+ |
+                | | ║             |  (2 Public Subnets)  |             ║ | |
+                | | ║  +----------+----------------------+----------+  ║ | |
+                | | ║  |                "Tier 3: WEB"               |  ║ | |
+                | | ║  +----------------------+---------------------+  ║ | |
+                | | ║                                                  ║ | |
+                | | +═══════════════════════\   /══════════════════════+ | |
+                | +------------------------+ \ / +-----------------------+ |
+                |                          |  |  |                         |
+                +--------------------------+  |  +-------------------------+
+                                              V
+                                            CLIENT
+
+
+
+
+
+
 ```
 
 ### Variables for .TFVars
 
 ```shell
 # Set "AWS Region"
-region = "us-east-2" # Ohio
+region ═ "us-east-2" # Ohio
 
 # Set "IP Range" of "VPC"
-vpc_cidr = "10.0.0.0/16"
+vpc_cidr ═ "10.0.0.0/16"
 
 # Set "CIDR Blocks" for "Public Subnets"
-subnet_web_1_cidr = "10.0.1.0/24"
-subnet_web_2_cidr = "10.0.2.0/24"
-subnet_web_3_cidr = "10.0.3.0/24"
+subnet_web_1_cidr ═ "10.0.1.0/24"
+subnet_web_2_cidr ═ "10.0.2.0/24"
+subnet_web_3_cidr ═ "10.0.3.0/24"
 
 # Set "CIDR Blocks" for "Private Subnets"
-subnet_db_1_cidr = "10.0.11.0/24"
-subnet_db_2_cidr = "10.0.12.0/24"
-subnet_db_3_cidr = "10.0.13.0/24"
+subnet_db_1_cidr ═ "10.0.11.0/24"
+subnet_db_2_cidr ═ "10.0.12.0/24"
+subnet_db_3_cidr ═ "10.0.13.0/24"
 
 # Set details of "Database"
-db_name            = "DB_NAME"
-db_username        = "DB_USER"
-db_password        = "DB_PASSWORD"
-aurora_secret_name = "SECRET_NAME"
+db_name            ═ "DB_NAME"
+db_username        ═ "DB_USER"
+db_password        ═ "DB_PASSWORD"
+aurora_secret_name ═ "SECRET_NAME"
 ```
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thejondaw_devops-project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=thejondaw_devops-project)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project═thejondaw_devops-project&metric═alert_status)](https://sonarcloud.io/summary/new_code?id═thejondaw_devops-project)
