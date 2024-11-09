@@ -11,14 +11,10 @@ on:
           - develop
           - stage
           - prod
-      confirm_destroy:
-        description: "Type 'YES' to confirm destruction"
-        required: true
-        type: string
   push:
     branches: ["master", "stage", "develop"]
     paths:
-      - ".github/workflows/cd-infrastructure-destroy.yaml"
+      - ".github/workflows/cd-infrastructure-destroy.yml"
       - "terraform/modules/**"
       - "terraform/environments/**"
 
@@ -27,36 +23,7 @@ env:
   AWS_REGION: "us-east-2"
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check confirmation
-        if: github.event.inputs.confirm_destroy != 'YES'
-        run: |
-          echo "Error: You must type 'YES' to confirm destruction"
-          exit 1
-
-      # Future enhancement: Check for maintenance window
-      # - name: Check maintenance window
-      #   run: |
-      #     HOUR=$(date +%H)
-      #     if [[ $HOUR -lt 2 || $HOUR -gt 4 ]]; then
-      #       echo "Error: Destruction only allowed between 02:00-04:00 UTC"
-      #       exit 1
-      #     fi
-
-      # Future enhancement: Notify about destruction start
-      # - name: Send Slack notification about destruction start
-      #   uses: 8398a7/action-slack@v3
-      #   with:
-      #     status: ${{ job.status }}
-      #     fields: repo,message,commit,author,action,workflow
-      #     text: "🚨 Destruction of ${{ github.event.inputs.environment }} infrastructure initiated!"
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
   destroy:
-    needs: validate
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.event.inputs.environment }}
@@ -79,18 +46,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
-
-      # Future enhancement: Create final backups
-      # - name: Create final backups
-      #   run: |
-      #     # RDS final snapshot
-      #     aws rds create-db-snapshot \
-      #       --db-instance-identifier $DB_IDENTIFIER \
-      #       --db-snapshot-identifier "final-snapshot-${GITHUB_SHA::8}"
-      #
-      #     # EKS configs backup
-      #     kubectl get all --all-namespaces -o yaml > "eks-backup-${GITHUB_SHA::8}.yaml"
-      #     aws s3 cp eks-backup-${GITHUB_SHA::8}.yaml s3://${{ env.TF_STATE_BUCKET }}/backups/
 
       # Destroy in reverse order - RDS first
       - name: Destroy RDS
@@ -142,18 +97,3 @@ jobs:
               s3://${{ env.TF_STATE_BUCKET }}/environments/${{ github.event.inputs.environment }}/${state}.tfstate \
               s3://${{ env.TF_STATE_BUCKET }}/archived_states/${{ github.event.inputs.environment }}/${state}.tfstate-$(date +%s)
           done
-
-      # Future enhancement: Final status notification
-      # - name: Send Slack notification about destruction completion
-      #   if: always()
-      #   uses: 8398a7/action-slack@v3
-      #   with:
-      #     status: ${{ job.status }}
-      #     fields: repo,message,commit,author,action,workflow
-      #     text: |
-      #       Infrastructure destruction ${{ job.status }} for ${{ github.event.inputs.environment }}
-      #       RDS: ${{ steps.destroy-rds.outcome }}
-      #       EKS: ${{ steps.destroy-eks.outcome }}
-      #       VPC: ${{ steps.destroy-vpc.outcome }}
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
