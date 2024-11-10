@@ -194,10 +194,10 @@ devops-project/
 
 ```shell
 # Set "AWS Region"
-region_rv         = "us-east-2"
+region_rv         = "your-region-number"
 
 # Set "S3 Bucket" name:
-backend_bucket_rv = "alexsuff"
+backend_bucket_rv = "your-bucket-name"
 
 # Set "Environment" name:
 environment_rv    = "develop"
