@@ -38,6 +38,8 @@ on:
 
 env:
   AWS_REGION: "us-east-2"
+  TF_BACKEND_BUCKET: "alexsuff"
+  TF_BACKEND_DYNAMODB: "alexsuff-locks"
 
 jobs:
   infrastructure:
@@ -72,10 +74,10 @@ jobs:
         run: |
           cd terraform/modules/vpc
           terraform init \
-            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
+            -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
             -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/vpc.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+            -backend-config="dynamodb_table=${{ env.TF_BACKEND_DYNAMODB }}"
 
           terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
           terraform apply -auto-approve plan.tfplan
@@ -86,10 +88,10 @@ jobs:
         run: |
           cd terraform/modules/eks
           terraform init \
-            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
+            -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
             -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/eks.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+            -backend-config="dynamodb_table=${{ env.TF_BACKEND_DYNAMODB }}"
 
           terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
           terraform apply -auto-approve plan.tfplan
@@ -100,10 +102,10 @@ jobs:
         run: |
           cd terraform/modules/rds
           terraform init \
-            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
+            -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
             -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/rds.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+            -backend-config="dynamodb_table=${{ env.TF_BACKEND_DYNAMODB }}"
 
           terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
           terraform apply -auto-approve plan.tfplan
@@ -114,10 +116,10 @@ jobs:
         run: |
           cd terraform/modules/rds
           terraform init \
-            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
+            -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
             -backend-config="key=environments/${{ github.event.inputs.environment }}/rds.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+            -backend-config="dynamodb_table=${{ env.TF_BACKEND_DYNAMODB }}"
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
       - name: Destroy EKS
@@ -125,10 +127,10 @@ jobs:
         run: |
           cd terraform/modules/eks
           terraform init \
-            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
+            -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
             -backend-config="key=environments/${{ github.event.inputs.environment }}/eks.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+            -backend-config="dynamodb_table=${{ env.TF_BACKEND_DYNAMODB }}"
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
       - name: Destroy VPC
@@ -136,10 +138,10 @@ jobs:
         run: |
           cd terraform/modules/vpc
           terraform init \
-            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
+            -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
             -backend-config="key=environments/${{ github.event.inputs.environment }}/vpc.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+            -backend-config="dynamodb_table=${{ env.TF_BACKEND_DYNAMODB }}"
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
       # Finally destroy backend
