@@ -25,16 +25,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set environment
-        id: set-env
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "ENV_NAME=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-          else
-            echo "ENV_NAME=develop" >> $GITHUB_ENV
-          fi
-          echo "Using environment: ${{ env.ENV_NAME }}"
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -45,15 +35,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # Destroy in reverse order - RDS first
+      # Destroy RDS first
       - name: Destroy RDS
         run: |
           cd terraform/modules/rds
           terraform init \
             -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=${{ env.ENV_NAME }}/rds.tfstate" \
+            -backend-config="key=environments/${{ github.event.inputs.environment }}/rds.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
-          terraform destroy -auto-approve -var-file=../../environments/${{ env.ENV_NAME }}/terraform.tfvars
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
       # Then destroy EKS
       - name: Destroy EKS
@@ -62,9 +52,9 @@ jobs:
           cd terraform/modules/eks
           terraform init \
             -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=${{ env.ENV_NAME }}/eks.tfstate" \
+            -backend-config="key=environments/${{ github.event.inputs.environment }}/eks.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
-          terraform destroy -auto-approve -var-file=../../environments/${{ env.ENV_NAME }}/terraform.tfvars
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
       # Finally destroy VPC
       - name: Destroy VPC
@@ -73,6 +63,6 @@ jobs:
           cd terraform/modules/vpc
           terraform init \
             -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=${{ env.ENV_NAME }}/vpc.tfstate" \
+            -backend-config="key=environments/${{ github.event.inputs.environment }}/vpc.tfstate" \
             -backend-config="region=${{ env.AWS_REGION }}"
-          terraform destroy -auto-approve -var-file=../../environments/${{ env.ENV_NAME }}/terraform.tfvars
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
