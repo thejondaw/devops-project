@@ -14,7 +14,7 @@ on:
       - "apps/api/package.json"
       - "apps/api/Dockerfile"
       - "sonar-project.properties"
-      - ".github/workflows/ci-api.yml"
+      - ".github/workflows/ci-api.yaml"
 
 # Environment Variables used across Jobs
 env:

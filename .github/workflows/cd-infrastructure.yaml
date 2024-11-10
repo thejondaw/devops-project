@@ -26,7 +26,7 @@ on:
       - "terraform/modules/eks/**"
       - "terraform/modules/rds/**"
       - "terraform/environments/**/*.tfvars"
-      - ".github/workflows/cd-infrastructure.yml"
+      - ".github/workflows/cd-infrastructure.yaml"
       # Configuration files
       - "terraform/environments/develop/main.tf"
       - "terraform/environments/stage/main.tf"
