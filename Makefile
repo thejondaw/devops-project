@@ -35,6 +35,8 @@ init:
 	cd terraform/modules/rds && terraform validate
 	cd terraform/modules/eks && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/eks && terraform validate
+	cd terraform/modules/tools && terraform init -var-file=../../environments/develop/terraform.tfvars
+	cd terraform/modules/tools && terraform validate
 
 # Plan changes for all modules:
 plan:
@@ -143,5 +145,34 @@ apply-eks:
 # Destroy resources for "EKS" module:
 destroy-eks:
 	cd terraform/modules/eks && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
+
+# =================== Tools Module ==================== #
+
+# Clean temporary files for "Tools" module:
+cache-tools:
+	cd terraform/modules/tools && find / -type d -name ".terraform" -exec rm -rf {} \;
+
+# Initialize and validate "Tools" module:
+init-tools:
+	git pull
+	cd terraform/modules/tools && terraform init -var-file=../../environments/develop/terraform.tfvars
+	cd terraform/modules/tools && terraform validate
+
+# Plan changes for "Tools" module:
+plan-tools:
+	cd terraform/modules/tools && terraform plan -var-file=../../environments/develop/terraform.tfvars
+
+# Apply changes for "Tools" module:
+apply-tools:
+	cd terraform/modules/tools && terraform apply --auto-approve -var-file=../../environments/develop/terraform.tfvars
+
+# Destroy resources for "Tools" module:
+destroy-tools:
+	cd terraform/modules/tools && terraform destroy --auto-approve -var-file=../../environments/develop/terraform.tfvars
+
+# Post-installation setup:
+post-install:
+	chmod +x scripts/post-install.sh
+	./scripts/post-install.sh
 
 # ==================================================== #
