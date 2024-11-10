@@ -194,26 +194,20 @@ devops-project/
 
 ```shell
 # Set "AWS Region"
-region ═ "us-east-2" # Ohio
+region_rv         = "us-east-2"
 
-# Set "IP Range" of "VPC"
-vpc_cidr ═ "10.0.0.0/16"
+# Set "S3 Bucket" name:
+backend_bucket_rv = "alexsuff"
 
-# Set "CIDR Blocks" for "Public Subnets"
-subnet_web_1_cidr ═ "10.0.1.0/24"
-subnet_web_2_cidr ═ "10.0.2.0/24"
-subnet_web_3_cidr ═ "10.0.3.0/24"
+# Set "Environment" name:
+environment_rv    = "develop"
 
-# Set "CIDR Blocks" for "Private Subnets"
-subnet_db_1_cidr ═ "10.0.11.0/24"
-subnet_db_2_cidr ═ "10.0.12.0/24"
-subnet_db_3_cidr ═ "10.0.13.0/24"
-
-# Set details of "Database"
-db_name            ═ "DB_NAME"
-db_username        ═ "DB_USER"
-db_password        ═ "DB_PASSWORD"
-aurora_secret_name ═ "SECRET_NAME"
+# Set your "IP Range" for "VPC" and "Subnets":
+vpc_cidr_rv        = "10.0.0.0/16"
+subnet_web_cidr_rv = "10.0.1.0/24"
+subnet_alb_cidr_rv = "10.0.2.0/24"
+subnet_api_cidr_rv = "10.0.3.0/24"
+subnet_db_cidr_rv  = "10.0.4.0/24"
 ```
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project═thejondaw_devops-project&metric═alert_status)](https://sonarcloud.io/summary/new_code?id═thejondaw_devops-project)

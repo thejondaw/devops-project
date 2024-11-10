@@ -2,9 +2,13 @@
 # ================= Your Credentials ================= #
 # ==================================================== #
 
-# Set your "Region" and "S3 Bucket":
+# Set "AWS Region"
 region_rv         = "us-east-2"
+
+# Set "S3 Bucket" name:
 backend_bucket_rv = "alexsuff"
+
+# Set "Environment" name:
 environment_rv    = "develop"
 
 # Set your "IP Range" for "VPC" and "Subnets":
