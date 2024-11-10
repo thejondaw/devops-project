@@ -4,7 +4,7 @@
 
 # Output of "S3 Bucket" name:
 output "bucket_name" {
-  description = "Name of the created S3 bucket"
+  description = "Name of the used S3 bucket"
   value       = data.aws_s3_bucket.terraform_state.id
 }
 
@@ -17,7 +17,7 @@ output "dynamodb_table_name" {
 # Output of "S3 Bucket" ARN:
 output "bucket_arn" {
   description = "ARN of the S3 bucket"
-  value       = aws_s3_bucket.terraform_state.arn
+  value       = data.aws_s3_bucket.terraform_state.arn
 }
 
 # ==================================================== #
