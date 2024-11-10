@@ -2,6 +2,15 @@
 # ============== Variables of VPC Module ============= #
 # ==================================================== #
 
+# Variable for "Taggs":
+variable "environment" {
+  description = "Environment name (e.g., develop, stage, prod)"
+  type        = string
+  default     = "develop" # Default to "develop" as it's most common use case
+}
+
+# ==================================================== #
+
 # Variable for "AWS Region":
 variable "region" {
   description = "AWS Region"

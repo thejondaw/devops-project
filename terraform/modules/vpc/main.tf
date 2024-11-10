@@ -8,7 +8,10 @@ resource "aws_vpc" "main" {
   instance_tenancy = "default"
 
   tags = {
-    Name = "devops-project-vpc"
+    Name        = "devops-project-vpc"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
   }
 }
 
@@ -22,7 +25,12 @@ resource "aws_subnet" "subnet_web" {
   availability_zone       = "us-east-2a"
 
   tags = {
-    Name = "subnet-web"
+    Name        = "subnet-web"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "public"
+    Tier        = "web"
   }
 }
 
@@ -34,7 +42,12 @@ resource "aws_subnet" "subnet_alb" {
   availability_zone       = "us-east-2b"
 
   tags = {
-    Name = "subnet-alb"
+    Name        = "subnet-alb"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "public"
+    Tier        = "alb"
   }
 }
 
@@ -45,7 +58,12 @@ resource "aws_subnet" "subnet_api" {
   availability_zone = "us-east-2a"
 
   tags = {
-    Name = "subnet-api"
+    Name        = "subnet-api"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "private"
+    Tier        = "api"
   }
 }
 
@@ -56,7 +74,12 @@ resource "aws_subnet" "subnet_db" {
   availability_zone = "us-east-2c"
 
   tags = {
-    Name = "subnet-db"
+    Name        = "subnet-db"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "private"
+    Tier        = "database"
   }
 }
 
@@ -67,7 +90,10 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "devops-project-igw"
+    Name        = "devops-project-igw"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
   }
 }
 
@@ -79,8 +105,15 @@ resource "aws_route_table" "public_rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
-}
 
+  tags = {
+    Name        = "devops-project-public-rt"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "public"
+  }
+}
 # Association of "Public Subnet #1 (WEB)" with "Route Table":
 resource "aws_route_table_association" "public_web" {
   subnet_id      = aws_subnet.subnet_web.id
@@ -104,11 +137,26 @@ resource "aws_eip" "project-eip" {
 resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.project-eip.id
   subnet_id     = aws_subnet.subnet_web.id
+
+  tags = {
+    Name        = "devops-project-nat"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+  }
 }
 
 # "Route Table" for "Private Subnets":
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name        = "devops-project-private-rt"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "private"
+  }
 }
 
 # Route for "NAT Gateway" to "Private Subnets":
@@ -171,6 +219,14 @@ resource "aws_security_group" "sec_group_vpc" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "devops-project-vpc-sg"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "vpc-security"
   }
 }
 

@@ -114,13 +114,7 @@ devops-project/
 │
 ├── ansible/                  # Ansible configurations
 │   ├── inventory/            # Inventory files
-│   │   ├── aws_ec2.yml       # Dynamic AWS inventory
-│   │   └── group_vars/       # Variables for groups
-│   │       └── eks_workers.yml
-│   │
 │   ├── playbooks/            # Playbook files
-│   │   ├── worker-setup.yml
-│   │   └── security.yml
 │   │
 │   ├── roles/                # Ansible roles
 │   │   ├── common/           # Common settings for all

@@ -1,11 +1,18 @@
 # ==================================================== #
-# ============== Variables of ECS Module ============= #
+# ============== VARIABLES OF ECS MODULE ============= #
 # ==================================================== #
 
 # Variable for "AWS Region":
 variable "region" {
   description = "AWS Region"
   type        = string
+}
+
+# Variable for "Environment" name:
+variable "environment" {
+  description = "Environment name (develop, stage, prod)"
+  type        = string
+  default     = "develop"
 }
 
 # ============= CIDR for VPC and Subnets ============= #

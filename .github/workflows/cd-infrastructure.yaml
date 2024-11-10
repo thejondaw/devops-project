@@ -24,6 +24,7 @@ on:
     branches: ["master", "stage", "develop"]
     paths:
       # Infrastructure related changes
+      - "terraform/modules/backend/**"
       - "terraform/modules/vpc/**"
       - "terraform/modules/eks/**"
       - "terraform/modules/rds/**"
@@ -36,13 +37,11 @@ on:
       - "Makefile"
 
 env:
-  TF_STATE_BUCKET: "alexsuff"
   AWS_REGION: "us-east-2"
 
 jobs:
   infrastructure:
     runs-on: ubuntu-latest
-    # Use environment from input for manual triggers, default to branch name for push events
     environment: ${{ github.event.inputs.environment || github.ref_name }}
 
     steps:
@@ -58,21 +57,28 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      # Backend Deployment first
+      - name: Deploy Backend
+        if: github.event.inputs.action != 'destroy'
+        run: |
+          cd terraform/modules/backend
+          terraform init
+          terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
+          terraform apply -auto-approve plan.tfplan
+
       # VPC Deployment
       - name: Deploy VPC
+        if: success() && (github.event.inputs.action != 'destroy')
         run: |
           cd terraform/modules/vpc
           terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
             -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/vpc.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
 
-          if [[ "${{ github.event.inputs.action }}" == "destroy" ]]; then
-            terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars
-          else
-            terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
-            terraform apply -auto-approve plan.tfplan
-          fi
+          terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
+          terraform apply -auto-approve plan.tfplan
 
       # EKS Deployment
       - name: Deploy EKS
@@ -80,9 +86,10 @@ jobs:
         run: |
           cd terraform/modules/eks
           terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
             -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/eks.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
 
           terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
           terraform apply -auto-approve plan.tfplan
@@ -93,9 +100,10 @@ jobs:
         run: |
           cd terraform/modules/rds
           terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
             -backend-config="key=environments/${{ github.event.inputs.environment || github.ref_name }}/rds.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
 
           terraform plan -var-file=../../environments/${{ github.event.inputs.environment || github.ref_name }}/terraform.tfvars -out=plan.tfplan
           terraform apply -auto-approve plan.tfplan
@@ -106,9 +114,10 @@ jobs:
         run: |
           cd terraform/modules/rds
           terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
             -backend-config="key=environments/${{ github.event.inputs.environment }}/rds.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
       - name: Destroy EKS
@@ -116,7 +125,27 @@ jobs:
         run: |
           cd terraform/modules/eks
           terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
             -backend-config="key=environments/${{ github.event.inputs.environment }}/eks.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
+
+      - name: Destroy VPC
+        if: success() && github.event.inputs.action == 'destroy'
+        run: |
+          cd terraform/modules/vpc
+          terraform init \
+            -backend-config="bucket=$(terraform output -raw backend_bucket_name)" \
+            -backend-config="key=environments/${{ github.event.inputs.environment }}/vpc.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=$(terraform output -raw backend_lock_table)"
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
+
+      # Finally destroy backend
+      - name: Destroy Backend
+        if: success() && github.event.inputs.action == 'destroy'
+        run: |
+          cd terraform/modules/backend
+          terraform init
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars

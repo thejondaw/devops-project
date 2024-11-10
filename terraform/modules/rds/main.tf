@@ -39,6 +39,15 @@ resource "aws_rds_cluster" "aurora_postgresql" {
     max_capacity = 1.0
     min_capacity = 0.5
   }
+
+  tags = {
+    Name        = "devops-project-aurora-cluster"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Engine      = "aurora-postgresql"
+  }
+
 }
 
 # Instance for "Serverless v2 RDS Cluster":
@@ -55,6 +64,13 @@ resource "aws_rds_cluster_instance" "rds_instance" {
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
   subnet_ids = [data.aws_subnet.api.id, data.aws_subnet.db.id]
+
+  tags = {
+    Name        = "devops-project-aurora-subnet-group"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+  }
 }
 
 # ================= Security Group =================== #
@@ -78,15 +94,23 @@ resource "aws_security_group" "sg_aurora" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name        = "devops-project-aurora-sg"
+    Environment = var.environment
+    Project     = "devops-project"
+    ManagedBy   = "terraform"
+    Type        = "database-security"
+  }
 }
 
 # ================== Secret Manager ================== #
 
 # # "Secret Manager":
 # resource "aws_secretsmanager_secret" "aurora_secret" {
-#   name = "aurora-secret-project"   #! VARS
+#   name = "aurora-secret-project" #! VARS
 # }
-#
+
 # # Random "Password" for "Secret Manager":
 # resource "random_password" "aurora_password" {
 #   length  = 16
@@ -94,7 +118,7 @@ resource "aws_security_group" "sg_aurora" {
 #   numeric = true
 #   upper   = true
 # }
-#
+
 # # Attach "Credentials" for "Secret Manager":
 # resource "aws_secretsmanager_secret_version" "aurora_credentials" {
 #   secret_id = aws_secretsmanager_secret.aurora_secret.id

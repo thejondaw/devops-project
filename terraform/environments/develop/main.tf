@@ -9,6 +9,15 @@ provider "aws" {
 
 # ================== Custom Modules ================== #
 
+# "BACKEND" Module:
+module "backend" {
+  source = "../../modules/backend"
+
+  region      = var.region_rv
+  bucket_name = var.backend_bucket_rv
+  environment = var.environment_rv
+}
+
 # "VPC" Module:
 module "vpc" {
   source          = "../terraform/modules/vpc"
