@@ -109,46 +109,100 @@ npm install -D prettier eslint-config-prettier eslint-plugin-prettier
 
 ```markdown
 devops-project/
-|
-├── .github/workflows/        # GitHub Actions Workflow files
-│
-├── ansible/                  # Ansible configurations
-│   ├── inventory/            # Inventory files
-│   ├── playbooks/            # Playbook files
-│   │
-│   ├── roles/                # Ansible roles
-│   │   ├── common/           # Common settings for all
-│   │   ├── monitoring/       # Prometheus/Node Exporter
-│   │   └── security/         # AppArmor, IPtables etc
-│   │
-│   └── ansible.cfg           # Ansible config
+├── .github/workflows/                # GitHub Actions Workflow files
+│   ├── ci-api.yaml                   # CI for API
+│   ├── ci-web.yaml                   # CI for WEB
+│   ├── cd-infrastructure.yaml        # CD for infrastructure
+│   └── cd-applications.yaml          # CD for tools (Helm/ArgoCD)
 │
 ├── apps/
-│   ├── api/                  # API Application
-│   │   ├── src/              # Source code of API
-│   │   ├── tests/            # Tests for API
-│   │   └── Dockerfile        # Dockerfile for API
+│   ├── api/                          # API Application
+│   │   ├── src/                      # Source code of API
+│   │   ├── tests/                    # Tests for API
+│   │   └── Dockerfile                # Dockerfile for API
 │   │
-│   └── web/                  # WEB Application
-│       ├── src/              # Source code of WEB
-│       ├── tests/            # Tests for WEB
-│       └── Dockerfile        # Dockerfile for WEB
+│   └── web/                          # WEB Application
+│       ├── src/                      # Source code of WEB
+│       ├── tests/                    # Tests for WEB
+│       └── Dockerfile                # Dockerfile for WEB
 │
-├── terraform/                # Terraform configuration
-│   ├── modules/              # Terraform modules
-│   └── environments/         # Configuration for other envs
+├── helm/                             # Helm
+│   ├── charts/                       # Helm Charts
+│   │   ├── api/                      # API Chart
+│   │   │   ├── Chart.yaml
+│   │   │   ├── values.yaml
+│   │   │   ├── values-develop.yaml
+│   │   │   ├── values-stage.yaml
+│   │   │   ├── values-prod.yaml
+│   │   │   └── templates/            # Templates K8s manifests
+│   │   │
+│   │   └── web/                      # WEB Chart
+│   │       ├── Chart.yaml
+│   │       ├── values.yaml
+│   │       ├── values-develop.yaml
+│   │       ├── values-stage.yaml
+│   │       ├── values-prod.yaml
+│   │       └── templates/
+│   │
+│   └── environments/                # Configs Environments
+│       ├── develop/
+│       │   └── values.yaml
+│       ├── stage/
+│       │   └── values.yaml
+│       └── prod/
+│           └── values.yaml
 │
-├── k8s/                      # Kubernetes manifests
-│   ├── api/                  # Manifests для API
-│   ├── infra/                # Manifests for infrastructure components
-│   └── web/                  # Manifests для WEB
+├── k8s/                             # Kubernetes manifests
+│   ├── argocd/                      # ArgoCD configurations
+│   │   ├── install.yaml             # Installation ArgoCD
+│   │   └── applications/
+│   │       ├── develop/
+│   │       │   ├── api.yaml
+│   │       │   └── web.yaml
+│   │       ├── stage/
+│   │       │   ├── api.yaml
+│   │       │   └── web.yaml
+│   │       └── prod/
+│   │           ├── api.yaml
+│   │           └── web.yaml
+│   │
+│   └── infrastructure/              # General K8s resources
+│       ├── namespaces.yaml
+│       └── network-policies.yaml
 │
-├── docs/                     # Documentation of Project
+├── terraform/                       # Terraform configs
+│   ├── modules/
+│   │   ├── backend/                 # Module S3 Backend
+│   │   ├── vpc/                     # Module VPC
+│   │   ├── eks/                     # Module EKS
+│   │   ├── rds/                     # Module RDS
+│   │   └── tools/                   # Module for Tools installation
+│   │       ├── main.tf
+│   │       ├── variables.tf
+│   │       ├── outputs.tf
+│   │       └── values/              # Values for Helm Charts
+│   │
+│   └── environments/                # Configurations of Environments
+│       ├── develop/
+│       │   ├── main.tf
+│       │   └── terraform.tfvars
+│       ├── stage/
+│       └── prod/
+│
+├── ansible/                         # Ansible configurations
+│   ├── inventory/                   # Inventory files
+│   ├── playbooks/                   # Playbook files
+│   └── roles/                       # Ansible roles
+│
+├── scripts/                         # Automatization Scripts
+│   └── post-install.sh              # Post install of Tools
+│
+├── docs/                            # Documentation of Project
 │
 ├── .gitignore
 ├── Makefile
 ├── README.md
-└── sonar-project.properties  # Config file for SonarQube
+└── sonar-project.properties         # Configuration of SonarQube
 ```
 
 ### Diagram
