@@ -15,9 +15,12 @@ aws configure
 ```
 
 ```shell
-# Configure k for work with Cluster:
+# Configure for work with Cluster:
 
-aws eks update-kubeconfig --name study-cluster --region us-east-2
+# Find your "Cluster Name":
+terraform output configure_kubectl
+
+aws eks update-kubeconfig --name develop-cluster-20241110083459 --region us-east-2
 ```
 
 ```shell
