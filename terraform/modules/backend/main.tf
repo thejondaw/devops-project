@@ -3,23 +3,15 @@
 # ==================================================== #
 
 # "S3 Bucket" - Terraform State:
-resource "aws_s3_bucket" "terraform_state" {
+data "aws_s3_bucket" "terraform_state" {
   bucket = var.bucket_name
-
-  tags = {
-    Name        = var.bucket_name
-    Environment = var.environment
-    Project     = "devops-project"
-    ManagedBy   = "terraform"
-    Type        = "terraform-backend"
-  }
 }
 
 # ============== S3 Bucket Settings ================= #
 
 # Enable "Versioning" for State Files:
 resource "aws_s3_bucket_versioning" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.id
+  bucket = data.aws_s3_bucket.terraform_state.id
 
   versioning_configuration {
     status = "Enabled"
@@ -28,7 +20,7 @@ resource "aws_s3_bucket_versioning" "terraform_state" {
 
 # Enable Server-Side "Encryption":
 resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.id
+  bucket = data.aws_s3_bucket.terraform_state.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -39,7 +31,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" 
 
 # Block "Public Access":
 resource "aws_s3_bucket_public_access_block" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.id
+  bucket = data.aws_s3_bucket.terraform_state.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -69,10 +61,4 @@ resource "aws_dynamodb_table" "terraform_locks" {
   }
 }
 
-# ==================================================== #
-
-# После создания бэкенда, используйте такой блок в других модулях:
-#
-
-#
 # ==================================================== #

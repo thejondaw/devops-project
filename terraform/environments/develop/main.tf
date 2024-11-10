@@ -27,6 +27,7 @@ module "vpc" {
   subnet_alb_cidr = var.subnet_alb_cidr_rv
   subnet_api_cidr = var.subnet_api_cidr_rv
   subnet_db_cidr  = var.subnet_db_cidr_rv
+  depends_on      = [module.backend]
 }
 
 # "EKS" Module:
@@ -37,6 +38,7 @@ module "eks" {
   subnet_web_cidr = module.vpc.subnet_web_cidr_rv
   subnet_alb_cidr = module.vpc.subnet_alb_cidr_rv
   subnet_api_cidr = module.vpc.subnet_api_cidr_rv
+  depends_on      = [module.backend]
 }
 
 # "RDS" Module:
@@ -46,6 +48,7 @@ module "rds" {
   vpc_cidr        = module.vpc.vpc_arn
   subnet_api_cidr = var.subnet_api_cidr_rv
   subnet_db_cidr  = var.subnet_db_cidr_rv
+  depends_on      = [module.backend]
 }
 
 # ==================================================== #

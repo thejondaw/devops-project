@@ -17,7 +17,7 @@
 terraform {
   backend "s3" {
     bucket         = "alexsuff"
-    key            = "develop/rds/terraform.tfstate"
+    key            = "project/develop/rds.tfstate"
     region         = "us-east-2"
     dynamodb_table = "alexsuff-locks"
     encrypt        = true
