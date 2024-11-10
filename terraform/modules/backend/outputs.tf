@@ -11,7 +11,7 @@ output "bucket_name" {
 # Output of "DynamoDB Table" name:
 output "dynamodb_table_name" {
   description = "Name of the DynamoDB table for state locking"
-  value       = aws_dynamodb_table.terraform_locks.name
+  value       = data.aws_dynamodb_table.terraform_locks.name
 }
 
 # Output of "S3 Bucket" ARN:
