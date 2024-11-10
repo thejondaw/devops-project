@@ -1,0 +1,14 @@
+global:
+  environment: develop
+  domain: dev.example.com
+
+api:
+  replicaCount: 1
+  database:
+    host: "tf-20241108221506733100000001.c7soci4q0mry.us-east-2.rds.amazonaws.com"
+
+web:
+  replicaCount: 1
+  ingress:
+    enabled: true
+    host: "dev.example.com"

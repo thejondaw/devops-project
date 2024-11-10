@@ -2,8 +2,6 @@
 # ==================== EKS Module ==================== #
 # ==================================================== #
 
-# ================== Time Provider =================== #
-
 # Add timestamp for unique naming:
 resource "time_static" "cluster_timestamp" {}
 
@@ -32,7 +30,7 @@ locals {
   # Tags specific for security resources:
   security_tags = {
     SecurityType = "EKS-Security"
-    Compliance   = "HIPAA"  # Если требуется
+    Compliance   = "HIPAA"
     Encryption   = "AES256"
   }
 

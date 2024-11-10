@@ -51,4 +51,14 @@ module "rds" {
   depends_on      = [module.backend]
 }
 
+# "TOOLS" Module:
+module "tools" {
+  source = "../../modules/tools"
+
+  cluster_endpoint       = module.eks.cluster_endpoint
+  cluster_name           = module.eks.cluster_name
+  cluster_ca_certificate = module.eks.cluster_certificate_authority
+  depends_on             = [module.eks]
+}
+
 # ==================================================== #
