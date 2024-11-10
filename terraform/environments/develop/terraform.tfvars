@@ -3,8 +3,8 @@
 # ==================================================== #
 
 # Set your "Region" and "S3 Bucket":
-region = "us-east-2"
-backend_bucket   = "alexsuff"
+region           = "us-east-2"
+bucket_name      = "alexsuff"
 environment      = "develop"
 
 # Set your "IP Range" for "VPC" and "Subnets":
