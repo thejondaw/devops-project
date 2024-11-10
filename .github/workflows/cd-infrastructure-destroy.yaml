@@ -1,31 +1,17 @@
-name: CD - Infrastructure Destruction
+name: CD - Infrastructure Destroy
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment to destroy"
+        description: "Select environment to destroy"
         required: true
+        default: "develop"
         type: choice
         options:
           - develop
           - stage
           - prod
-  push:
-    branches: ["master", "stage", "develop"]
-    paths:
-      - ".github/workflows/cd-infrastructure-destroy.yaml"
-      # Infrastructure related changes
-      - "terraform/modules/vpc/**"
-      - "terraform/modules/eks/**"
-      - "terraform/modules/rds/**"
-      - "terraform/environments/**/*.tfvars"
-      - ".github/workflows/cd-infrastructure.yaml"
-      # Configuration files
-      - "terraform/environments/develop/main.tf"
-      - "terraform/environments/stage/main.tf"
-      - "terraform/environments/prod/main.tf"
-      - "Makefile"
 
 env:
   TF_STATE_BUCKET: "alexsuff"
@@ -34,14 +20,6 @@ env:
 jobs:
   destroy:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.event.inputs.environment }}
-      url: ${{ github.event.inputs.environment == 'prod' && 'https://github.com/your-org/your-repo/deployments' || '' }}
-
-    # Prevent concurrent destroys of the same environment
-    concurrency:
-      group: destroy-${{ github.event.inputs.environment }}
-      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v3
@@ -56,53 +34,20 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # Destroy in reverse order - RDS first
       - name: Destroy RDS
-        id: destroy-rds
         run: |
           cd terraform/modules/rds
-          terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=environments/${{ github.event.inputs.environment }}/rds.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+          terraform init -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" -backend-config="key=${{ github.event.inputs.environment }}/rds.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
-          terraform plan -destroy -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars -out=destroy.tfplan
-          terraform apply -auto-approve destroy.tfplan
-
-      # Then destroy EKS
       - name: Destroy EKS
-        id: destroy-eks
-        if: success()
         run: |
           cd terraform/modules/eks
-          terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=environments/${{ github.event.inputs.environment }}/eks.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
+          terraform init -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" -backend-config="key=${{ github.event.inputs.environment }}/eks.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
 
-          terraform plan -destroy -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars -out=destroy.tfplan
-          terraform apply -auto-approve destroy.tfplan
-
-      # Finally destroy VPC
       - name: Destroy VPC
-        id: destroy-vpc
-        if: success()
         run: |
           cd terraform/modules/vpc
-          terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=environments/${{ github.event.inputs.environment }}/vpc.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
-
-          terraform plan -destroy -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars -out=destroy.tfplan
-          terraform apply -auto-approve destroy.tfplan
-
-      # Archive state files instead of deletion
-      - name: Archive tfstate files
-        if: success()
-        run: |
-          for state in rds eks vpc; do
-            aws s3 mv \
-              s3://${{ env.TF_STATE_BUCKET }}/environments/${{ github.event.inputs.environment }}/${state}.tfstate \
-              s3://${{ env.TF_STATE_BUCKET }}/archived_states/${{ github.event.inputs.environment }}/${state}.tfstate-$(date +%s)
-          done
+          terraform init -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" -backend-config="key=${{ github.event.inputs.environment }}/vpc.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
+          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment }}/terraform.tfvars
