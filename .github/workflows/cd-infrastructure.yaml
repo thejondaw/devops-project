@@ -73,6 +73,10 @@ jobs:
       - name: Deploy VPC
         if: success() && (github.event.inputs.action != 'destroy')
         run: |
+          aws dynamodb delete-item \
+          --table-name alexsuff-locks \
+          --key '{"LockID": {"S": "environments/develop/vpc.tfstate"}}'
+
           cd terraform/modules/vpc
           terraform init \
             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
@@ -87,6 +91,10 @@ jobs:
       - name: Deploy EKS
         if: success() && (github.event.inputs.action != 'destroy')
         run: |
+          aws dynamodb delete-item \
+          --table-name alexsuff-locks \
+          --key '{"LockID": {"S": "environments/develop/eks.tfstate"}}'
+
           cd terraform/modules/eks
           terraform init \
             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
@@ -101,6 +109,10 @@ jobs:
       - name: Deploy RDS
         if: success() && (github.event.inputs.action != 'destroy')
         run: |
+          aws dynamodb delete-item \
+          --table-name alexsuff-locks \
+          --key '{"LockID": {"S": "environments/develop/rds.tfstate"}}'
+          
           cd terraform/modules/rds
           terraform init \
             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
