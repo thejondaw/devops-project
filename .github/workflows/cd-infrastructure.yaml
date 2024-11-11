@@ -74,8 +74,8 @@ jobs:
         if: success() && (github.event.inputs.action != 'destroy')
         run: |
           aws dynamodb delete-item \
-          --table-name alexsuff-locks \
-          --key '{"LockID": {"S": "environments/develop/vpc.tfstate"}}'
+          --table-name ${{ env.TF_BACKEND_DYNAMODB }} \
+          --key "{\"LockID\": {\"S\": \"environments/${{ github.event.inputs.environment || github.ref_name }}/vpc.tfstate\"}}"
 
           cd terraform/modules/vpc
           terraform init \
@@ -92,8 +92,8 @@ jobs:
         if: success() && (github.event.inputs.action != 'destroy')
         run: |
           aws dynamodb delete-item \
-          --table-name alexsuff-locks \
-          --key '{"LockID": {"S": "environments/develop/eks.tfstate"}}'
+          --table-name ${{ env.TF_BACKEND_DYNAMODB }} \
+          --key "{\"LockID\": {\"S\": \"environments/${{ github.event.inputs.environment || github.ref_name }}/eks.tfstate\"}}"
 
           cd terraform/modules/eks
           terraform init \
@@ -110,9 +110,9 @@ jobs:
         if: success() && (github.event.inputs.action != 'destroy')
         run: |
           aws dynamodb delete-item \
-          --table-name alexsuff-locks \
-          --key '{"LockID": {"S": "environments/develop/rds.tfstate"}}'
-          
+          --table-name ${{ env.TF_BACKEND_DYNAMODB }} \
+          --key "{\"LockID\": {\"S\": \"environments/${{ github.event.inputs.environment || github.ref_name }}/rds.tfstate\"}}"
+
           cd terraform/modules/rds
           terraform init \
             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
