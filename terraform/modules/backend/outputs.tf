@@ -5,7 +5,7 @@
 # Output of "S3 Bucket" name:
 output "bucket_name" {
   description = "Name of the used S3 bucket"
-  value       = data.aws_s3_bucket.terraform_state.id
+  value       = var.backend_bucket_rv
 }
 
 # Output of "DynamoDB Table" name:

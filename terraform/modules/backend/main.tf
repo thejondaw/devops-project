@@ -4,12 +4,12 @@
 
 # "S3 Bucket" - Terraform State:
 data "aws_s3_bucket" "terraform_state" {
-  bucket = var.bucket_name
+  bucket = var.backend_bucket_rv
 }
 
 # "DynamoDB Table" - State Locking:
 data "aws_dynamodb_table" "terraform_locks" {
-  name = "${var.bucket_name}-locks"
+  name = "${var.backend_bucket_rv}-locks"
 }
 
 # ============== S3 Bucket Settings ================= #

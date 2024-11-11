@@ -13,9 +13,9 @@ provider "aws" {
 module "backend" {
   source = "../../modules/backend"
 
-  region      = var.region_rv
-  bucket_name = var.backend_bucket_rv
-  environment = var.environment_rv
+  region_rv         = var.region_rv
+  backend_bucket_rv = var.backend_bucket_rv
+  environment_rv    = var.environment_rv
 }
 
 # "VPC" Module:

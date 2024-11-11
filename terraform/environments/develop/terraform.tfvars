@@ -3,13 +3,13 @@
 # ==================================================== #
 
 # Set "AWS Region"
-region_rv         = "us-east-2"
+region_rv = "us-east-2"
 
 # Set "S3 Bucket" name:
 backend_bucket_rv = "alexsuff"
 
 # Set "Environment" name:
-environment_rv    = "develop"
+environment_rv = "develop"
 
 # Set your "IP Range" for "VPC" and "Subnets":
 vpc_cidr_rv        = "10.0.0.0/16"
