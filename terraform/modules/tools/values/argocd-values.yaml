@@ -3,15 +3,8 @@ server:
     - --insecure
   service:
     type: LoadBalancer
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
 
   config:
-    url: https://argocd.yourdomain.com # Замените на ваш домен
-
-    # Настройки RBAC
     rbac:
       defaultPolicy: role:readonly
       policy.default: role:readonly
@@ -19,14 +12,7 @@ server:
         p, role:org-admin, applications, *, */*, allow
         p, role:org-admin, clusters, get, *, allow
         p, role:org-admin, projects, get, *, allow
-        g, your-team, role:org-admin
 
-    # Настройки безопасности
-    application.resourceTrackingMethod: annotation
-    resource.compareoptions: |
-      ignoreAggregatedRoles: true
-
-    # Настройки репозиториев
     repositories: |
       - type: git
         url: https://github.com/thejondaw/devops-project.git
@@ -34,7 +20,6 @@ server:
 
 controller:
   replicas: 1
-
   resources:
     limits:
       cpu: 500m
