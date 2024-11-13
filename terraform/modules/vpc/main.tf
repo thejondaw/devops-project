@@ -20,9 +20,9 @@ resource "aws_vpc" "main" {
 # Public Subnet #1 - WEB
 resource "aws_subnet" "subnet_web" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.vpc_configuration.web.cidr_block
+  cidr_block              = var.vpc_configuration.subnets.web.cidr_block
   map_public_ip_on_launch = true
-  availability_zone       = var.vpc_configuration.web.az
+  availability_zone       = var.vpc_configuration.subnets.web.az
 
   tags = {
     Name        = "subnet-web"
@@ -37,9 +37,9 @@ resource "aws_subnet" "subnet_web" {
 # Public Subnet #2 - ALB
 resource "aws_subnet" "subnet_alb" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.vpc_configuration.alb.cidr_block
+  cidr_block              = var.vpc_configuration.subnets.alb.cidr_block
   map_public_ip_on_launch = true
-  availability_zone       = var.vpc_configuration.alb.az
+  availability_zone       = var.vpc_configuration.subnets.alb.az
 
   tags = {
     Name        = "subnet-alb"
@@ -54,8 +54,8 @@ resource "aws_subnet" "subnet_alb" {
 # Private Subnet #3 - API
 resource "aws_subnet" "subnet_api" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.vpc_configuration.api.cidr_block
-  availability_zone = var.vpc_configuration.api.az
+  cidr_block        = var.vpc_configuration.subnets.api.cidr_block
+  availability_zone = var.vpc_configuration.subnets.api.az
 
   tags = {
     Name        = "subnet-api"
@@ -70,8 +70,8 @@ resource "aws_subnet" "subnet_api" {
 # Private Subnet #4 - DB
 resource "aws_subnet" "subnet_db" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.vpc_configuration.db.cidr_block
-  availability_zone = var.vpc_configuration.db.az
+  cidr_block        = var.vpc_configuration.subnets.db.cidr_block
+  availability_zone = var.vpc_configuration.subnets.db.az
 
   tags = {
     Name        = "subnet-db"
