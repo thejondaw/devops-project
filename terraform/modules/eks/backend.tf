@@ -8,7 +8,6 @@ terraform {
     bucket         = "alexsuff"
     key            = "project/develop/eks.tfstate"
     region         = "us-east-2"
-    dynamodb_table = "alexsuff-locks"
     encrypt        = true
   }
 }

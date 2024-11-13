@@ -5,37 +5,6 @@
 # Path to variables file for development:
 TFVARS_PATH = terraform/environments/develop/terraform.tfvars
 
-# AWS Configuration:
-AWS_REGION = us-east-2
-BUCKET_NAME = alexsuff
-DYNAMODB_TABLE = alexsuff-locks
-
-# ================== LOCK Commands =================== #
-
-# Remove lock for specific module
-unlock-%:
-	aws dynamodb delete-item \
-		--table-name $(DYNAMODB_TABLE) \
-		--region $(AWS_REGION) \
-		--key '{"LockID": {"S": "$(BUCKET_NAME)/environments/develop/$*.tfstate"}}'
-
-# Remove all locks for environment
-unlock-all:
-	for module in vpc eks rds tools; do \
-		aws dynamodb delete-item \
-			--table-name $(DYNAMODB_TABLE) \
-			--region $(AWS_REGION) \
-			--key '{"LockID": {"S": "$(BUCKET_NAME)/environments/develop/'$$module'.tfstate"}}' ; \
-	done
-
-# List all current locks
-list-locks:
-	aws dynamodb scan \
-		--table-name $(DYNAMODB_TABLE) \
-		--region $(AWS_REGION) \
-		--projection-expression "LockID" \
-		--output text
-
 # Install Terraform:
 terraform:
 	sudo yum install -y yum-utils
@@ -56,7 +25,7 @@ cache:
 	[ -d "$HOME/.terraform.d/plugin-cache" ] && rm -rf $HOME/.terraform.d/plugin-cache/*
 
 # Initialize and validate all modules:
-init: unlock-all
+init:
 	git pull
 	cd terraform/modules/backend && terraform init
 	cd terraform/modules/backend && terraform validate
@@ -88,7 +57,7 @@ cache-backend:
 	cd terraform/modules/backend && find / -type d -name ".terraform" -exec rm -rf {} \;
 
 # Initialize and validate "Backend" module:
-init-backend: unlock-backend
+init-backend:
 	git pull
 	cd terraform/modules/backend && terraform init
 	cd terraform/modules/backend && terraform validate
@@ -112,7 +81,7 @@ cache-vpc:
 	cd terraform/modules/vpc && find / -type d -name ".terraform" -exec rm -rf {} \;
 
 # Initialize and validate "VPC" module:
-init-vpc: unlock-vpc
+init-vpc:
 	git pull
 	cd terraform/modules/vpc && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/vpc && terraform validate
@@ -136,7 +105,7 @@ cache-rds:
 	cd terraform/modules/rds && find / -type d -name ".terraform" -exec rm -rf {} \;
 
 # Initialize and validate "RDS" module:
-init-rds: unlock-rds
+init-rds:
 	git pull
 	cd terraform/modules/rds && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/rds && terraform validate
@@ -160,7 +129,7 @@ cache-eks:
 	cd terraform/modules/eks && find / -type d -name ".terraform" -exec rm -rf {} \;
 
 # Initialize and validate "EKS" module:
-init-eks: unlock-eks
+init-eks:
 	git pull
 	cd terraform/modules/eks && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/eks && terraform validate
@@ -184,7 +153,7 @@ cache-tools:
 	cd terraform/modules/tools && find / -type d -name ".terraform" -exec rm -rf {} \;
 
 # Initialize and validate "Tools" module:
-init-tools: unlock-tools
+init-tools:
 	git pull
 	cd terraform/modules/tools && terraform init -var-file=../../environments/develop/terraform.tfvars
 	cd terraform/modules/tools && terraform validate
