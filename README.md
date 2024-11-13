@@ -250,21 +250,46 @@ devops-project/
 ### Variables for .TFVars
 
 ```shell
-# Set "AWS Region"
-region_rv         = "your-region-number"
+# Set - AWS Region
+region         = "your-region-number"
 
-# Set "S3 Bucket" name:
-backend_bucket_rv = "your-bucket-name"
+# Set - S3 Bucket Name
+backend_bucket = "your-bucket-name"
 
-# Set "Environment" name:
-environment_rv    = "develop"
+# Set - Environment - Name
+environment    = "develop"
 
-# Set your "IP Range" for "VPC" and "Subnets":
-vpc_cidr_rv        = "10.0.0.0/16"
-subnet_web_cidr_rv = "10.0.1.0/24"
-subnet_alb_cidr_rv = "10.0.2.0/24"
-subnet_api_cidr_rv = "10.0.3.0/24"
-subnet_db_cidr_rv  = "10.0.4.0/24"
+# Set - IP Range of VPC & Subnets
+vpc_configuration = {
+  cidr = "10.0.0.0/16"
+  subnets = {
+    web = {
+      cidr_block = "10.0.1.0/24"
+      az         = "us-east-2a"
+    }
+    alb = {
+      cidr_block = "10.0.2.0/24"
+      az         = "us-east-2b"
+    }
+    api = {
+      cidr_block = "10.0.3.0/24"
+      az         = "us-east-2a"
+    }
+    db = {
+      cidr_block = "10.0.4.0/24"
+      az         = "us-east-2c"
+    }
+  }
+}
+
+# Set - Database - Configuration
+db_configuration = {
+  name     = "name-of-db"
+  username = "username"
+  password = "password"
+  port     = 5432
+}
+
 ```
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project═thejondaw_devops-project&metric═alert_status)](https://sonarcloud.io/summary/new_code?id═thejondaw_devops-project)
