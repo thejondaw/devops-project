@@ -18,39 +18,15 @@ variable "environment" {
   }
 }
 
-# ===================== NETWORK ====================== #
-
-# Variables - CIDR Block - VPC & Subnets
-variable "network_configuration" {
-  description = "Network configuration for EKS cluster"
-  type = object({
-    vpc_id = string
-    subnets = object({
-      web = object({
-        id         = string
-        cidr_block = string
-      })
-      alb = object({
-        id         = string
-        cidr_block = string
-      })
-      api = object({
-        id         = string
-        cidr_block = string
-      })
-    })
-  })
-}
-
 # ============ EKS CLUSTER CONFIGURATION ============= #
 
 variable "cluster_configuration" {
   description = "EKS cluster configuration"
   type = object({
-    version      = string
-    min_size     = number
-    max_size     = number
-    disk_size    = number
+    version        = string
+    min_size       = number
+    max_size       = number
+    disk_size      = number
     instance_types = list(string)
   })
   default = {

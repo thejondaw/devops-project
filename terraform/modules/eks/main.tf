@@ -43,7 +43,46 @@ locals {
 
 # Fetch - VPC
 data "aws_vpc" "main" {
-  id = var.network_configuration.vpc_id
+  filter {
+    name   = "tag:Name"
+    values = ["devops-project-vpc"]
+  }
+}
+
+# Fetch - Subnet Web
+data "aws_subnet" "web" {
+  filter {
+    name   = "tag:Name"
+    values = ["subnet-web"]
+  }
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+}
+
+# Fetch - Subnet ALB
+data "aws_subnet" "alb" {
+  filter {
+    name   = "tag:Name"
+    values = ["subnet-alb"]
+  }
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+}
+
+# Fetch - Subnet API
+data "aws_subnet" "api" {
+  filter {
+    name   = "tag:Name"
+    values = ["subnet-api"]
+  }
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
 }
 
 # Fetch - Existing User
@@ -144,9 +183,9 @@ resource "aws_eks_cluster" "study" {
 
   vpc_config {
     subnet_ids = [
-      var.network_configuration.subnets.web.id,
-      var.network_configuration.subnets.alb.id,
-      var.network_configuration.subnets.api.id
+      data.aws_subnet.web.id,
+      data.aws_subnet.alb.id,
+      data.aws_subnet.api.id
     ]
     endpoint_private_access = true
     endpoint_public_access  = true
@@ -175,7 +214,7 @@ resource "aws_eks_node_group" "study" {
   node_group_name = "${local.cluster_name}-nodes"
   node_role_arn   = aws_iam_role.node_group.arn
 
-  subnet_ids = [var.network_configuration.subnets.web.id]
+  subnet_ids = [data.aws_subnet.web.id]
 
   scaling_config {
     desired_size = var.cluster_configuration.min_size
