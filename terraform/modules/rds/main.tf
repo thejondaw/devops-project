@@ -4,17 +4,34 @@
 
 # Fetch - VPC
 data "aws_vpc" "main" {
-  id = var.network_configuration.vpc_id
+  filter {
+    name   = "tag:Name"
+    values = ["devops-project-vpc"]
+  }
 }
 
-# Fetch - Private Subnet #3 API
+# Fetch - Subnet API
 data "aws_subnet" "api" {
-  id = var.network_configuration.subnets.api.id
+  filter {
+    name   = "tag:Name"
+    values = ["subnet-api"]
+  }
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
 }
 
-# Fetch - Private Subnet #4 DB
+# Fetch - Subnet DB
 data "aws_subnet" "db" {
-  id = var.network_configuration.subnets.db.id
+  filter {
+    name   = "tag:Name"
+    values = ["subnet-db"]
+  }
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
 }
 
 # ===================== DATABASE ===================== #
@@ -23,16 +40,16 @@ data "aws_subnet" "db" {
 resource "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier     = "${var.environment}-aurora-cluster"
   engine                 = "aurora-postgresql"
-  engine_mode            = "provisioned"
-  engine_version         = "15.3"
-  database_name          = var.db_configuration.name
-  master_username        = var.db_configuration.username
-  master_password        = var.db_configuration.password
-  port                   = var.db_configuration.port
-  storage_encrypted      = true
-  db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
+  engine_mode           = "provisioned"
+  engine_version        = "15.3"
+  database_name         = var.db_configuration.name
+  master_username       = var.db_configuration.username
+  master_password       = var.db_configuration.password
+  port                  = var.db_configuration.port
+  storage_encrypted     = true
+  db_subnet_group_name  = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
-  skip_final_snapshot    = true
+  skip_final_snapshot   = true
 
   serverlessv2_scaling_configuration {
     max_capacity = 1.0
@@ -40,13 +57,12 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   }
 
   tags = {
-    Name        = [aws_security_group.sg_aurora.id]
+    Name        = "${var.environment}-aurora-cluster"
     Environment = var.environment
     Project     = "devops-project"
     ManagedBy   = "terraform"
     Engine      = "aurora-postgresql"
   }
-
 }
 
 # Instance - RDS Cluster

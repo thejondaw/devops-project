@@ -18,26 +18,6 @@ variable "environment" {
   }
 }
 
-# ===================== NETWORK ====================== #
-
-# Variables - CIDR Block - VPC & Subnets
-variable "network_configuration" {
-  description = "Network configuration for RDS"
-  type = object({
-    vpc_id = string
-    subnets = object({
-      api = object({
-        id         = string
-        cidr_block = string
-      })
-      db = object({
-        id         = string
-        cidr_block = string
-      })
-    })
-  })
-}
-
 # ============== DATABASE CONFIGURATION ============== #
 
 # Database Credentials
