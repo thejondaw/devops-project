@@ -59,15 +59,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # First destroy Tools
-      - name: Destroy Tools
-        run: |
-          cd terraform/modules/tools
-          terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=environments/${{ github.event.inputs.environment || 'develop' }}/tools.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"
-          terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment || 'develop' }}/terraform.tfvars
+      # # First destroy Tools
+      # - name: Destroy Tools
+      #   run: |
+      #     cd terraform/modules/tools
+      #     terraform init \
+      #       -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+      #       -backend-config="key=environments/${{ github.event.inputs.environment || 'develop' }}/tools.tfstate" \
+      #       -backend-config="region=${{ env.AWS_REGION }}"
+      #     terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment || 'develop' }}/terraform.tfvars
 
       # Destroy RDS first
       - name: Destroy RDS
