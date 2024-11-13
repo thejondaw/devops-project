@@ -30,7 +30,7 @@ on:
       - "terraform/modules/rds/**"
       - "terraform/modules/tools/**"
       - "terraform/environments/**/*.tfvars"
-      - ".github/workflows/cd-infrastructure.yaml"
+      - ".github/workflows/cd-infrastructure-destroy.yaml"
       # Configuration files
       - "terraform/environments/develop/main.tf"
       - "terraform/environments/stage/main.tf"
