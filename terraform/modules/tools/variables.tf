@@ -2,14 +2,14 @@
 # ================ VARIABLES Of HELM ================= #
 # ==================================================== #
 
-# Variable - EKS Cluster - Configuration
-variable "cluster_configuration" {
-  description = "EKS cluster configuration"
-  type = object({
-    name        = string
-    endpoint    = string
-    certificate = string
-  })
+# Variable - Environment
+variable "environment" {
+  description = "Environment name (develop, stage, prod)"
+  type        = string
+  validation {
+    condition     = contains(["develop", "stage", "prod"], var.environment)
+    error_message = "Environment must be develop, stage, or prod."
+  }
 }
 
 # Variable - Environment Configuration - Namespaces

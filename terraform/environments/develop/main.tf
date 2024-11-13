@@ -33,20 +33,7 @@ module "vpc" {
 module "rds" {
   source = "../terraform/modules/rds"
 
-  environment = var.environment
-  network_configuration = {
-    vpc_id = module.vpc.vpc_id
-    subnets = {
-      api = {
-        id         = module.vpc.subnet_ids["api"]
-        cidr_block = var.vpc_configuration.subnets.api.cidr_block
-      }
-      db = {
-        id         = module.vpc.subnet_ids["db"]
-        cidr_block = var.vpc_configuration.subnets.db.cidr_block
-      }
-    }
-  }
+  environment      = var.environment
   db_configuration = var.db_configuration
 
   depends_on = [module.vpc]
@@ -57,7 +44,6 @@ module "eks" {
   source = "../terraform/modules/eks"
 
   environment           = var.environment
-  network_configuration = module.vpc.network_configuration
   cluster_configuration = var.eks_configuration
 
   depends_on = [module.vpc]
@@ -67,14 +53,15 @@ module "eks" {
 module "tools" {
   source = "../../modules/tools"
 
+  environment = var.environment
+  environment_configuration = {
+    namespaces = ["develop", "stage", "prod"]
+  }
+
   cluster_configuration = {
     name        = module.eks.cluster_name
     endpoint    = module.eks.cluster_endpoint
     certificate = module.eks.cluster_certificate_authority
-  }
-
-  environment_configuration = {
-    namespaces = ["develop", "stage", "prod"]
   }
 
   depends_on = [module.eks]
