@@ -289,7 +289,6 @@ db_configuration = {
   password = "password"
   port     = 5432
 }
-
 ```
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project═thejondaw_devops-project&metric═alert_status)](https://sonarcloud.io/summary/new_code?id═thejondaw_devops-project)

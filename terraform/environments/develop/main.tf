@@ -56,24 +56,8 @@ module "rds" {
 module "eks" {
   source = "../terraform/modules/eks"
 
-  environment = var.environment
-  network_configuration = {
-    vpc_id = module.vpc.vpc_id
-    subnets = {
-      web = {
-        id         = module.vpc.subnet_ids["web"]
-        cidr_block = var.vpc_configuration.subnets.web.cidr_block
-      }
-      alb = {
-        id         = module.vpc.subnet_ids["alb"]
-        cidr_block = var.vpc_configuration.subnets.alb.cidr_block
-      }
-      api = {
-        id         = module.vpc.subnet_ids["api"]
-        cidr_block = var.vpc_configuration.subnets.api.cidr_block
-      }
-    }
-  }
+  environment           = var.environment
+  network_configuration = module.vpc.network_configuration
   cluster_configuration = var.eks_configuration
 
   depends_on = [module.vpc]

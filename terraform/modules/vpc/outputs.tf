@@ -31,4 +31,26 @@ output "security_group_id" {
   value       = aws_security_group.sec_group_vpc.id
 }
 
+# Output - Network Configuration
+output "network_configuration" {
+  description = "Network configuration for other modules"
+  value = {
+    vpc_id = aws_vpc.main.id
+    subnets = {
+      web = {
+        id         = aws_subnet.subnet_web.id
+        cidr_block = aws_subnet.subnet_web.cidr_block
+      }
+      alb = {
+        id         = aws_subnet.subnet_alb.id
+        cidr_block = aws_subnet.subnet_alb.cidr_block
+      }
+      api = {
+        id         = aws_subnet.subnet_api.id
+        cidr_block = aws_subnet.subnet_api.cidr_block
+      }
+    }
+  }
+}
+
 # ==================================================== #
