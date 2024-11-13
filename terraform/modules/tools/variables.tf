@@ -1,23 +1,30 @@
 # ==================================================== #
-# =============== VARIABLES Of HELM ================== #
+# ================ VARIABLES Of HELM ================= #
 # ==================================================== #
 
-# Variable for "Cluster Endpoint":
-variable "cluster_endpoint" {
-  description = "EKS cluster endpoint"
-  type        = string
+# Variable - EKS Cluster - Configuration
+variable "cluster_configuration" {
+  description = "EKS cluster configuration"
+  type = object({
+    name        = string
+    endpoint    = string
+    certificate = string
+  })
 }
 
-# Variable for "Cluster Name":
-variable "cluster_name" {
-  description = "EKS cluster name"
-  type        = string
-}
-
-# Variable for "Cluster CA Certificate":
-variable "cluster_ca_certificate" {
-  description = "EKS cluster CA certificate"
-  type        = string
+# Variable - Environment Configuration - Namespaces
+variable "environment_configuration" {
+  description = "Environment configuration for namespaces"
+  type = object({
+    namespaces = list(string)
+  })
+  default = {
+    namespaces = ["develop", "stage", "prod"]
+  }
+  validation {
+    condition     = length(var.environment_configuration.namespaces) > 0
+    error_message = "At least one namespace must be specified."
+  }
 }
 
 # ==================================================== #

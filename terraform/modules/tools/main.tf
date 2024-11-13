@@ -1,7 +1,8 @@
 # ==================================================== #
-# =================== TOOLS Module =================== #
+# =================== TOOLS MODULE =================== #
 # ==================================================== #
 
+# Provider - Terraform
 terraform {
   required_providers {
     helm = {
@@ -15,55 +16,53 @@ terraform {
   }
 }
 
-# ===================== Providers ==================== #
-
-# Kubernetes Provider
+# Provider - Kubernetes
 provider "kubernetes" {
-  host                   = var.cluster_endpoint
-  cluster_ca_certificate = base64decode(var.cluster_ca_certificate)
+  host                   = var.cluster_configuration.endpoint
+  cluster_ca_certificate = base64decode(var.cluster_configuration.certificate)
 
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
+    args        = ["eks", "get-token", "--cluster-name", var.cluster_configuration.name]
   }
 }
 
-# Helm Provider
+# Provider - Helm
 provider "helm" {
   kubernetes {
-    host                   = var.cluster_endpoint
-    cluster_ca_certificate = base64decode(var.cluster_ca_certificate)
+    host                   = var.cluster_configuration.endpoint
+    cluster_ca_certificate = base64decode(var.cluster_configuration.certificate)
 
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
+      args        = ["eks", "get-token", "--cluster-name", var.cluster_configuration.name]
       command     = "aws"
     }
   }
 }
 
-# =================== Data Sources ================== #
+# =================== DATA SOURCES =================== #
 
-# Get EKS Cluster Auth
+# Fetch - EKS Cluster - Auth
 data "aws_eks_cluster_auth" "cluster" {
-  name = var.cluster_name
+  name = var.cluster_configuration.name
 }
 
-# Get EKS Cluster
+# Fetch - EKS Cluster
 data "aws_eks_cluster" "cluster" {
-  name = var.cluster_name
+  name = var.cluster_configuration.name
 }
 
-# =================== Helm Charts ==================== #
+# =================== HELM CHARTS ==================== #
 
-# Add Helm Repository for ArgoCD
+# Helm Repository - ArgoCD
 resource "helm_repository" "argo" {
   name = "argo"
   url  = "https://argoproj.github.io/argo-helm"
 }
 
-# Install ArgoCD
+# Install - ArgoCD
 resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = helm_repository.argo.metadata[0].name
@@ -81,9 +80,9 @@ resource "helm_release" "argocd" {
   ]
 }
 
-# ================== Namespaces ===================== #
+# =================== NAMESPACES ==================== #
 
-# ArgoCD Namespace
+# ArgoCD - Namespace
 resource "kubernetes_namespace" "argocd" {
   metadata {
     name = "argocd"
@@ -94,9 +93,9 @@ resource "kubernetes_namespace" "argocd" {
   }
 }
 
-# Application Namespaces
+# Application - Namespaces
 resource "kubernetes_namespace" "applications" {
-  for_each = toset(["develop", "stage", "prod"])
+  for_each = toset(var.environment_configuration.namespaces)
 
   metadata {
     name = each.key
@@ -107,9 +106,9 @@ resource "kubernetes_namespace" "applications" {
   }
 }
 
-# =============== Network Policies ================== #
+# =============== NETWORK POLICIES ================== #
 
-# Default Network Policies
+# Network Policies - Default
 resource "kubernetes_network_policy" "default" {
   for_each = kubernetes_namespace.applications
 
@@ -144,7 +143,7 @@ resource "kubernetes_network_policy" "default" {
 
 # ================= RBAC Resources ================== #
 
-# ArgoCD Admin ClusterRole
+#  ArgoCD Admin - ClusterRole
 resource "kubernetes_cluster_role" "argocd_admin" {
   metadata {
     name = "argocd-admin-role"
@@ -157,7 +156,7 @@ resource "kubernetes_cluster_role" "argocd_admin" {
   }
 }
 
-# ArgoCD Admin ClusterRoleBinding
+# ArgoCD Admin - ClusterRoleBinding
 resource "kubernetes_cluster_role_binding" "argocd_admin" {
   metadata {
     name = "argocd-admin-role-binding"

@@ -1,35 +1,34 @@
 # ==================================================== #
-# ==================== RDS Module ==================== #
+# ==================== RDS MODULE ==================== #
 # ==================================================== #
 
-# Fetch "VPC" info:
+# Fetch - VPC
 data "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
+  id = var.network_configuration.vpc_id
 }
 
-# Fetch "Private Subnet #3 (API)" info:
+# Fetch - Private Subnet #3 API
 data "aws_subnet" "api" {
-  vpc_id     = data.aws_vpc.main.id
-  cidr_block = var.subnet_api_cidr
+  id = var.network_configuration.subnets.api.id
 }
 
-# Fetch "Private Subnet #4 (DB)" info:
+# Fetch - Private Subnet #4 DB
 data "aws_subnet" "db" {
-  vpc_id     = data.aws_vpc.main.id
-  cidr_block = var.subnet_db_cidr
+  id = var.network_configuration.subnets.db.id
 }
 
-# ===================== Database ===================== #
+# ===================== DATABASE ===================== #
 
-# "Serverless v2 RDS cluster" - "Aurora PostgreSQL":
+# Serverless v2 RDS cluster - Aurora PostgreSQL
 resource "aws_rds_cluster" "aurora_postgresql" {
-  cluster_identifier     = "example"
+  cluster_identifier     = "${var.environment}-aurora-cluster"
   engine                 = "aurora-postgresql"
   engine_mode            = "provisioned"
   engine_version         = "15.3"
-  database_name          = "devopsdb" #! VARS
-  master_username        = "jondaw"   #! VARS
-  master_password        = "password" #! VARS
+  database_name          = var.db_configuration.name
+  master_username        = var.db_configuration.username
+  master_password        = var.db_configuration.password
+  port                   = var.db_configuration.port
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
@@ -41,7 +40,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   }
 
   tags = {
-    Name        = "devops-project-aurora-cluster"
+    Name        = [aws_security_group.sg_aurora.id]
     Environment = var.environment
     Project     = "devops-project"
     ManagedBy   = "terraform"
@@ -50,7 +49,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
 
 }
 
-# Instance for "Serverless v2 RDS Cluster":
+# Instance - RDS Cluster
 resource "aws_rds_cluster_instance" "rds_instance" {
   cluster_identifier = aws_rds_cluster.aurora_postgresql.id
   instance_class     = "db.serverless"
@@ -58,9 +57,9 @@ resource "aws_rds_cluster_instance" "rds_instance" {
   engine_version     = aws_rds_cluster.aurora_postgresql.engine_version
 }
 
-# =================== Subnet Group =================== #
+# =================== SUBNET GROUP =================== #
 
-# "Subnet Group" for Database:
+# Subnet Group - RDS
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name       = "aurora-subnet-group"
   subnet_ids = [data.aws_subnet.api.id, data.aws_subnet.db.id]
@@ -73,19 +72,20 @@ resource "aws_db_subnet_group" "aurora_subnet_group" {
   }
 }
 
-# ================= Security Group =================== #
+# ================= SECURITY GROUP =================== #
 
-# "Security Group" to "Aurora PostgreSQL" Database access:
+# Security Group - RDS Access
 resource "aws_security_group" "sg_aurora" {
   name        = "aurora-db"
   description = "Allow Aurora PostgreSQL access"
   vpc_id      = data.aws_vpc.main.id
 
+  # Default of PostgreSQL
   ingress {
-    from_port   = 5432
-    to_port     = 5432
+    from_port   = var.db_configuration.port
+    to_port     = var.db_configuration.port
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = [data.aws_vpc.main.cidr_block]
   }
 
   egress {
@@ -104,14 +104,14 @@ resource "aws_security_group" "sg_aurora" {
   }
 }
 
-# ================== Secret Manager ================== #
+# ================== SECRET MANAGER ================== #
 
-# # "Secret Manager":
+# # Secret Manager
 # resource "aws_secretsmanager_secret" "aurora_secret" {
 #   name = "aurora-secret-project" #! VARS
 # }
 
-# # Random "Password" for "Secret Manager":
+# # Create Random Password
 # resource "random_password" "aurora_password" {
 #   length  = 16
 #   special = true
@@ -119,7 +119,7 @@ resource "aws_security_group" "sg_aurora" {
 #   upper   = true
 # }
 
-# # Attach "Credentials" for "Secret Manager":
+# # Attach - Credentials - Secret Manager
 # resource "aws_secretsmanager_secret_version" "aurora_credentials" {
 #   secret_id = aws_secretsmanager_secret.aurora_secret.id
 #   secret_string = jsonencode({

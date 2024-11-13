@@ -1,8 +1,8 @@
 # ==================================================== #
-# =========== S3 Bucket for Backend of VPC =========== #
+# =========== S3 BUCKET FOR BACKEND OF VPC =========== #
 # ==================================================== #
 
-# "S3 Bucket" - Backend:
+# S3 Bucket - Backend
 terraform {
   backend "s3" {
     bucket         = "alexsuff"

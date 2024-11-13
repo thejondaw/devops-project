@@ -1,23 +1,23 @@
 # ==================================================== #
-# ================ OUTPUT OF BACKEND ================= #
+# ================ OUTPUTS OF BACKEND ================ #
 # ==================================================== #
 
-# Output of "S3 Bucket" name:
+# Output - S3 Bucket - Name
 output "bucket_name" {
-  description = "Name of the used S3 bucket"
-  value       = var.backend_bucket_rv
+  description = "Name of the S3 bucket used for state storage"
+  value       = data.aws_s3_bucket.terraform_state.id
 }
 
-# Output of "DynamoDB Table" name:
-output "dynamodb_table_name" {
-  description = "Name of the DynamoDB table for state locking"
-  value       = data.aws_dynamodb_table.terraform_locks.name
-}
-
-# Output of "S3 Bucket" ARN:
+# Output - S3 Bucket - ARN
 output "bucket_arn" {
-  description = "ARN of the S3 bucket"
+  description = "ARN of the S3 bucket used for state storage"
   value       = data.aws_s3_bucket.terraform_state.arn
+}
+
+# Output - DynamoDB Table - Name
+output "dynamodb_table_name" {
+  description = "Name of the DynamoDB table used for state locking"
+  value       = data.aws_dynamodb_table.terraform_locks.name
 }
 
 # ==================================================== #

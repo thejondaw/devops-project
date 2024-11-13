@@ -1,47 +1,53 @@
 # ==================================================== #
-# ============== Variables of VPC Module ============= #
+# ============== VARIABLES OF VPC MODULE ============= #
 # ==================================================== #
 
-# Variable for "Taggs":
-variable "environment" {
-  description = "Environment name (e.g., develop, stage, prod)"
-  type        = string
-  default     = "develop" # Default to "develop" as it's most common use case
-}
-
-# ==================================================== #
-
-# Variable for "AWS Region":
+# Variable - AWS Region
 variable "region" {
   description = "AWS Region"
   type        = string
 }
 
-# ============= CIDR for VPC and Subnets ============= #
-
-# Variable for CIDR Block of "VPC":
-variable "vpc_cidr" {
-  description = "CIDR Block for VPC"
+# Variable - Environment
+variable "environment" {
+  description = "Environment name (develop, stage, prod)"
+  type        = string
+  validation {
+    condition     = contains(["develop", "stage", "prod"], var.environment)
+    error_message = "Environment must be develop, stage, or prod."
+  }
 }
 
-# Variable for CIDR Block of "Public Subnet #1 (WEB)":
-variable "subnet_web_cidr" {
-  description = "CIDR Block for Public Subnet #1 (WEB)"
-}
+# ===================== NETWORK ====================== #
 
-# Variable for CIDR Block of "Public Subnet #2 (ALB)":
-variable "subnet_alb_cidr" {
-  description = "CIDR Block for Public Subnet #2 (ALB)"
-}
-
-# Variable for CIDR Block of "Private Subnet #3 (API)":
-variable "subnet_api_cidr" {
-  description = "CIDR Block for Private Subnet #3 (API)"
-}
-
-# Variable for CIDR Block of "Private Subnet #4 (DB)":
-variable "subnet_db_cidr" {
-  description = "CIDR Block for Private Subnet #4 (DB)"
+# Variable - CIDR Block - Subnets
+variable "vpc_configuration" {
+  description = "VPC configuration including CIDR and subnets"
+  type = object({
+    cidr = string
+    subnets = object({
+      web = object({
+        cidr_block = string
+        az         = string
+      })
+      alb = object({
+        cidr_block = string
+        az         = string
+      })
+      api = object({
+        cidr_block = string
+        az         = string
+      })
+      db = object({
+        cidr_block = string
+        az         = string
+      })
+    })
+  })
+  validation {
+    condition     = can(cidrhost(var.vpc_configuration.cidr, 0))
+    error_message = "Must be a valid IPv4 CIDR block."
+  }
 }
 
 # ==================================================== #

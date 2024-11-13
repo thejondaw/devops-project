@@ -2,39 +2,68 @@
 # ============== VARIABLES OF ECS MODULE ============= #
 # ==================================================== #
 
-# Variable for "AWS Region":
+# Variable - AWS Region
 variable "region" {
   description = "AWS Region"
   type        = string
 }
 
-# Variable for "Environment" name:
+# Variable - Environment - Name
 variable "environment" {
   description = "Environment name (develop, stage, prod)"
   type        = string
-  default     = "develop"
+  validation {
+    condition     = contains(["develop", "stage", "prod"], var.environment)
+    error_message = "Environment must be develop, stage, or prod."
+  }
 }
 
-# ============= CIDR for VPC and Subnets ============= #
+# ===================== NETWORK ====================== #
 
-# Variable for CIDR Block of "VPC":
-variable "vpc_cidr" {
-  description = "CIDR Block for VPC"
+# Variables - CIDR Block - VPC & Subnets
+variable "network_configuration" {
+  description = "Network configuration for EKS cluster"
+  type = object({
+    vpc_id = string
+    subnets = object({
+      web = object({
+        id         = string
+        cidr_block = string
+      })
+      alb = object({
+        id         = string
+        cidr_block = string
+      })
+      api = object({
+        id         = string
+        cidr_block = string
+      })
+    })
+  })
 }
 
-# Variable for CIDR Block of "Public Subnet #1 (WEB)":
-variable "subnet_web_cidr" {
-  description = "CIDR Block for Public Subnet #1 (WEB)"
-}
+# ============ EKS CLUSTER CONFIGURATION ============= #
 
-# Variable for CIDR Block of "Public Subnet #2 (ALB)":
-variable "subnet_alb_cidr" {
-  description = "CIDR Block for Public Subnet #2 (ALB)"
-}
-
-# Variable for CIDR Block of "Private Subnet #3 (API)":
-variable "subnet_api_cidr" {
-  description = "CIDR Block for Private Subnet #3 (API)"
+variable "cluster_configuration" {
+  description = "EKS cluster configuration"
+  type = object({
+    version      = string
+    min_size     = number
+    max_size     = number
+    disk_size    = number
+    instance_types = list(string)
+  })
+  default = {
+    version        = "1.28"
+    min_size       = 1
+    max_size       = 3
+    disk_size      = 20
+    instance_types = ["t3.small"]
+  }
+  validation {
+    condition     = can(regex("^1\\.(2[3-8])$", var.cluster_configuration.version))
+    error_message = "Kubernetes version must be between 1.23 and 1.28."
+  }
 }
 
 # ==================================================== #

@@ -1,55 +1,78 @@
 # ==================================================== #
-# ================ VARIABLES of ROOT ================= #
+# ================ VARIABLES OF ROOT ================= #
 # ==================================================== #
 
-# Variable of "AWS Provider" - Region:
-variable "region_rv" {
-  description = "Please provide a region information"
+# Variable - AWS Region
+variable "region" {
+  description = "AWS Region"
   type        = string
+  default     = "us-east-2"
 }
 
-# Variable for "Backend":
-variable "backend_bucket_rv" {
-  description = "Name of the S3 bucket for terraform state"
-  type        = string
-}
-
-# Variable for "Environment":
-variable "environment_rv" {
+# Variable - Environment
+variable "environment" {
   description = "Environment name (develop, stage, prod)"
   type        = string
 }
 
-# ============= CIDR for VPC and Subnets ============= #
-
-# Variable of CIDR Block for "VPC":
-variable "vpc_cidr_rv" {
-  description = "CIDR Block for VPC"
+# Variable - S3 Bucket
+variable "backend_bucket" {
+  description = "Name of the S3 bucket for terraform state"
   type        = string
 }
 
-# Variable of CIDR Block for "Public Subnet #1 (WEB)":
-variable "subnet_web_cidr_rv" {
-  description = "CIDR Block for Public Subnet #1 (WEB)"
-  type        = string
+# Variable - Network Configuration
+variable "vpc_configuration" {
+  description = "VPC and subnet configuration"
+  type = object({
+    cidr = string
+    subnets = object({
+      web = object({
+        cidr_block = string
+        az         = string
+      })
+      alb = object({
+        cidr_block = string
+        az         = string
+      })
+      api = object({
+        cidr_block = string
+        az         = string
+      })
+      db = object({
+        cidr_block = string
+        az         = string
+      })
+    })
+  })
 }
 
-# Variable of CIDR Block for "Public Subnet #2 (ALB)":
-variable "subnet_alb_cidr_rv" {
-  description = "CIDR Block for Public Subnet #2 (ALB)"
-  type        = string
+# Variable - Database Configuration
+variable "db_configuration" {
+  description = "RDS configuration"
+  type = object({
+    name     = string
+    username = string
+    password = string
+  })
+  sensitive = true
 }
 
-# Variable of CIDR Block for "Private Subnet #3 (API)":
-variable "subnet_api_cidr_rv" {
-  description = "CIDR Block for Private Subnet #3 (API)"
-  type        = string
-}
-
-# Variable of CIDR Block for "Private Subnet #4 (DB)":
-variable "subnet_db_cidr_rv" {
-  description = "CIDR Block for Private Subnet #4 (DB)"
-  type        = string
+# Variable - EKS Configuration
+variable "eks_configuration" {
+  description = "EKS cluster configuration"
+  type = object({
+    version        = string
+    min_size       = number
+    max_size       = number
+    instance_types = list(string)
+  })
+  default = {
+    version        = "1.28"
+    min_size       = 1
+    max_size       = 3
+    instance_types = ["t3.small"]
+  }
 }
 
 # ==================================================== #

@@ -1,10 +1,10 @@
 # ==================================================== #
-# ==================== VPC Module ==================== #
+# ==================== VPC MODULE ==================== #
 # ==================================================== #
 
-# "VPC" (Virtual Private Cloud):
+# VPC (Virtual Private Cloud)
 resource "aws_vpc" "main" {
-  cidr_block       = var.vpc_cidr
+  cidr_block       = var.vpc_configuration.cidr
   instance_tenancy = "default"
 
   tags = {
@@ -15,14 +15,14 @@ resource "aws_vpc" "main" {
   }
 }
 
-# ===================== Subnets ====================== #
+# ===================== SUBNETS ====================== #
 
-# "Public Subnet #1" - "WEB":
+# Public Subnet #1 - WEB
 resource "aws_subnet" "subnet_web" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.subnet_web_cidr
+  cidr_block              = var.vpc_configuration.web.cidr_block
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-2a"
+  availability_zone       = var.vpc_configuration.web.az
 
   tags = {
     Name        = "subnet-web"
@@ -34,12 +34,12 @@ resource "aws_subnet" "subnet_web" {
   }
 }
 
-# "Public Subnet #2" - "ALB" (Application Load Balancer):
+# Public Subnet #2 - ALB
 resource "aws_subnet" "subnet_alb" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.subnet_alb_cidr
+  cidr_block              = var.vpc_configuration.alb.cidr_block
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-2b"
+  availability_zone       = var.vpc_configuration.alb.az
 
   tags = {
     Name        = "subnet-alb"
@@ -51,11 +51,11 @@ resource "aws_subnet" "subnet_alb" {
   }
 }
 
-# "Private Subnet #3" - "API":
+# Private Subnet #3 - API
 resource "aws_subnet" "subnet_api" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.subnet_api_cidr
-  availability_zone = "us-east-2a"
+  cidr_block        = var.vpc_configuration.api.cidr_block
+  availability_zone = var.vpc_configuration.api.az
 
   tags = {
     Name        = "subnet-api"
@@ -67,11 +67,11 @@ resource "aws_subnet" "subnet_api" {
   }
 }
 
-# "Private Subnet #4" - "Database" (DB):
+# Private Subnet #4 - DB
 resource "aws_subnet" "subnet_db" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.subnet_db_cidr
-  availability_zone = "us-east-2c"
+  cidr_block        = var.vpc_configuration.db.cidr_block
+  availability_zone = var.vpc_configuration.db.az
 
   tags = {
     Name        = "subnet-db"
@@ -83,9 +83,9 @@ resource "aws_subnet" "subnet_db" {
   }
 }
 
-# ========= Internet Gateway and Route Table ========= #
+# ========== INTERNET GATEWAY & ROUTE TABLE ========== #
 
-# "Internet Gateway" (IGW):
+# IGW (Internet Gateway)
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
@@ -97,7 +97,7 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-# "Route Table" - Attach "IGW" to "Public Subnets":
+# Route Table - Attach IGW to Public Subnets
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -114,26 +114,26 @@ resource "aws_route_table" "public_rt" {
     Type        = "public"
   }
 }
-# Association of "Public Subnet #1 (WEB)" with "Route Table":
+# Association - Public Subnet #1 WEB - Route Table
 resource "aws_route_table_association" "public_web" {
   subnet_id      = aws_subnet.subnet_web.id
   route_table_id = aws_route_table.public_rt.id
 }
 
-# Association of "Public Subnet #2 (ALB)" with "Route Table":
+# Association - Public Subnet #2 ALB - Route Table
 resource "aws_route_table_association" "public_alb" {
   subnet_id      = aws_subnet.subnet_alb.id
   route_table_id = aws_route_table.public_rt.id
 }
 
-# =========== NAT Gateway and Route Table ============ #
+# ============ NAT GATEWAY & ROUTE TABLE ============= #
 
-# "Elastic IP" for "NAT Gateway":
+# Elastic IP for NAT Gateway
 resource "aws_eip" "project-eip" {
   domain = "vpc"
 }
 
-# "NAT Gateway":
+# NAT Gateway
 resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.project-eip.id
   subnet_id     = aws_subnet.subnet_web.id
@@ -146,7 +146,7 @@ resource "aws_nat_gateway" "ngw" {
   }
 }
 
-# "Route Table" for "Private Subnets":
+# Route Table for Private Subnets
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -159,34 +159,34 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
-# Route for "NAT Gateway" to "Private Subnets":
+# Private Route - Private Subnets to NAT Gateway
 resource "aws_route" "private_route" {
   route_table_id         = aws_route_table.private_rt.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.ngw.id
 }
 
-# Association of "Private Subnet #3 (API)" with "Route Table":
+# Association - Private Subnet #3 API - Route Table
 resource "aws_route_table_association" "Private_1" {
   subnet_id      = aws_subnet.subnet_api.id
   route_table_id = aws_route_table.private_rt.id
 }
 
-# Association of "Private Subnet #4 (DB)" with "Route Table":
+# Association - Private Subnet #4 DB - Route Table
 resource "aws_route_table_association" "Private_2" {
   subnet_id      = aws_subnet.subnet_db.id
   route_table_id = aws_route_table.private_rt.id
 }
 
-# ==================================================== #
+# ================== SECURITY GROUP ================== #
 
-# "Security Group" - Allow connect to "HTTP" and "SSH":
+# Security Group - Connection Access
 resource "aws_security_group" "sec_group_vpc" {
   name        = "sec-group-vpc"
   description = "Allow incoming HTTP Connections"
   vpc_id      = aws_vpc.main.id
 
-  # HTTP:
+  # HTTP
   ingress {
     description = "Allow incoming HTTP for redirect to HTTPS"
     from_port   = 80
@@ -195,7 +195,7 @@ resource "aws_security_group" "sec_group_vpc" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTPS:
+  # HTTPS
   ingress {
     description = "Allow incoming HTTPS"
     from_port   = 443
@@ -204,16 +204,16 @@ resource "aws_security_group" "sec_group_vpc" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # SSH:
+  # SSH
   ingress {
     description = "Allow SSH from only our VPC"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = [var.vpc_configuration.cidr]
   }
 
-  # Allow all "Outbound Traffic"
+  # Allow all Outbound Traffic
   egress {
     from_port   = 0
     to_port     = 0

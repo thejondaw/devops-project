@@ -2,63 +2,98 @@
 # ==================== ROOT Main ===================== #
 # ==================================================== #
 
-# "AWS Provider" - Region:
+# AWS Region
 provider "aws" {
-  region = var.region_rv
+  region = var.region
 }
 
-# ================== Custom Modules ================== #
+# ================== CUSTOM MODULES ================== #
 
-# "BACKEND" Module:
+# BACKEND - Module
 module "backend" {
-  source = "../../modules/backend"
+  source = "../terraform/modules/backend"
 
-  region_rv         = var.region_rv
-  backend_bucket_rv = var.backend_bucket_rv
-  environment_rv    = var.environment_rv
+  environment = var.environment
+  region      = var.region
+  bucket_name = var.backend_bucket
 }
 
-# "VPC" Module:
+# VPC - Module
 module "vpc" {
-  source          = "../terraform/modules/vpc"
-  region          = var.region_rv
-  vpc_cidr        = var.vpc_cidr_rv
-  subnet_web_cidr = var.subnet_web_cidr_rv
-  subnet_alb_cidr = var.subnet_alb_cidr_rv
-  subnet_api_cidr = var.subnet_api_cidr_rv
-  subnet_db_cidr  = var.subnet_db_cidr_rv
-  depends_on      = [module.backend]
+  source = "../terraform/modules/vpc"
+
+  environment       = var.environment
+  region            = var.region
+  vpc_configuration = var.vpc_configuration
+
+  depends_on = [module.backend]
 }
 
-# "EKS" Module:
-module "eks" {
-  source          = "../terraform/modules/eks"
-  region          = var.region_rv
-  vpc_cidr        = module.vpc.vpc_arn
-  subnet_web_cidr = module.vpc.subnet_web_cidr_rv
-  subnet_alb_cidr = module.vpc.subnet_alb_cidr_rv
-  subnet_api_cidr = module.vpc.subnet_api_cidr_rv
-  depends_on      = [module.backend]
-}
-
-# "RDS" Module:
+# RDS - Module
 module "rds" {
-  source          = "../terraform/modules/rds"
-  region          = var.region_rv
-  vpc_cidr        = module.vpc.vpc_arn
-  subnet_api_cidr = var.subnet_api_cidr_rv
-  subnet_db_cidr  = var.subnet_db_cidr_rv
-  depends_on      = [module.backend]
+  source = "../terraform/modules/rds"
+
+  environment = var.environment
+  network_configuration = {
+    vpc_id = module.vpc.vpc_id
+    subnets = {
+      api = {
+        id         = module.vpc.subnet_ids["api"]
+        cidr_block = var.vpc_configuration.subnets.api.cidr_block
+      }
+      db = {
+        id         = module.vpc.subnet_ids["db"]
+        cidr_block = var.vpc_configuration.subnets.db.cidr_block
+      }
+    }
+  }
+  db_configuration = var.db_configuration
+
+  depends_on = [module.vpc]
 }
 
-# "TOOLS" Module:
+# EKS - Module
+module "eks" {
+  source = "../terraform/modules/eks"
+
+  environment = var.environment
+  network_configuration = {
+    vpc_id = module.vpc.vpc_id
+    subnets = {
+      web = {
+        id         = module.vpc.subnet_ids["web"]
+        cidr_block = var.vpc_configuration.subnets.web.cidr_block
+      }
+      alb = {
+        id         = module.vpc.subnet_ids["alb"]
+        cidr_block = var.vpc_configuration.subnets.alb.cidr_block
+      }
+      api = {
+        id         = module.vpc.subnet_ids["api"]
+        cidr_block = var.vpc_configuration.subnets.api.cidr_block
+      }
+    }
+  }
+  cluster_configuration = var.eks_configuration
+
+  depends_on = [module.vpc]
+}
+
+# TOOLS - Module
 module "tools" {
   source = "../../modules/tools"
 
-  cluster_endpoint       = module.eks.cluster_endpoint
-  cluster_name           = module.eks.cluster_name
-  cluster_ca_certificate = module.eks.cluster_certificate_authority
-  depends_on             = [module.eks]
+  cluster_configuration = {
+    name        = module.eks.cluster_name
+    endpoint    = module.eks.cluster_endpoint
+    certificate = module.eks.cluster_certificate_authority
+  }
+
+  environment_configuration = {
+    namespaces = ["develop", "stage", "prod"]
+  }
+
+  depends_on = [module.eks]
 }
 
 # ==================================================== #

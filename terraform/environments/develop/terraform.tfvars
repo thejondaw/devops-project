@@ -1,21 +1,45 @@
 # ==================================================== #
-# ================= Your Credentials ================= #
+# ================= YOUR CREDENTIALS ================= #
 # ==================================================== #
 
-# Set "AWS Region"
-region_rv = "us-east-2"
+# Set - AWS Region
+region = "us-east-2"
 
-# Set "S3 Bucket" name:
-backend_bucket_rv = "alexsuff"
+# Set - S3 Bucket - Name
+backend_bucket = "alexsuff"
 
-# Set "Environment" name:
-environment_rv = "develop"
+# Set - Environment - Name
+environment = "develop"
 
-# Set your "IP Range" for "VPC" and "Subnets":
-vpc_cidr_rv        = "10.0.0.0/16"
-subnet_web_cidr_rv = "10.0.1.0/24"
-subnet_alb_cidr_rv = "10.0.2.0/24"
-subnet_api_cidr_rv = "10.0.3.0/24"
-subnet_db_cidr_rv  = "10.0.4.0/24"
+# Set - VPC & Subnetы - Configuration
+vpc_configuration = {
+  cidr = "10.0.0.0/16"
+  subnets = {
+    web = {
+      cidr_block = "10.0.1.0/24"
+      az         = "us-east-2a"
+    }
+    alb = {
+      cidr_block = "10.0.2.0/24"
+      az         = "us-east-2b"
+    }
+    api = {
+      cidr_block = "10.0.3.0/24"
+      az         = "us-east-2a"
+    }
+    db = {
+      cidr_block = "10.0.4.0/24"
+      az         = "us-east-2c"
+    }
+  }
+}
+
+# Set - Database - Configuration
+db_configuration = {
+  name     = "devopsdb"
+  username = "jondaw"
+  password = "password"
+  port     = 5432
+}
 
 # ==================================================== #

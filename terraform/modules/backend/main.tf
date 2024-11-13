@@ -2,19 +2,19 @@
 # ================== BACKEND MODULE ================== #
 # ==================================================== #
 
-# "S3 Bucket" - Terraform State:
+# S3 Bucket - Terraform State
 data "aws_s3_bucket" "terraform_state" {
-  bucket = var.backend_bucket_rv
+  bucket = var.backend_bucket
 }
 
-# "DynamoDB Table" - State Locking:
+# DynamoDB Table - State Locking
 data "aws_dynamodb_table" "terraform_locks" {
-  name = "${var.backend_bucket_rv}-locks"
+  name = "${var.backend_bucket}-locks"
 }
 
-# ============== S3 Bucket Settings ================= #
+# ============== S3 BUCKET SETTINGS ================= #
 
-# Enable "Versioning" for State Files:
+# Enable - Versioning for State Files
 resource "aws_s3_bucket_versioning" "terraform_state" {
   bucket = data.aws_s3_bucket.terraform_state.id
 
@@ -23,7 +23,7 @@ resource "aws_s3_bucket_versioning" "terraform_state" {
   }
 }
 
-# Enable Server-Side "Encryption":
+# Enable - Server-Side Encryption
 resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
   bucket = data.aws_s3_bucket.terraform_state.id
 
@@ -34,7 +34,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" 
   }
 }
 
-# Block "Public Access":
+# Block - Public Access
 resource "aws_s3_bucket_public_access_block" "terraform_state" {
   bucket = data.aws_s3_bucket.terraform_state.id
 

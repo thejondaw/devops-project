@@ -1,8 +1,8 @@
 # ==================================================== #
-# =========== S3 Bucket for Backend of RDS =========== #
+# =========== S3 BUCKET FOR BACKEND OF RDS =========== #
 # ==================================================== #
 
-# "S3 Bucket" - Backend:
+# S3 Bucket - Backend
 terraform {
   backend "s3" {
     bucket         = "alexsuff"
