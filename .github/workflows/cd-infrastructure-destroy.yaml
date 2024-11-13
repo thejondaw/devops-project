@@ -2,24 +2,24 @@ name: CD - Infrastructure Destruction
 
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Environment to destroy"
-        required: true
-        default: "develop"
-        type: choice
-        options:
-          - develop
-          - stage
-          - prod
-      action:
-        description: "Action to perform"
-        required: true
-        type: choice
-        options:
-          - apply
-          - destroy
-        default: "apply"
+    # inputs:
+    #   environment:
+    #     description: "Environment to destroy"
+    #     required: true
+    #     default: "develop"
+    #     type: choice
+    #     options:
+    #       - develop
+    #       - stage
+    #       - prod
+    #   action:
+    #     description: "Action to perform"
+    #     required: true
+    #     type: choice
+    #     options:
+    #       - apply
+    #       - destroy
+    #     default: "apply"
   push:
     branches: ["master", "stage", "develop"]
     paths:
