@@ -40,7 +40,8 @@ jobs:
 
       - name: Destroy Infrastructure
         run: |
-          for module in tools rds eks vpc; do
+          # Сначала уничтожаем приложения и сервисы
+          for module in tools; do
             echo "Destroying $module..."
             cd terraform/modules/$module
             terraform init \
@@ -51,3 +52,29 @@ jobs:
               -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
             cd ../../../
           done
+
+          # Затем уничтожаем RDS и EKS
+          for module in rds eks; do
+            echo "Destroying $module..."
+            cd terraform/modules/$module
+            terraform init \
+              -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+              -backend-config="key=environments/${{ env.TARGET_ENV }}/$module.tfstate" \
+              -backend-config="region=${{ env.AWS_REGION }}"
+            terraform destroy -auto-approve \
+              -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
+            cd ../../../
+            # Даем время на освобождение ресурсов
+            sleep 30
+          done
+
+          # В конце уничтожаем VPC и связанные с ней ресурсы
+          echo "Destroying vpc..."
+          cd terraform/modules/vpc
+          terraform init \
+            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+            -backend-config="key=environments/${{ env.TARGET_ENV }}/vpc.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}"
+          terraform destroy -auto-approve \
+            -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars \
+            -refresh=true
