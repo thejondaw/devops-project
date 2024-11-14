@@ -5,7 +5,7 @@
 # Output - ArgoCD - Host
 output "argocd_host" {
   description = "ArgoCD server hostname"
-  value       = try(helm_release.argocd.status[0].load_balancer_ingress[0].hostname, null)
+  value       = kubernetes_service.argocd_server.status.0.load_balancer.ingress.0.hostname
 }
 
 # Output - Created Namespaces

@@ -142,6 +142,38 @@ resource "kubernetes_network_policy" "default" {
   }
 }
 
+# ==================== SERVICES ===================== #
+
+# Service for ArgoCD Server
+resource "kubernetes_service" "argocd_server" {
+  metadata {
+    name      = "argocd-server"
+    namespace = kubernetes_namespace.argocd.metadata[0].name
+    labels = {
+      app = "argocd-server"
+    }
+  }
+
+  spec {
+    type = "LoadBalancer"
+    port {
+      name        = "http"
+      port        = 80
+      target_port = "server"
+    }
+    port {
+      name        = "https"
+      port        = 443
+      target_port = "server"
+    }
+    selector = {
+      app.kubernetes.io / name = "argocd-server"
+    }
+  }
+
+  depends_on = [helm_release.argocd]
+}
+
 # ================= RBAC Resources ================== #
 
 #  ArgoCD Admin - ClusterRole
