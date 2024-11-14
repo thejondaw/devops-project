@@ -28,26 +28,27 @@ env:
   TARGET_ENV: ${{ github.event.inputs.environment || github.ref_name }}
 
 jobs:
-  prepare:
+  Prepare:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Set deployment matrix
+      - name: Set Deployment Matrix
         id: set-matrix
         run: |
           if [[ "${{ github.event.inputs.action }}" == "destroy" ]]; then
-            echo "matrix={\"module\":[\"tools\",\"rds\",\"eks\",\"vpc\",\"backend\"]}" >> $GITHUB_OUTPUT
+            echo "matrix={\"module\":[\"Tools\",\"RDS\",\"EKS\",\"VPC\",\"S3\"], \"path\":[\"tools\",\"rds\",\"eks\",\"vpc\",\"backend\"]}" >> $GITHUB_OUTPUT
           else
-            echo "matrix={\"module\":[\"backend\",\"vpc\",\"eks\",\"rds\",\"tools\"]}" >> $GITHUB_OUTPUT
+            echo "matrix={\"module\":[\"S3\",\"VPC\",\"EKS\",\"RDS\",\"Tools\"], \"path\":[\"backend\",\"vpc\",\"eks\",\"rds\",\"tools\"]}" >> $GITHUB_OUTPUT
           fi
 
-  deploy:
-    needs: prepare
+  Deploy:
+    needs: Prepare
     runs-on: ubuntu-latest
+    name: Deploy - ${{ matrix.module }}
     environment: ${{ github.event.inputs.environment || github.ref_name }}
     strategy:
-      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.Prepare.outputs.matrix) }}
       fail-fast: true
       max-parallel: 1
 
@@ -65,9 +66,9 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Process Terraform Module
-        working-directory: terraform/modules/${{ matrix.module }}
+        working-directory: terraform/modules/${{ matrix.path }}
         env:
-          IS_BACKEND: ${{ matrix.module == 'backend' }}
+          IS_BACKEND: ${{ matrix.path == 'backend' }}
           ACTION: ${{ github.event.inputs.action || 'apply' }}
         run: |
           # Initialize Terraform
@@ -76,7 +77,7 @@ jobs:
           else
             terraform init \
               -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
-              -backend-config="key=environments/${{ env.TARGET_ENV }}/${{ matrix.module }}.tfstate" \
+              -backend-config="key=environments/${{ env.TARGET_ENV }}/${{ matrix.path }}.tfstate" \
               -backend-config="region=${{ env.AWS_REGION }}"
           fi
 
