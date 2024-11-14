@@ -2,12 +2,6 @@
 # ================= OUTPUTS OF HELM ================== #
 # ==================================================== #
 
-# Output - ArgoCD - Host
-output "argocd_host" {
-  description = "ArgoCD server hostname"
-  value       = kubernetes_service.argocd_server.status.0.load_balancer.ingress.0.hostname
-}
-
 # Output - Created Namespaces
 output "namespaces" {
   description = "Created namespace names"
