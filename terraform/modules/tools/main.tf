@@ -24,7 +24,7 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
+    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
   }
 }
 
@@ -36,7 +36,7 @@ provider "helm" {
 
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.name]
+      args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
       command     = "aws"
     }
   }
@@ -44,14 +44,21 @@ provider "helm" {
 
 # =================== DATA SOURCES =================== #
 
-# Fetch - EKS Cluster - Auth
-data "aws_eks_cluster_auth" "cluster" {
-  name = var.cluster_configuration.name
+# Fetch - EKS Cluster
+data "aws_eks_clusters" "available" {
 }
 
-# Fetch - EKS Cluster
 data "aws_eks_cluster" "cluster" {
-  name = var.cluster_configuration.name
+  name = [
+    for cluster_name in data.aws_eks_clusters.available.names :
+    cluster_name
+    if can(regex("^${var.environment}-cluster-", cluster_name))
+  ][0]
+}
+
+# Fetch - EKS Cluster - Auth
+data "aws_eks_cluster_auth" "cluster" {
+  name = data.aws_eks_cluster.cluster.name
 }
 
 # =================== HELM CHARTS ==================== #

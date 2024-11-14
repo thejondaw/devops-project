@@ -2,40 +2,23 @@ name: CD - Infrastructure Destruction
 
 on:
   workflow_dispatch:
-    # inputs:
-    #   environment:
-    #     description: "Environment to destroy"
-    #     required: true
-    #     default: "develop"
-    #     type: choice
-    #     options:
-    #       - develop
-    #       - stage
-    #       - prod
-    #   action:
-    #     description: "Action to perform"
-    #     required: true
-    #     type: choice
-    #     options:
-    #       - apply
-    #       - destroy
-    #     default: "apply"
   push:
     branches: ["master", "stage", "develop"]
-    paths:
-      # Infrastructure related changes
-      - "terraform/modules/backend/**"
-      - "terraform/modules/vpc/**"
-      - "terraform/modules/eks/**"
-      - "terraform/modules/rds/**"
-      - "terraform/modules/tools/**"
-      - "terraform/environments/**/*.tfvars"
-      - ".github/workflows/cd-infrastructure-destroy.yaml"
-      # Configuration files
-      - "terraform/environments/develop/main.tf"
-      - "terraform/environments/stage/main.tf"
-      - "terraform/environments/prod/main.tf"
-      - "Makefile"
+    # paths:
+
+    #   # Infrastructure related changes
+    #   - "terraform/modules/backend/**"
+    #   - "terraform/modules/vpc/**"
+    #   - "terraform/modules/eks/**"
+    #   - "terraform/modules/rds/**"
+    #   - "terraform/modules/tools/**"
+    #   - "terraform/environments/**/*.tfvars"
+    #   - ".github/workflows/cd-infrastructure-destroy.yaml"
+    #   # Configuration files
+    #   - "terraform/environments/develop/main.tf"
+    #   - "terraform/environments/stage/main.tf"
+    #   - "terraform/environments/master/main.tf"
+    #   - "Makefile"
 
 env:
   TF_STATE_BUCKET: "alexsuff"
@@ -59,8 +42,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # # First destroy Tools
-      # - name: Destroy Tools
+      # - name: 1. Destroy - TOOLS
       #   run: |
       #     cd terraform/modules/tools
       #     terraform init \
@@ -69,8 +51,7 @@ jobs:
       #       -backend-config="region=${{ env.AWS_REGION }}"
       #     terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment || 'develop' }}/terraform.tfvars
 
-      # Destroy RDS first
-      - name: Destroy RDS
+      - name: 2. Destroy - RDS
         run: |
           cd terraform/modules/rds
           terraform init \
@@ -80,7 +61,7 @@ jobs:
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment || 'develop' }}/terraform.tfvars
 
       # Then destroy EKS
-      - name: Destroy EKS
+      - name: 3. Destroy - EKS
         if: success()
         run: |
           cd terraform/modules/eks
@@ -90,7 +71,7 @@ jobs:
             -backend-config="region=${{ env.AWS_REGION }}"
           terraform destroy -auto-approve -var-file=../../environments/${{ github.event.inputs.environment || 'develop' }}/terraform.tfvars
 
-      # Finally destroy VPC
+      # 4. Destroy - VPC
       - name: Destroy VPC
         if: success()
         run: |
