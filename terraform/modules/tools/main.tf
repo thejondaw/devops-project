@@ -63,16 +63,10 @@ data "aws_eks_cluster_auth" "cluster" {
 
 # =================== HELM CHARTS ==================== #
 
-# Helm Repository - ArgoCD
-resource "helm_repository" "argo" {
-  name = "argo"
-  url  = "https://argoproj.github.io/argo-helm"
-}
-
 # Install - ArgoCD
 resource "helm_release" "argocd" {
   name             = "argocd"
-  repository       = helm_repository.argo.metadata[0].name
+  repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
   version          = "5.51.6"
   namespace        = "argocd"
