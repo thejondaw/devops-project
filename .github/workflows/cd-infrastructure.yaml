@@ -81,3 +81,30 @@ jobs:
           # Apply or Destroy
           terraform ${{ env.ACTION }} -auto-approve \
             -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
+
+  post-install:
+    needs: deploy
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || github.ref_name }}
+
+    if: github.event.inputs.action != 'destroy'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Run post-install script
+        run: |
+          chmod +x scripts/post-install.sh
+          ./scripts/post-install.sh ${{ env.TARGET_ENV }}
