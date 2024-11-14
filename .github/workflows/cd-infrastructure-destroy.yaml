@@ -9,6 +9,12 @@ on:
         default: "develop"
         type: choice
         options: [develop, stage, master]
+  push:
+    branches: ["master", "stage", "develop"]
+    paths:
+      - "terraform/**"
+      - ".github/workflows/cd-infrastructure.yaml"
+      - "Makefile"
 
 env:
   TF_STATE_BUCKET: alexsuff
