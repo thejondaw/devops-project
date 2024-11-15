@@ -73,11 +73,26 @@ resource "helm_release" "argocd" {
   create_namespace = true
 
   values = [
-    file("${path.module}/values/argocd.yaml")
+    file("${path.module}/values/argocd-values.yaml")
+  ]
+
+  depends_on = [
+    kubernetes_namespace.argocd
   ]
 }
 
 # =================== NAMESPACES ==================== #
+
+# ArgoCD - Namespace
+resource "kubernetes_namespace" "argocd" {
+  metadata {
+    name = "argocd"
+    labels = {
+      name = "argocd"
+      type = "system"
+    }
+  }
+}
 
 # Application - Namespaces
 resource "kubernetes_namespace" "applications" {
@@ -89,10 +104,6 @@ resource "kubernetes_namespace" "applications" {
       environment = each.key
       managed-by  = "terraform"
     }
-  }
-
-  lifecycle {
-    ignore_changes = all
   }
 }
 
@@ -129,15 +140,11 @@ resource "kubernetes_network_policy" "default" {
       }
     }
   }
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
 
 # ================= RBAC Resources ================== #
 
-# ArgoCD Admin - ClusterRole
+#  ArgoCD Admin - ClusterRole
 resource "kubernetes_cluster_role" "argocd_admin" {
   metadata {
     name = "argocd-admin-role"
@@ -147,10 +154,6 @@ resource "kubernetes_cluster_role" "argocd_admin" {
     api_groups = ["*"]
     resources  = ["*"]
     verbs      = ["*"]
-  }
-
-  lifecycle {
-    ignore_changes = all
   }
 }
 
@@ -170,10 +173,6 @@ resource "kubernetes_cluster_role_binding" "argocd_admin" {
     kind      = "ServiceAccount"
     name      = "argocd-application-controller"
     namespace = "argocd"
-  }
-
-  lifecycle {
-    ignore_changes = all
   }
 }
 
