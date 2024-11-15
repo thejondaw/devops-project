@@ -213,6 +213,7 @@ resource "aws_eks_node_group" "study" {
   cluster_name    = aws_eks_cluster.study.name
   node_group_name = "${local.cluster_name}-nodes"
   node_role_arn   = aws_iam_role.node_group.arn
+  capacity_type   = "SPOT"
 
   subnet_ids = [data.aws_subnet.web.id]
 

@@ -31,7 +31,7 @@ variable "cluster_configuration" {
   })
   default = {
     version        = "1.28"
-    min_size       = 1
+    min_size       = 2
     max_size       = 3
     disk_size      = 20
     instance_types = ["t3.small"]

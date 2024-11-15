@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: db-cm
 data:
-  DB_HOST: "tf-20241108221506733100000001.c7soci4q0mry.us-east-2.rds.amazonaws.com"
+  DB_HOST: ""
   DB_PORT: "5432"
   DB_NAME: "devopsdb"
