@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: web-cm
 data:
-  API_HOST: "http://api-service"
+  API_HOST: "http://api-svc"
