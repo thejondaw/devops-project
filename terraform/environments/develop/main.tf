@@ -58,12 +58,6 @@ module "tools" {
     namespaces = ["develop", "stage", "prod"]
   }
 
-  cluster_configuration = {
-    name        = module.eks.cluster_name
-    endpoint    = module.eks.cluster_endpoint
-    certificate = module.eks.cluster_certificate_authority
-  }
-
   depends_on = [module.eks]
 }
 

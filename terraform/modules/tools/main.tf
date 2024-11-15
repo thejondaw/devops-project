@@ -73,7 +73,7 @@ resource "helm_release" "argocd" {
   create_namespace = true
 
   values = [
-    file("${path.module}/values/argocd-values.yaml")
+    file("${path.module}/values/argocd.yaml")
   ]
 
   depends_on = [

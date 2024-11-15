@@ -9,12 +9,12 @@ on:
         default: "develop"
         type: choice
         options: [develop, stage, master]
-  push:
-    branches: ["master", "stage", "develop"]
-    paths:
-      - "terraform/**"
-      - ".github/workflows/cd-infrastructure-destroy.yaml"
-      - "Makefile"
+  # push:
+  #   branches: ["master", "stage", "develop"]
+  #   paths:
+  #     - "terraform/**"
+  #     - ".github/workflows/cd-destroy.yaml"
+  #     - "Makefile"
 
 env:
   TF_STATE_BUCKET: alexsuff
@@ -40,7 +40,7 @@ jobs:
 
       - name: Destroy Infrastructure
         run: |
-          # Сначала уничтожаем приложения и сервисы
+
           for module in tools; do
             echo "Destroying $module..."
             cd terraform/modules/$module
@@ -53,7 +53,6 @@ jobs:
             cd ../../../
           done
 
-          # Затем уничтожаем RDS и EKS
           for module in rds eks; do
             echo "Destroying $module..."
             cd terraform/modules/$module
@@ -64,11 +63,9 @@ jobs:
             terraform destroy -auto-approve \
               -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
             cd ../../../
-            # Даем время на освобождение ресурсов
             sleep 30
           done
 
-          # В конце уничтожаем VPC и связанные с ней ресурсы
           echo "Destroying vpc..."
           cd terraform/modules/vpc
           terraform init \
