@@ -61,6 +61,27 @@ data "aws_eks_cluster_auth" "cluster" {
   name = data.aws_eks_cluster.cluster.name
 }
 
+# # Fetch - Existing Resources
+data "kubernetes_namespace" "existing_namespaces" {
+  for_each = toset(concat(["argocd"], var.environment_configuration.namespaces))
+  metadata {
+    name = each.key
+  }
+  depends_on = [
+    helm_release.argocd
+  ]
+}
+
+# Fetch - ClusterRole
+data "kubernetes_cluster_role" "existing_role" {
+  metadata {
+    name = "argocd-admin-role"
+  }
+  depends_on = [
+    helm_release.argocd
+  ]
+}
+
 # =================== HELM CHARTS ==================== #
 
 # Install - ArgoCD
@@ -75,16 +96,14 @@ resource "helm_release" "argocd" {
   values = [
     file("${path.module}/values/argocd.yaml")
   ]
-
-  depends_on = [
-    kubernetes_namespace.argocd
-  ]
 }
 
 # =================== NAMESPACES ==================== #
 
 # ArgoCD - Namespace
 resource "kubernetes_namespace" "argocd" {
+  count = can(data.kubernetes_namespace.existing_namespaces["argocd"]) ? 0 : 1
+  
   metadata {
     name = "argocd"
     labels = {
@@ -96,7 +115,11 @@ resource "kubernetes_namespace" "argocd" {
 
 # Application - Namespaces
 resource "kubernetes_namespace" "applications" {
-  for_each = toset(var.environment_configuration.namespaces)
+  for_each = {
+    for ns in var.environment_configuration.namespaces :
+    ns => ns
+    if !can(data.kubernetes_namespace.existing_namespaces[ns])
+  }
 
   metadata {
     name = each.key
@@ -146,6 +169,8 @@ resource "kubernetes_network_policy" "default" {
 
 #  ArgoCD Admin - ClusterRole
 resource "kubernetes_cluster_role" "argocd_admin" {
+  count = can(data.kubernetes_cluster_role.existing_role) ? 0 : 1
+
   metadata {
     name = "argocd-admin-role"
   }
@@ -159,6 +184,8 @@ resource "kubernetes_cluster_role" "argocd_admin" {
 
 # ArgoCD Admin - ClusterRoleBinding
 resource "kubernetes_cluster_role_binding" "argocd_admin" {
+  count = can(data.kubernetes_cluster_role.existing_role) ? 0 : 1
+
   metadata {
     name = "argocd-admin-role-binding"
   }
@@ -166,7 +193,7 @@ resource "kubernetes_cluster_role_binding" "argocd_admin" {
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name      = kubernetes_cluster_role.argocd_admin.metadata[0].name
+    name      = "argocd-admin-role"
   }
 
   subject {
