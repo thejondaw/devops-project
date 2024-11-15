@@ -61,17 +61,6 @@ data "aws_eks_cluster_auth" "cluster" {
   name = data.aws_eks_cluster.cluster.name
 }
 
-# # Fetch - Existing Resources
-data "kubernetes_namespace" "existing_namespaces" {
-  for_each = toset(concat(["argocd"], var.environment_configuration.namespaces))
-  metadata {
-    name = each.key
-  }
-  depends_on = [
-    helm_release.argocd
-  ]
-}
-
 # =================== HELM CHARTS ==================== #
 
 # Install - ArgoCD
@@ -90,26 +79,9 @@ resource "helm_release" "argocd" {
 
 # =================== NAMESPACES ==================== #
 
-# ArgoCD - Namespace
-resource "kubernetes_namespace" "argocd" {
-  count = can(data.kubernetes_namespace.existing_namespaces["argocd"]) ? 0 : 1
-
-  metadata {
-    name = "argocd"
-    labels = {
-      name = "argocd"
-      type = "system"
-    }
-  }
-}
-
 # Application - Namespaces
 resource "kubernetes_namespace" "applications" {
-  for_each = {
-    for ns in var.environment_configuration.namespaces :
-    ns => ns
-    if !can(data.kubernetes_namespace.existing_namespaces[ns])
-  }
+  for_each = toset(var.environment_configuration.namespaces)
 
   metadata {
     name = each.key
@@ -117,6 +89,10 @@ resource "kubernetes_namespace" "applications" {
       environment = each.key
       managed-by  = "terraform"
     }
+  }
+
+  lifecycle {
+    ignore_changes = all
   }
 }
 
@@ -153,11 +129,15 @@ resource "kubernetes_network_policy" "default" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # ================= RBAC Resources ================== #
 
-#  ArgoCD Admin - ClusterRole
+# ArgoCD Admin - ClusterRole
 resource "kubernetes_cluster_role" "argocd_admin" {
   metadata {
     name = "argocd-admin-role"
@@ -167,6 +147,10 @@ resource "kubernetes_cluster_role" "argocd_admin" {
     api_groups = ["*"]
     resources  = ["*"]
     verbs      = ["*"]
+  }
+
+  lifecycle {
+    ignore_changes = all
   }
 }
 
@@ -186,6 +170,10 @@ resource "kubernetes_cluster_role_binding" "argocd_admin" {
     kind      = "ServiceAccount"
     name      = "argocd-application-controller"
     namespace = "argocd"
+  }
+
+  lifecycle {
+    ignore_changes = all
   }
 }
 
