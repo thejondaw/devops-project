@@ -41,14 +41,10 @@ kubectl apply -f k8s/api/db-cm.yaml
 DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
 DB_PORT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Port' --output text)
 
-kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\",\"DB_PORT\":\"$DB_PORT\"}}"
+kubectl patch configmap db-cm --type=merge -p '{"data":{"DB_HOST":"'"$DB_ENDPOINT"'","DB_PORT":"'"$DB_PORT"'"}}'
 
 kubectl apply -f k8s/api/api-svc.yaml
 kubectl apply -f k8s/api/api-deploy.yaml
-
-
-
-
 
 # Заебуриваем манифесты веба
 kubectl apply -f k8s/web/web-cm.yaml
