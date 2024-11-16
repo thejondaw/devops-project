@@ -40,16 +40,16 @@ data "aws_subnet" "db" {
 resource "aws_rds_cluster" "aurora_postgresql" {
   cluster_identifier     = "${var.environment}-aurora-cluster"
   engine                 = "aurora-postgresql"
-  engine_mode           = "provisioned"
-  engine_version        = "15.3"
-  database_name         = var.db_configuration.name
-  master_username       = var.db_configuration.username
-  master_password       = var.db_configuration.password
-  port                  = var.db_configuration.port
-  storage_encrypted     = true
-  db_subnet_group_name  = aws_db_subnet_group.aurora_subnet_group.name
+  engine_mode            = "provisioned"
+  engine_version         = "15.3"
+  database_name          = var.db_configuration.name
+  master_username        = var.db_configuration.username
+  master_password        = var.db_configuration.password
+  port                   = var.db_configuration.port
+  storage_encrypted      = true
+  db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids = [aws_security_group.sg_aurora.id]
-  skip_final_snapshot   = true
+  skip_final_snapshot    = true
 
   serverlessv2_scaling_configuration {
     max_capacity = 1.0
