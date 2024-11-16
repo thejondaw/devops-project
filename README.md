@@ -6,7 +6,6 @@
 ### 1. Security (CRITICAL)
 - [ ] Vault (бесплатная версия)
   - [ ] Перенести все креды из RDS
-  - [ ] Настроить rotation secrets
   - [ ] Интеграция с K8s через ServiceAccount
 - [ ] Security Hardening
   - [ ] AppArmor базовые профили для подов
@@ -41,8 +40,8 @@
 ### 5. Automation & IaC
 - [ ] Рефакторинг Terraform
   - [ ] Вынести все переменные в tfvars
-  - [ ] Добавить теги для всех ресурсов
-  - [ ] Автоматизация имен (кластера, ресурсов)
+  - [v] Добавить теги для всех ресурсов
+  - [v] Автоматизация имен (кластера, ресурсов)
 ```
 
 > 1. CI via GitHub Actions with linter, scanners and containerization
