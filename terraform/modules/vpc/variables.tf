@@ -24,7 +24,7 @@ variable "environment" {
 variable "vpc_configuration" {
   description = "VPC configuration including CIDR and subnets"
   type = object({
-    cidr    = string
+    cidr = string
     subnets = object({
       web = object({
         cidr_block = string
