@@ -42,137 +42,80 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform Format Fix
+      - name: Terraform Format
         id: fmt
         run: |
-          echo "Running terraform fmt..."
           terraform fmt -recursive terraform/
-
-          # Проверяем, есть ли изменения после форматирования
           if [[ -n $(git status --porcelain) ]]; then
-            echo "::notice::Terraform formatting issues were found and fixed"
             echo "formatted=true" >> $GITHUB_OUTPUT
           else
-            echo "::notice::No formatting issues found"
             echo "formatted=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit Formatting Changes
+      - name: Commit Format Changes
         if: steps.fmt.outputs.formatted == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add terraform/
-          git commit -m "chore: auto-format terraform files" || echo "No changes to commit"
-          git push || echo "No changes to push"
+          git commit -m "chore: auto-format terraform files"
+          git push
 
       - name: Install TFLint
-        run: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+        run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
       - name: Run TFLint
-        continue-on-error: true
         run: |
-          echo "Running TFLint analysis..."
           cat << EOF > .tflint.hcl
           plugin "aws" {
             enabled = true
             version = "0.27.0"
             source  = "github.com/terraform-linters/tflint-ruleset-aws"
           }
-
           config {
-            module = true
+            call_module_type = "local"
             force = false
           }
-
-          rule "terraform_deprecated_index" {
-            enabled = true
-          }
-
-          rule "terraform_unused_declarations" {
-            enabled = true
-          }
-
-          rule "terraform_comment_syntax" {
-            enabled = true
-          }
-
-          rule "terraform_documented_outputs" {
-            enabled = true
-          }
-
-          rule "terraform_documented_variables" {
-            enabled = true
-          }
-
-          rule "terraform_typed_variables" {
-            enabled = true
-          }
-
+          rule "terraform_deprecated_index" { enabled = true }
+          rule "terraform_unused_declarations" { enabled = true }
+          rule "terraform_comment_syntax" { enabled = true }
+          rule "terraform_documented_outputs" { enabled = true }
+          rule "terraform_documented_variables" { enabled = true }
+          rule "terraform_typed_variables" { enabled = true }
           rule "terraform_naming_convention" {
             enabled = true
+            format = "snake_case"
           }
-
-          rule "terraform_required_version" {
-            enabled = true
-          }
-
-          rule "terraform_required_providers" {
-            enabled = true
-          }
+          rule "terraform_required_version" { enabled = true }
+          rule "terraform_required_providers" { enabled = true }
           EOF
-
           tflint --init
-
           for module in terraform/modules/*; do
             if [ -d "$module" ]; then
-              echo "Analyzing module: $module"
-              tflint --chdir="$module" --format=compact || {
-                echo "::warning ::TFLint found issues in $module. See output above."
-              }
+              tflint --chdir="$module" --format=compact
             fi
           done
-
-          echo "Analyzing root terraform directory..."
-          tflint --chdir="terraform" --format=compact || {
-            echo "::warning ::TFLint found issues in root terraform directory. See output above."
-          }
+          tflint --chdir="terraform" --format=compact
 
       - name: Install tfsec
-        run: |
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+        run: curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
 
       - name: Run tfsec
-        continue-on-error: true
-        run: |
-          echo "Running security checks with tfsec..."
-          tfsec terraform/ --format text || {
-            echo "::warning ::Security issues detected by tfsec. Review findings above."
-          }
+        run: tfsec terraform/ --format text
 
-      - name: Install checkov
+      - name: Install & Run checkov
         run: |
           pip install checkov
+          checkov -d terraform/ --framework terraform --output cli
 
-      - name: Run checkov
-        continue-on-error: true
-        run: |
-          echo "Running policy checks with checkov..."
-          checkov -d terraform/ --framework terraform --output cli || {
-            echo "::warning ::Policy violations detected by checkov. Review findings above."
-          }
-
-      # Создаем общий отчет о проверках
-      - name: Generate Lint Summary
+      - name: Analysis Summary
         if: always()
         run: |
-          echo "### Infrastructure Code Analysis Summary" >> $GITHUB_STEP_SUMMARY
-          echo "* Terraform Format: Completed $([ "${{ steps.fmt.outputs.formatted }}" == "true" ] && echo "with fixes" || echo "without issues")" >> $GITHUB_STEP_SUMMARY
-          echo "* TFLint static analysis: Completed" >> $GITHUB_STEP_SUMMARY
-          echo "* Tfsec security checks: Completed" >> $GITHUB_STEP_SUMMARY
-          echo "* Checkov policy verification: Completed" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ Check job logs for detailed findings" >> $GITHUB_STEP_SUMMARY
+          echo "### Infrastructure Analysis Results" >> $GITHUB_STEP_SUMMARY
+          echo "* Terraform Format: $([ "${{ steps.fmt.outputs.formatted }}" == "true" ] && echo "Fixed" || echo "OK")" >> $GITHUB_STEP_SUMMARY
+          echo "* TFLint: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "* Tfsec: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "* Checkov: Completed" >> $GITHUB_STEP_SUMMARY
 
   prepare:
     needs: lint
@@ -197,7 +140,6 @@ jobs:
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
       fail-fast: true
       max-parallel: 1
-
     steps:
       - uses: actions/checkout@v3
 
@@ -211,13 +153,12 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Process Terraform Module
+      - name: Deploy Module
         working-directory: terraform/modules/${{ matrix.module }}
         env:
           IS_BACKEND: ${{ matrix.module == 'backend' }}
           ACTION: ${{ github.event.inputs.action || 'apply' }}
         run: |
-          # Initialize Terraform
           if [[ "$IS_BACKEND" == "true" ]]; then
             terraform init
           else
@@ -226,23 +167,14 @@ jobs:
               -backend-config="key=environments/${{ env.TARGET_ENV }}/${{ matrix.module }}.tfstate" \
               -backend-config="region=${{ env.AWS_REGION }}"
           fi
-
-          # Validate configuration, но не блокируем при ошибках
-          echo "Running terraform validate..."
-          terraform validate || {
-            echo "::warning ::Terraform validation issues found. Proceeding with caution."
-          }
-
-          # Apply or Destroy
-          terraform ${{ env.ACTION }} -auto-approve \
-            -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
+          terraform validate
+          terraform ${{ env.ACTION }} -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
 
   post-install:
     needs: deploy
+    if: github.event.inputs.action != 'destroy'
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || github.ref_name }}
-    if: github.event.inputs.action != 'destroy'
-
     steps:
       - uses: actions/checkout@v3
 
@@ -258,7 +190,7 @@ jobs:
         with:
           version: "latest"
 
-      - name: Run post-install script
+      - name: Post-Install Setup
         run: |
           chmod +x scripts/post-install.sh
           ./scripts/post-install.sh ${{ env.TARGET_ENV }}
