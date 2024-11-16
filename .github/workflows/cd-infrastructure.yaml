@@ -20,8 +20,8 @@ on:
     paths:
       - "terraform/**"
       - ".github/workflows/cd-infrastructure.yaml"
-      - "Makefile"
       - "scripts/post-install.sh"
+      - "Makefile"
 
 env:
   AWS_REGION: us-east-2
@@ -29,7 +29,48 @@ env:
   TARGET_ENV: ${{ github.event.inputs.environment || github.ref_name }}
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Format Check
+        run: |
+          echo "Checking Terraform formatting..."
+          terraform fmt -check -recursive terraform/
+
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+      - name: Run TFLint
+        run: |
+          echo "Running TFLint..."
+          tflint --recursive terraform/
+
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+      - name: Run tfsec
+        run: |
+          echo "Running tfsec security checks..."
+          tfsec terraform/
+
+      - name: Install checkov
+        run: |
+          pip install checkov
+
+      - name: Run checkov
+        run: |
+          echo "Running checkov policy checks..."
+          checkov -d terraform/ --framework terraform
+
   prepare:
+    needs: lint
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -42,6 +83,7 @@ jobs:
           else
             echo "matrix={\"module\":[\"backend\",\"vpc\",\"eks\",\"rds\",\"tools\"]}" >> $GITHUB_OUTPUT
           fi
+
   deploy:
     needs: prepare
     runs-on: ubuntu-latest
@@ -79,17 +121,19 @@ jobs:
               -backend-config="key=environments/${{ env.TARGET_ENV }}/${{ matrix.module }}.tfstate" \
               -backend-config="region=${{ env.AWS_REGION }}"
           fi
+
+          # Validate configuration
+          terraform validate
+
           # Apply or Destroy
           terraform ${{ env.ACTION }} -auto-approve \
             -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
 
   post-install:
     needs: deploy
+    if: github.event.inputs.action != 'destroy'
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || github.ref_name }}
-
-    if: github.event.inputs.action != 'destroy'
-
     steps:
       - uses: actions/checkout@v3
 
@@ -103,7 +147,7 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: Run post-install script
         run: |

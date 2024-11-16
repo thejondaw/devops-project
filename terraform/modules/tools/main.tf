@@ -76,6 +76,16 @@ resource "helm_release" "argocd" {
     file("${path.module}/values/argocd.yaml")
   ]
 
+  set {
+    name  = "server.service.labels.environment"
+    value = var.environment
+  }
+
+  set {
+    name  = "server.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-name"
+    value = "argocd-${var.environment}-lb"
+  }
+
   depends_on = [
     kubernetes_namespace.argocd
   ]
