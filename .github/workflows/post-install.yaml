@@ -49,10 +49,21 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Create Helm structure and deploy
+      - name: Setup Helm Structure
         run: |
           chmod +x scripts/create-helm-structure.sh
+          scripts/create-helm-structure.sh
+
+      - name: Deploy Applications
+        run: |
           chmod +x scripts/post-install.sh
-          
-          ./scripts/create-helm-structure.sh
-          ./scripts/post-install.sh ${{ env.TARGET_ENV }}
+          scripts/post-install.sh ${{ env.TARGET_ENV }}
+
+      - name: Verify Deployments
+        run: |
+          echo "Checking deployments status..."
+          kubectl get deployments -n develop
+          echo "Checking services status..."
+          kubectl get services -n develop
+          echo "Checking pods status..."
+          kubectl get pods -n develop
