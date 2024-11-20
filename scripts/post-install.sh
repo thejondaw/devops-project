@@ -57,20 +57,24 @@ kubectl apply -f k8s/infra/namespaces.yaml
 
 # ---
 
-# Install API chart
-helm upgrade --install develop-api ./helm/charts/api \
-  --namespace develop \
-  --values ./helm/environments/develop/values.yaml \
-  --set database.host=$DB_ENDPOINT
+# Creating Helm chart structure
+chmod +x create-helm-structure.sh
+./create-helm-structure.sh
 
 DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
 if [ -z "$DB_ENDPOINT" ]; then
   echo "Error: Database endpoint not found!"
   exit 1
 fi
-kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
+
+# Install API chart
+helm upgrade --install develop-api ./helm/charts/api \
+  --namespace develop \
+  --values ./helm/environments/develop/values.yaml \
+  --set database.host=$DB_ENDPOINT
 
 # Install Web chart
 helm upgrade --install develop-web ./helm/charts/web \
   --namespace develop \
-  --values ./helm/environments/develop/values.yaml
+  --values ./helm/environments/develop/values.yaml \
+  --set api.host="http://develop-api-svc"
