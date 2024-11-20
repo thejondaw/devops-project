@@ -1,0 +1,55 @@
+name: Post-Installation Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        default: "develop"
+        type: choice
+        options: [develop, stage, master]
+  push:
+    branches: ["master", "stage", "develop"]
+    paths:
+        - "terraform/**"
+        - ".github/workflows/post-install.yaml.yaml"
+        - "Makefile"
+        - "scripts/post-install.sh"
+        - "scripts/create-helm-structure.sh"
+
+env:
+  AWS_REGION: us-east-2
+  TARGET_ENV: ${{ github.event.inputs.environment }}
+
+jobs:
+  post-install:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Create Helm structure and deploy
+        run: |
+          chmod +x scripts/create-helm-structure.sh
+          chmod +x scripts/post-install.sh
+          
+          ./scripts/create-helm-structure.sh
+          ./scripts/post-install.sh ${{ env.TARGET_ENV }}

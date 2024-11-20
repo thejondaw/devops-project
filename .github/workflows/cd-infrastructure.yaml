@@ -22,6 +22,7 @@ on:
       - ".github/workflows/cd-infrastructure.yaml"
       - "Makefile"
       - "scripts/post-install.sh"
+      - "scripts/create-helm-structure.sh"
 
 env:
   AWS_REGION: us-east-2
