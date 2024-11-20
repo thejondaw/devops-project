@@ -13,7 +13,7 @@ on:
     branches: ["master", "stage", "develop"]
     paths:
       - "helm/**"
-      - ".github/workflows/post-install.yml"
+      - ".github/workflows/post-install.yaml"
       - "Makefile"
       - "scripts/post-install.sh"
       - "scripts/create-helm-structure.sh"
