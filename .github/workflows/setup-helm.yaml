@@ -9,6 +9,13 @@ on:
         default: "develop"
         type: choice
         options: [develop, stage, master]
+  push:
+    branches: ["master", "stage", "develop"]
+    paths:
+        - "terraform/**"
+        - ".github/workflows/setu-helm.yaml"
+        - "Makefile"
+        - "scripts/post-install.sh"
 
 env:
   AWS_REGION: us-east-2
