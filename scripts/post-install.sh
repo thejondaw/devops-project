@@ -34,26 +34,26 @@ kubectl apply -f k8s/infra/namespaces.yaml
 
 # ---
 
-# Applying API manifests
-kubectl apply -f k8s/api/db-secret.yaml
-kubectl apply -f k8s/api/db-cm.yaml
+# # Applying API manifests
+# kubectl apply -f k8s/api/db-secret.yaml
+# kubectl apply -f k8s/api/db-cm.yaml
 
-# Patching ConfigMap with database endpoint
-DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
-if [ -z "$DB_ENDPOINT" ]; then
-  echo "Error: Database endpoint not found!"
-  exit 1
-fi
-kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
+# # Patching ConfigMap with database endpoint
+# DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
+# if [ -z "$DB_ENDPOINT" ]; then
+#   echo "Error: Database endpoint not found!"
+#   exit 1
+# fi
+# kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
 
-kubectl apply -f k8s/api/api-svc.yaml
-kubectl apply -f k8s/api/api-deploy.yaml
+# kubectl apply -f k8s/api/api-svc.yaml
+# kubectl apply -f k8s/api/api-deploy.yaml
 
-# Applying web application manifests
-kubectl apply -f k8s/web/web-cm.yaml
-kubectl apply -f k8s/web/web-svc.yaml
-kubectl apply -f k8s/web/web-ingress.yaml
-kubectl apply -f k8s/web/web-deploy.yaml
+# # Applying web application manifests
+# kubectl apply -f k8s/web/web-cm.yaml
+# kubectl apply -f k8s/web/web-svc.yaml
+# kubectl apply -f k8s/web/web-ingress.yaml
+# kubectl apply -f k8s/web/web-deploy.yaml
 
 # ---
 
@@ -62,6 +62,13 @@ helm upgrade --install develop-api ./helm/charts/api \
   --namespace develop \
   --values ./helm/environments/develop/values.yaml \
   --set database.host=$DB_ENDPOINT
+
+DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
+if [ -z "$DB_ENDPOINT" ]; then
+  echo "Error: Database endpoint not found!"
+  exit 1
+fi
+kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
 
 # Install Web chart
 helm upgrade --install develop-web ./helm/charts/web \
