@@ -32,7 +32,35 @@ echo "ArgoCD password: $ARGOCD_PASSWORD"
 # Applying infrastructure manifests
 kubectl apply -f k8s/infra/namespaces.yaml
 
-# Get Database endpoint
+# ---
+
+# # Applying API manifests
+# kubectl apply -f k8s/api/db-secret.yaml
+# kubectl apply -f k8s/api/db-cm.yaml
+
+# # Patching ConfigMap with database endpoint
+# DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
+# if [ -z "$DB_ENDPOINT" ]; then
+#   echo "Error: Database endpoint not found!"
+#   exit 1
+# fi
+# kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
+
+# kubectl apply -f k8s/api/api-svc.yaml
+# kubectl apply -f k8s/api/api-deploy.yaml
+
+# # Applying web application manifests
+# kubectl apply -f k8s/web/web-cm.yaml
+# kubectl apply -f k8s/web/web-svc.yaml
+# kubectl apply -f k8s/web/web-ingress.yaml
+# kubectl apply -f k8s/web/web-deploy.yaml
+
+# ---
+
+# Creating Helm chart structure
+chmod +x create-helm-structure.sh
+./create-helm-structure.sh
+
 DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
 if [ -z "$DB_ENDPOINT" ]; then
   echo "Error: Database endpoint not found!"
@@ -40,23 +68,13 @@ if [ -z "$DB_ENDPOINT" ]; then
 fi
 
 # Install API chart
-echo "Installing API chart..."
 helm upgrade --install develop-api ./helm/charts/api \
   --namespace develop \
   --values ./helm/environments/develop/values.yaml \
   --set database.host=$DB_ENDPOINT
 
-echo "Waiting for API deployment..."
-kubectl -n develop rollout status deployment/develop-api-api --timeout=300s
-
 # Install Web chart
-echo "Installing Web chart..."
 helm upgrade --install develop-web ./helm/charts/web \
   --namespace develop \
   --values ./helm/environments/develop/values.yaml \
   --set api.host="http://develop-api-svc"
-
-echo "Waiting for Web deployment..."
-kubectl -n develop rollout status deployment/develop-web-web --timeout=300s
-
-echo "Post-installation completed successfully!"
