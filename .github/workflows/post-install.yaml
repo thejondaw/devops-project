@@ -12,22 +12,25 @@ on:
   push:
     branches: ["master", "stage", "develop"]
     paths:
-        - "terraform/**"
-        - ".github/workflows/post-install.yaml.yaml"
-        - "Makefile"
-        - "scripts/post-install.sh"
-        - "scripts/create-helm-structure.sh"
+      - "helm/**"
+      - ".github/workflows/post-install.yml"
+      - "Makefile"
+      - "scripts/post-install.sh"
+      - "scripts/create-helm-structure.sh"
 
 env:
   AWS_REGION: us-east-2
-  TARGET_ENV: ${{ github.event.inputs.environment }}
+  TARGET_ENV: ${{ github.event.inputs.environment || github.ref_name }}
 
 jobs:
   post-install:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event.inputs.environment || github.ref_name }}
+    permissions: write-all
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
