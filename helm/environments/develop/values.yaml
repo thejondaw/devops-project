@@ -1,14 +1,17 @@
-global:
-  environment: develop
-  domain: dev.example.com
-
 api:
   replicaCount: 1
+  image:
+    tag: develop
   database:
-    host: "tf-20241108221506733100000001.c7soci4q0mry.us-east-2.rds.amazonaws.com"
+    host: "" # Will be populated by post-install script
+    port: "5432"
+    name: "devopsdb"
+    username: "jondaw"
+    password: "password"
 
 web:
   replicaCount: 1
-  ingress:
-    enabled: true
-    host: "dev.example.com"
+  image:
+    tag: develop
+  api:
+    host: "http://develop-api-svc" # Points to API service in develop namespace

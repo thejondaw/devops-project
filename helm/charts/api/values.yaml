@@ -1,0 +1,35 @@
+replicaCount: 1
+image:
+  repository: jondaw/devops-api
+  tag: develop
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+livenessProbe:
+  path: /api/status
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+readinessProbe:
+  path: /api/status
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 3000
+
+database:
+  host: ""
+  port: "5432"
+  name: "devopsdb"
+  username: "jondaw"
+  password: "password"

@@ -32,6 +32,8 @@ echo "ArgoCD password: $ARGOCD_PASSWORD"
 # Applying infrastructure manifests
 kubectl apply -f k8s/infra/namespaces.yaml
 
+# ---
+
 # Applying API manifests
 kubectl apply -f k8s/api/db-secret.yaml
 kubectl apply -f k8s/api/db-cm.yaml
@@ -52,3 +54,16 @@ kubectl apply -f k8s/web/web-cm.yaml
 kubectl apply -f k8s/web/web-svc.yaml
 kubectl apply -f k8s/web/web-ingress.yaml
 kubectl apply -f k8s/web/web-deploy.yaml
+
+# ---
+
+# Install API chart
+helm upgrade --install develop-api ./helm/charts/api \
+  --namespace develop \
+  --values ./helm/environments/develop/values.yaml \
+  --set database.host=$DB_ENDPOINT
+
+# Install Web chart
+helm upgrade --install develop-web ./helm/charts/web \
+  --namespace develop \
+  --values ./helm/environments/develop/values.yaml

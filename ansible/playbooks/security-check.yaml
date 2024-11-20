@@ -1,0 +1,6 @@
+---
+- name: Run basic security check
+  hosts: eks_workers
+  become: true
+  roles:
+    - security-check

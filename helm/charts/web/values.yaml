@@ -1,41 +1,32 @@
 replicaCount: 1
 image:
-  repository: jondaw/devops-api
-  tag: "latest"
+  repository: jondaw/devops-web
+  tag: develop
   pullPolicy: IfNotPresent
 
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  create: true
-  annotations: {}
-  name: ""
-
-podAnnotations: {}
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
 
 service:
   type: ClusterIP
   port: 80
-  targetPort: 3000
+  targetPort: 4000
 
-resources:
-  requests:
-    memory: "128Mi"
-    cpu: "100m"
-  limits:
-    memory: "256Mi"
-    cpu: "200m"
+api:
+  host: "http://api-svc"
 
-database:
-  host: ""
-  port: "5432"
-  name: "devopsdb"
-
-securityContext:
-  allowPrivilegeEscalation: false
-  runAsNonRoot: true
-  runAsUser: 1000
-  capabilities:
-    drop:
-      - ALL
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+  path: /
+  pathType: Prefix
