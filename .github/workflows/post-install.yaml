@@ -14,9 +14,7 @@ on:
     paths:
       - "helm/**"
       - ".github/workflows/post-install.yaml"
-      - "Makefile"
       - "scripts/post-install.sh"
-      - "scripts/create-helm-structure.sh"
 
 env:
   AWS_REGION: us-east-2
@@ -26,7 +24,12 @@ jobs:
   post-install:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || github.ref_name }}
-    permissions: write-all
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: ${{ github.ref_name }}-post-install
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v3
         with:
@@ -49,21 +52,12 @@ jobs:
         with:
           version: "latest"
 
-      - name: Setup Helm Structure
-        run: |
-          chmod +x scripts/create-helm-structure.sh
-          scripts/create-helm-structure.sh
-
       - name: Deploy Applications
         run: |
           chmod +x scripts/post-install.sh
           scripts/post-install.sh ${{ env.TARGET_ENV }}
 
       - name: Verify Deployments
+        if: success()
         run: |
-          echo "Checking deployments status..."
-          kubectl get deployments -n develop
-          echo "Checking services status..."
-          kubectl get services -n develop
-          echo "Checking pods status..."
-          kubectl get pods -n develop
+          kubectl get deployments,services,pods -n ${{ env.TARGET_ENV }} -o wide
