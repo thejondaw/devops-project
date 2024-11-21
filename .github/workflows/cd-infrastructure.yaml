@@ -171,36 +171,27 @@ jobs:
           terraform validate
           terraform ${{ env.ACTION }} -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
 
-  post-install:
-    needs: deploy
-    if: github.event.inputs.action != 'destroy'
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || github.ref_name }}
-    steps:
-      - uses: actions/checkout@v3
+  # post-install:
+  #   needs: deploy
+  #   if: github.event.inputs.action != 'destroy'
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ github.event.inputs.environment || github.ref_name }}
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ env.AWS_REGION }}
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: "latest"
+  #     - name: Install kubectl
+  #       uses: azure/setup-kubectl@v3
+  #       with:
+  #         version: "latest"
 
-      # - name: Post-Install Setup
-      #   run: |
-      #     chmod +x scripts/post-install.sh
-      #     ./scripts/post-install.sh ${{ env.TARGET_ENV }}
-
-
-      - name: Create Helm structure and deploy
-        run: |
-          chmod +x scripts/create-helm-structure.sh
-          chmod +x scripts/post-install.sh
-
-          ./scripts/create-helm-structure.sh
-          ./scripts/post-install.sh
+  #     - name: Post-Install Setup
+  #       run: |
+  #         chmod +x scripts/post-install.sh
+  #         ./scripts/post-install.sh ${{ env.TARGET_ENV }}
