@@ -5,5 +5,5 @@ metadata:
   labels:
     {{- include "web.labels" . | nindent 4 }}
 data:
-  API_HOST: {{ .Values.api.host | quote }}
+  API_HOST: {{ .Values.api.host | quote }}-svc
   
