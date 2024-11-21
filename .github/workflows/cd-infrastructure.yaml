@@ -154,19 +154,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # Добавляем установку kubectl
-      - name: Install kubectl
-        if: matrix.module == 'tools'    # Устанавливаем только для модуля tools
-        uses: azure/setup-kubectl@v3
-        with:
-          version: "latest"
-
       - name: Deploy Module
         working-directory: terraform/modules/${{ matrix.module }}
         env:
           IS_BACKEND: ${{ matrix.module == 'backend' }}
           ACTION: ${{ github.event.inputs.action || 'apply' }}
-          MODULE: ${{ matrix.module }}
         run: |
           if [[ "$IS_BACKEND" == "true" ]]; then
             terraform init
@@ -176,35 +168,8 @@ jobs:
               -backend-config="key=environments/${{ env.TARGET_ENV }}/${{ matrix.module }}.tfstate" \
               -backend-config="region=${{ env.AWS_REGION }}"
           fi
-          
-          if [[ "$MODULE" == "tools" ]]; then
-            # Сначала удаляем helm release
-            kubectl delete helmrelease argocd -n argocd || true
-            
-            # Удаляем network policies
-            kubectl delete networkpolicy default-deny -n develop || true
-            kubectl delete networkpolicy default-deny -n stage || true
-            kubectl delete networkpolicy default-deny -n prod || true
-            
-            # Удаляем RBAC
-            kubectl delete clusterrolebinding argocd-admin-role-binding || true
-            
-            # Удаляем из state
-            terraform state rm kubernetes_namespace.argocd || true
-            terraform state rm 'kubernetes_namespace.applications["develop"]' || true
-            terraform state rm 'kubernetes_namespace.applications["stage"]' || true
-            terraform state rm 'kubernetes_namespace.applications["prod"]' || true
-            terraform state rm 'kubernetes_network_policy.default["develop"]' || true
-            terraform state rm 'kubernetes_network_policy.default["stage"]' || true
-            terraform state rm 'kubernetes_network_policy.default["prod"]' || true
-            terraform state rm kubernetes_cluster_role.argocd_admin || true
-            terraform state rm kubernetes_cluster_role_binding.argocd_admin || true
-      
-            # Применяем изменения
-            terraform apply -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
-          else
-            terraform ${{ env.ACTION }} -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
-          fi
+          terraform validate
+          terraform ${{ env.ACTION }} -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
 
   # post-install:
   #   needs: deploy

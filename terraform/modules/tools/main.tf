@@ -14,7 +14,7 @@ terraform {
       version = "~> 2.23.0"
     }
     kubectl = {
-      source  = "gavinbunney/kubectl" # Было hashicorp/kubectl
+      source  = "gavinbunney/kubectl"  # Было hashicorp/kubectl
       version = "~> 1.14.0"
     }
   }
@@ -101,9 +101,9 @@ resource "helm_release" "argocd" {
     value = "argocd-${var.environment}-lb"
   }
 
-  # depends_on = [
-  #   kubernetes_namespace.argocd
-  # ]
+  depends_on = [
+    kubernetes_namespace.argocd
+  ]
 }
 
 # =================== NAMESPACES ==================== #
