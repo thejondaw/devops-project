@@ -14,7 +14,7 @@ terraform {
       version = "~> 2.23.0"
     }
     kubectl = {
-      source  = "gavinbunney/kubectl"  # Было hashicorp/kubectl
+      source  = "gavinbunney/kubectl" # Было hashicorp/kubectl
       version = "~> 1.14.0"
     }
   }
