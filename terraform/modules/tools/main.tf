@@ -101,9 +101,9 @@ resource "helm_release" "argocd" {
     value = "argocd-${var.environment}-lb"
   }
 
-  depends_on = [
-    kubernetes_namespace.argocd
-  ]
+  # depends_on = [
+  #   kubernetes_namespace.argocd
+  # ]
 }
 
 # =================== NAMESPACES ==================== #

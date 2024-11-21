@@ -159,6 +159,7 @@ jobs:
         env:
           IS_BACKEND: ${{ matrix.module == 'backend' }}
           ACTION: ${{ github.event.inputs.action || 'apply' }}
+          MODULE: ${{ matrix.module }}
         run: |
           if [[ "$IS_BACKEND" == "true" ]]; then
             terraform init
@@ -168,8 +169,21 @@ jobs:
               -backend-config="key=environments/${{ env.TARGET_ENV }}/${{ matrix.module }}.tfstate" \
               -backend-config="region=${{ env.AWS_REGION }}"
           fi
-          terraform validate
-          terraform ${{ env.ACTION }} -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
+          
+          if [[ "$MODULE" == "tools" ]]; then
+            # Для модуля tools - удаляем state и пересоздаем ресурсы
+            terraform state rm kubernetes_namespace.argocd || true
+            terraform state rm 'kubernetes_namespace.applications["develop"]' || true
+            terraform state rm 'kubernetes_namespace.applications["stage"]' || true
+            terraform state rm 'kubernetes_namespace.applications["prod"]' || true
+            terraform state rm kubernetes_cluster_role.argocd_admin || true
+            terraform state rm kubernetes_cluster_role_binding.argocd_admin || true
+            
+            # Force-replace для helm_release
+            terraform apply -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars -replace="helm_release.argocd"
+          else
+            terraform ${{ env.ACTION }} -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
+          fi
 
   # post-install:
   #   needs: deploy
