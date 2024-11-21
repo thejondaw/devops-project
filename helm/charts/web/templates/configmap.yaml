@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-web-cm
+  name: {{ .Release.Name }}-cm
   labels:
     {{- include "web.labels" . | nindent 4 }}
 data:

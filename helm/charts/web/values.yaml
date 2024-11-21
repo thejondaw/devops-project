@@ -18,7 +18,7 @@ service:
   targetPort: 4000
 
 api:
-  host: "http://develop-api-api-svc"
+  host: "http://develop-api-svc"
 
 ingress:
   enabled: true

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-api
+  name: {{ .Release.Name }}-deploy
   labels:
     {{- include "api.labels" . | nindent 4 }}
 spec:
@@ -38,27 +38,27 @@ spec:
             - name: DBHOST
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-db-cm
+                  name: {{ .Release.Name }}-cm
                   key: DB_HOST
             - name: DBPORT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-db-cm
+                  name: {{ .Release.Name }}-cm
                   key: DB_PORT
             - name: DB
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-db-cm
+                  name: {{ .Release.Name }}-cm
                   key: DB_NAME
             - name: DBUSER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-secret
+                  name: {{ .Release.Name }}-secret
                   key: username
             - name: DBPASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-secret
+                  name: {{ .Release.Name }}-secret
                   key: password
           securityContext:
             allowPrivilegeEscalation: false

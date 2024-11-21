@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-web
+  name: {{ .Release.Name }}-deploy
   labels:
     {{- include "web.labels" . | nindent 4 }}
 spec:
@@ -26,7 +26,7 @@ spec:
             - name: API_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-web-cm
+                  name: {{ .Release.Name }}-cm
                   key: API_HOST
           securityContext:
             allowPrivilegeEscalation: false

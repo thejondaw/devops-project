@@ -1,49 +1,5 @@
 # DevOps Project. CI/CD/CD Pipeline
 
-## TODO List
-
-```markdown
-### 1. Security (CRITICAL)
-- [ ] Vault (бесплатная версия)
-  - [ ] Перенести все креды из RDS
-  - [ ] Интеграция с K8s через ServiceAccount
-- [ ] Security Hardening
-  - [ ] AppArmor базовые профили для подов
-  - [ ] Network Policies в K8s
-  - [ ] Базовые iptables правила
-  - [ ] Pod Security Context
-
-### 2. Monitoring (HIGH)
-- [ ] Prometheus Stack
-  - [ ] Prometheus Operator через helm
-  - [ ] Node Exporter для метрик нод
-  - [ ] kube-state-metrics для K8s метрик
-- [ ] Grafana
-  - [ ] Дашборд для Node metrics
-  - [ ] Дашборд для K8s metrics
-  - [ ] Дашборд для RDS metrics
-  - [ ] Алерты на критические метрики
-
-### 3. Helm (HIGH)
-- [ ] Базовые чарты для:
-  - [ ] API app
-  - [ ] Web app
-  - [ ] Prometheus stack
-  - [ ] Vault
-
-### 4. Security Scanning (MEDIUM)
-- [ ] Trivy в CI/CD для:
-  - [v] Сканирования контейнеров
-  - [v] Сканирования кода
-  - [ ] Сканирования IaC
-
-### 5. Automation & IaC
-- [ ] Рефакторинг Terraform
-  - [ ] Вынести все переменные в tfvars
-  - [v] Добавить теги для всех ресурсов
-  - [v] Автоматизация имен (кластера, ресурсов)
-```
-
 > 1. CI via GitHub Actions with linter, scanners and containerization
 >    - ESLint
 >    - Prettier
@@ -54,12 +10,11 @@
 >    - API
 >    - WEB
 > 3. CD/CD with Three-Tier Architecture on AWS, using Terraform
->    - VPC: 3 Public, 3 Private subnets
->    - EKS (Kubernetes)
+>    - VPC
+>    - EKS
+>      - ArgoCD
 >      - Helm Charts
 >      - Prometheus + Grafana
->      - ArgoCD
->      - AWS Secret Manager
 >    - RDS: Aurora PostgreSQL 15.3 (Serverless v2)
 ---
 
@@ -75,20 +30,6 @@ Developers gave me the code of applications without documentation:
 ## Step II - CI (Continuous Integration)
 
 Workflows for **API** & **WEB** applications:
-
-```shell
-# For Linters. Locally:
-cd apps/api
-
-# Creating and configuring files:
-touch .eslintignore .eslintrc.json .gitignore
-
-# Installation of Linter:
-npm install -D eslint eslint-config-airbnb-base eslint-plugin-import
-
-# Installation of Prettier:
-npm install -D prettier eslint-config-prettier eslint-plugin-prettier
-```
 
 - Run **ESLint** linter
 - Run **Prettier**
@@ -151,23 +92,6 @@ devops-project/
 │       └── prod/
 │           └── values.yaml
 │
-├── k8s/                             # Kubernetes manifests
-│   ├── argocd/                      # ArgoCD configurations
-│   │   ├── install.yaml             # Installation ArgoCD
-│   │   └── applications/
-│   │       ├── develop/
-│   │       │   ├── api.yaml
-│   │       │   └── web.yaml
-│   │       ├── stage/
-│   │       │   ├── api.yaml
-│   │       │   └── web.yaml
-│   │       └── prod/
-│   │           ├── api.yaml
-│   │           └── web.yaml
-│   │
-│   └── infrastructure/              # General K8s resources
-│       ├── namespaces.yaml
-│       └── network-policies.yaml
 │
 ├── terraform/                       # Terraform configs
 │   ├── modules/
@@ -175,10 +99,7 @@ devops-project/
 │   │   ├── vpc/                     # Module VPC
 │   │   ├── eks/                     # Module EKS
 │   │   ├── rds/                     # Module RDS
-│   │   └── tools/                   # Module for Tools installation
-│   │       ├── main.tf
-│   │       ├── variables.tf
-│   │       ├── outputs.tf
+│   │   └── tools/                   # Module TOOLS
 │   │       └── values/              # Values for Helm Charts
 │   │
 │   └── environments/                # Configurations of Environments
