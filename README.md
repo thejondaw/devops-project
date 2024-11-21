@@ -52,6 +52,7 @@ devops-project/
 ├── .github/workflows/                # GitHub Actions Workflow files
 │   ├── ci-api.yaml                   # CI for API
 │   ├── ci-web.yaml                   # CI for WEB
+|   ├── post-install.yaml             # CD sh-script
 │   ├── cd-infrastructure.yaml        # CD for infrastructure
 │   └── cd-applications.yaml          # CD for tools (Helm/ArgoCD)
 │
@@ -67,22 +68,22 @@ devops-project/
 │       └── Dockerfile                # Dockerfile for WEB
 │
 ├── helm/                             # Helm
-│   ├── charts/                       # Helm Charts
+│   ├── charts/
 │   │   ├── api/                      # API Chart
 │   │   │   ├── Chart.yaml
 │   │   │   ├── values.yaml
-│   │   │   ├── values-develop.yaml
-│   │   │   ├── values-stage.yaml
-│   │   │   ├── values-prod.yaml
-│   │   │   └── templates/            # Templates K8s manifests
+│   │   │   ├── templates/configmap.yaml
+│   │   │   ├── templates/deployment.yaml
+│   │   │   ├── templates/secret.yaml
+│   │   │   └── templates/service.yaml
 │   │   │
 │   │   └── web/                      # WEB Chart
 │   │       ├── Chart.yaml
 │   │       ├── values.yaml
-│   │       ├── values-develop.yaml
-│   │       ├── values-stage.yaml
-│   │       ├── values-prod.yaml
-│   │       └── templates/
+│   │       ├── templates/configmap.yaml
+│   │       ├── templates/deployment.yaml
+│   │       ├── templates/ingress.yaml
+│   │       └── templates/service.yaml
 │   │
 │   └── environments/                # Configs Environments
 │       ├── develop/
@@ -108,6 +109,9 @@ devops-project/
 │       │   └── terraform.tfvars
 │       ├── stage/
 │       └── prod/
+|
+├── k8s
+|   └── infra/namespaces             # Namespaces manifest
 │
 ├── ansible/                         # Ansible configurations
 │   ├── inventory/                   # Inventory files

@@ -16,6 +16,17 @@ terraform {
   }
 }
 
+# Prodiver - kubectl
+provider "kubectl" {
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
+  }
+}
+
 # Provider - Kubernetes
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
@@ -184,6 +195,21 @@ resource "kubernetes_cluster_role_binding" "argocd_admin" {
     name      = "argocd-application-controller"
     namespace = "argocd"
   }
+}
+
+# ================= ARGOCD MANIFESTS ================= #
+
+# Apply ArgoCD Applications
+resource "kubectl_manifest" "argocd_applications" {
+  for_each = fileset("${path.module}/../../k8s/argocd/applications/${var.environment}", "*.yaml")
+  
+  yaml_body = templatefile("${path.module}/../../k8s/argocd/applications/${var.environment}/${each.value}", {
+    environment = var.environment
+  })
+
+  depends_on = [
+    helm_release.argocd
+  ]
 }
 
 # ==================================================== #
