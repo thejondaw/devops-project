@@ -154,6 +154,13 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      # Добавляем установку kubectl
+      - name: Install kubectl
+        if: matrix.module == 'tools'    # Устанавливаем только для модуля tools
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
       - name: Deploy Module
         working-directory: terraform/modules/${{ matrix.module }}
         env:
@@ -171,16 +178,30 @@ jobs:
           fi
           
           if [[ "$MODULE" == "tools" ]]; then
-            # Для модуля tools - удаляем state и пересоздаем ресурсы
+            # Сначала удаляем helm release
+            kubectl delete helmrelease argocd -n argocd || true
+            
+            # Удаляем network policies
+            kubectl delete networkpolicy default-deny -n develop || true
+            kubectl delete networkpolicy default-deny -n stage || true
+            kubectl delete networkpolicy default-deny -n prod || true
+            
+            # Удаляем RBAC
+            kubectl delete clusterrolebinding argocd-admin-role-binding || true
+            
+            # Удаляем из state
             terraform state rm kubernetes_namespace.argocd || true
             terraform state rm 'kubernetes_namespace.applications["develop"]' || true
             terraform state rm 'kubernetes_namespace.applications["stage"]' || true
             terraform state rm 'kubernetes_namespace.applications["prod"]' || true
+            terraform state rm 'kubernetes_network_policy.default["develop"]' || true
+            terraform state rm 'kubernetes_network_policy.default["stage"]' || true
+            terraform state rm 'kubernetes_network_policy.default["prod"]' || true
             terraform state rm kubernetes_cluster_role.argocd_admin || true
             terraform state rm kubernetes_cluster_role_binding.argocd_admin || true
-            
-            # Force-replace для helm_release
-            terraform apply -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars -replace="helm_release.argocd"
+      
+            # Применяем изменения
+            terraform apply -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
           else
             terraform ${{ env.ACTION }} -auto-approve -var-file=../../environments/${{ env.TARGET_ENV }}/terraform.tfvars
           fi
