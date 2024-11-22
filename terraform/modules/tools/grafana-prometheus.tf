@@ -110,7 +110,7 @@ resource "helm_release" "prometheus" {
   ]
 }
 
-# Create - monitoring Namespace
+# Create - Monitoring - Namespace
 resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = "monitoring"

@@ -101,7 +101,6 @@ devops-project/
 │   │   ├── eks/                     # Module EKS
 │   │   ├── rds/                     # Module RDS
 │   │   └── tools/                   # Module TOOLS
-│   │       └── values/              # Values for Helm Charts
 │   │
 │   └── environments/                # Configurations of Environments
 │       ├── develop/
