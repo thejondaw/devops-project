@@ -12,7 +12,6 @@ on:
       - "apps/web/Dockerfile"
       - "sonar-project.properties"
       - ".github/workflows/ci-web.yaml"
-
 env:
   DOCKER_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/devops-web
 
