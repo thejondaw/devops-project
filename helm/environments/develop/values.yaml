@@ -3,7 +3,7 @@ api:
   image:
     tag: develop
   database:
-    host: "" # Will be populated by post-install script
+    host: ""
     port: "5432"
     name: "devopsdb"
     username: "jondaw"
@@ -14,4 +14,18 @@ web:
   image:
     tag: develop
   api:
-    host: "http://develop-api-svc" # Points to API service in develop namespace
+    host: "http://develop-api-svc"
+
+monitoring:
+  grafana:
+    ingress:
+      hosts:
+        - grafana.develop.local
+  prometheus:
+    ingress:
+      hosts:
+        - prometheus.develop.local
+  alertmanager:
+    ingress:
+      hosts:
+        - alertmanager.develop.local
