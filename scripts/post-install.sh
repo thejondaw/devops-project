@@ -57,3 +57,7 @@ helm install develop-web ./helm/charts/web \
   --set api.host="http://develop-api" \
   --wait \
   --timeout 5m
+
+# Install Application to ArgoCD dashboard
+kubectl apply -f k8s/argocd/applications/develop/api.yaml
+kubectl apply -f k8s/argocd/applications/develop/web.yaml

@@ -1,7 +1,12 @@
+//- views/index.jade
 extends layout
 
 block content
-  h1= title
-  p Welcome, it's #{time}
-  p: img(src="/images/nyan.gif", title="nyan cat")
-  pre #{request_uuid}
+  .container
+    .header
+      h1= title
+      .timestamp Welcome, it's #{time}
+    .image-container
+      img(src="/images/nyan.gif", title="nyan cat")
+      .hexagon-overlay
+      .scanning-line

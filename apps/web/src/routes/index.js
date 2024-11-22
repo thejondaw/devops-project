@@ -17,7 +17,7 @@ router.get("/", function (req, res, next) {
         return res.status(500).send("error running request to " + api_url);
       } else {
         res.render("index", {
-          title: "3tier App",
+          title: "Three-Tier Architecture",
           request_uuid: body[0].request_uuid,
           time: body[0].time,
         });

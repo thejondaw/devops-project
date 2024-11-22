@@ -201,19 +201,4 @@ resource "kubernetes_cluster_role_binding" "argocd_admin" {
   }
 }
 
-# ================= ARGOCD MANIFESTS ================= #
-
-# Apply ArgoCD Applications
-resource "kubectl_manifest" "argocd_applications" {
-  for_each = fileset("${path.module}/../../k8s/argocd/applications/${var.environment}", "*.yaml")
-
-  yaml_body = templatefile("${path.module}/../../k8s/argocd/applications/${var.environment}/${each.value}", {
-    environment = var.environment
-  })
-
-  depends_on = [
-    helm_release.argocd
-  ]
-}
-
 # ==================================================== #
