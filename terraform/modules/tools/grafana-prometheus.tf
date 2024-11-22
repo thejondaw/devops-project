@@ -1,12 +1,12 @@
-# terraform/modules/tools/main.tf
+# =============== GRAFANA & PROMETHEUS =============== #
 
-# Install Prometheus Stack
+# Install - Kube Prometheus Stack
 resource "helm_release" "prometheus" {
   name             = "kube-prometheus-stack"
   repository       = "https://prometheus-community.github.io/helm-charts"
   chart            = "kube-prometheus-stack"
   version          = "55.5.0"
-  namespace        = kubernetes_namespace.monitoring.name
+  namespace        = kubernetes_namespace.monitoring.metadata[0].name
   create_namespace = false
 
   values = [<<-EOF
@@ -102,7 +102,7 @@ resource "helm_release" "prometheus" {
         requests:
           cpu: 100m
           memory: 128Mi
-    EOF
+  EOF
   ]
 
   depends_on = [
@@ -110,7 +110,8 @@ resource "helm_release" "prometheus" {
   ]
 }
 
-# Create monitoring namespace
+
+# Create - monitoring Namespace
 resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = "monitoring"
@@ -122,73 +123,4 @@ resource "kubernetes_namespace" "monitoring" {
   }
 }
 
-# # ===================== GRAFANA ===================== #
-
-# resource "helm_release" "grafana" {
-#   name             = "grafana"
-#   repository       = "https://grafana.github.io/helm-charts"
-#   chart            = "grafana"
-#   version          = "7.0.11"
-#   namespace        = "monitoring"
-#   create_namespace = true
-
-#   values = [
-#     file("${path.module}/values/grafana.yaml")
-#   ]
-
-#   set {
-#     name  = "service.type"
-#     value = "LoadBalancer"
-#   }
-
-#   depends_on = [
-#     kubernetes_namespace.monitoring,
-#     helm_release.prometheus
-#   ]
-# }
-
-# # =================== PROMETHEUS ==================== #
-
-# # Install Prometheus
-# resource "helm_release" "prometheus" {
-#   name             = "prometheus"
-#   repository       = "https://prometheus-community.github.io/helm-charts"
-#   chart            = "kube-prometheus-stack"
-#   version          = "55.5.0"
-#   namespace        = "monitoring"
-#   create_namespace = true
-
-#   values = [
-#     file("${path.module}/values/prometheus.yaml")
-#   ]
-
-#   set {
-#     name  = "prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues"
-#     value = "false"
-#   }
-
-#   set {
-#     name  = "prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues"
-#     value = "false"
-#   }
-
-#   depends_on = [
-#     kubernetes_namespace.monitoring
-#   ]
-# }
-
-# # ==================== NAMESPACE ==================== #
-
-# # Create monitoring namespace
-# resource "kubernetes_namespace" "monitoring" {
-#   metadata {
-#     name = "monitoring"
-#     labels = {
-#       name        = "monitoring"
-#       environment = var.environment
-#       managed-by  = "terraform"
-#     }
-#   }
-# }
-
-# # ==================================================== #
+# ==================================================== #

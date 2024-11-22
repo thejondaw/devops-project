@@ -1,5 +1,5 @@
 # ==================================================== #
-# ===================== ARGO-CD ====================== #
+# ===================== ARGO CD ====================== #
 # ==================================================== #
 
 # Install - ArgoCD
@@ -73,7 +73,7 @@ resource "helm_release" "argocd" {
 
 # ==================== NAMESPACE ==================== #
 
-# ArgoCD - Namespace
+# Create - ArgoCD - Namespace
 resource "kubernetes_namespace" "argocd" {
   metadata {
     name = "argocd"
