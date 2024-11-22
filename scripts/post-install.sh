@@ -8,9 +8,13 @@ if [ -z "$CLUSTER_NAME" ]; then
 fi
 aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2
 
+# ==================================================== #
+
 # Installing NGINX Ingress Controller
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/cloud/deploy.yaml
 kubectl -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/component=controller --timeout=300s
+
+# ==================================================== #
 
 # Waiting for ArgoCD pods
 kubectl -n argocd wait --for=condition=Ready pods --all --timeout=300s
@@ -44,6 +48,8 @@ spec:
 EOF
 done
 
+# ==================================================== #
+
 # Get Database endpoint
 DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
 if [ -z "$DB_ENDPOINT" ]; then
@@ -59,7 +65,9 @@ kubectl delete ingress,deployment,service,configmap --all -n develop --force --g
 echo "Waiting for resources to be deleted..."
 sleep 10
 
-# Install Helm charts
+# ==================================================== #
+
+# Install - API - Helm Chart
 echo "Installing API chart..."
 helm uninstall develop-api -n develop || true
 helm install develop-api ./helm/charts/api \
@@ -69,6 +77,7 @@ helm install develop-api ./helm/charts/api \
   --wait \
   --timeout 5m
 
+# Install - WEB - Helm Chart
 echo "Installing Web chart..."
 helm uninstall develop-web -n develop || true
 helm install develop-web ./helm/charts/web \
@@ -78,19 +87,23 @@ helm install develop-web ./helm/charts/web \
   --wait \
   --timeout 5m
 
+# Install - Grafana & Prometheus - Helm Chart
 echo "Installing Monitoring chart..."
 cd helm/charts/monitoring && helm dependency update && cd ../../..
-helm uninstall monitoring -n monitoring || true
 helm install monitoring ./helm/charts/monitoring \
   --namespace monitoring \
-  --values ./helm/environments/develop/values.yaml \
-  --wait \
-  --timeout 10m
+  --values ./helm/environments/develop/values.yaml
+  --create-namespace \
+  --timeout 10m \
+
+# ==================================================== #
 
 # Install Applications to ArgoCD dashboard
 echo "Installing ArgoCD applications..."
 kubectl apply -f k8s/argocd/applications/develop/api.yaml
 kubectl apply -f k8s/argocd/applications/develop/web.yaml
 kubectl apply -f k8s/argocd/applications/develop/monitoring.yaml
+
+# ==================================================== #
 
 echo "Installation completed successfully!"

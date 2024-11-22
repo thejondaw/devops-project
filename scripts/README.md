@@ -33,3 +33,27 @@ DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Add
 kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
 
 ```
+
+```shell
+# Скачиваем скрипт установки
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+# Делаем скрипт исполняемым
+chmod 700 get_helm.sh
+
+# Запускаем установку
+./get_helm.sh
+
+# Добавляем репозиторий prometheus-community
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+# Обновляем списки репозиториев
+helm repo update
+
+
+cd helm/charts/monitoring
+
+# Соберите зависимости
+helm dependency build
+
+```

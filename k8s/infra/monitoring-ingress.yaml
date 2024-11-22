@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: monitoring-nginx
+spec:
+  controller: ingress-nginx/controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-monitoring
+  namespace: ingress-nginx
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: monitoring-ingress-nginx

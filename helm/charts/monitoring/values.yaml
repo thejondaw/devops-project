@@ -1,70 +1,52 @@
 kube-prometheus-stack:
-  grafana:
-    enabled: true
-    ingress:
-      enabled: true
-      annotations: 
-        kubernetes.io/ingress.class: nginx
-      hosts: 
-        - grafana.local
-      path: /
-      pathType: Prefix
+  fullnameOverride: "monitoring"
+
+  prometheusOperator:
+    admissionWebhooks:
+      enabled: false
+      certManager:
+        enabled: false
+    tls:
+      enabled: false
+    resources:
+      limits:
+        cpu: 50m
+        memory: 64Mi
+      requests:
+        cpu: 25m
+        memory: 32Mi
 
   prometheus:
     enabled: true
     prometheusSpec:
-      retention: 15d
-      storageSpec:
-        volumeClaimTemplate:
-          spec:
-            accessModes: ["ReadWriteOnce"]
-            resources:
-              requests:
-                storage: 8Gi
-      resources:
-        limits:
-          cpu: 1000m
-          memory: 1024Mi
-        requests:
-          cpu: 500m
-          memory: 512Mi
-    ingress:
-      enabled: true
-      annotations: 
-        kubernetes.io/ingress.class: nginx
-      hosts: 
-        - prometheus.local
-      path: /
-      pathType: Prefix
-
-  alertmanager:
-    enabled: true
-    alertmanagerSpec:
-      storage:
-        volumeClaimTemplate:
-          spec:
-            accessModes: ["ReadWriteOnce"]
-            resources:
-              requests:
-                storage: 2Gi
+      replicas: 1
+      retention: 1d
+      storageSpec: {}
       resources:
         limits:
           cpu: 200m
-          memory: 256Mi
+          memory: 512Mi
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 50m
+          memory: 256Mi
     ingress:
       enabled: true
-      annotations: 
-        kubernetes.io/ingress.class: nginx
-      hosts: 
-        - alertmanager.local
-      path: /
+      ingressClassName: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: "false"
+        nginx.ingress.kubernetes.io/rewrite-target: /
+      path: /prometheus
       pathType: Prefix
+      hosts:
+        - a5488a0f9fb554b0ba35e136a30ba21d-1565797246.us-east-2.elb.amazonaws.com
 
-  nodeExporter:
+  grafana:
+    fullnameOverride: "monitoring-grafana"
     enabled: true
+    grafana.ini:
+      server:
+        root_url: "%(protocol)s://%(domain)s/grafana"
+        serve_from_sub_path: true
     resources:
       limits:
         cpu: 200m
@@ -72,22 +54,38 @@ kube-prometheus-stack:
       requests:
         cpu: 100m
         memory: 128Mi
+    sidecar:
+      dashboards:
+        enabled: false
+      datasources:
+        enabled: true
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+          requests:
+            memory: "32Mi"
+            cpu: "25m"
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: "false"
+        nginx.ingress.kubernetes.io/rewrite-target: /
+      path: /grafana
+      pathType: Prefix
+      hosts:
+        - a5488a0f9fb554b0ba35e136a30ba21d-1565797246.us-east-2.elb.amazonaws.com
+
+  nodeExporter:
+    enabled: false
 
   kubeStateMetrics:
     enabled: true
     resources:
       limits:
-        cpu: 200m
-        memory: 256Mi
+        cpu: 50m
+        memory: 64Mi
       requests:
-        cpu: 100m
-        memory: 128Mi
-
-  prometheusOperator:
-    resources:
-      limits:
-        cpu: 200m
-        memory: 256Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 25m
+        memory: 32Mi
