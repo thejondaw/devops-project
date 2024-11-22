@@ -5,29 +5,18 @@
 # Provider - Terraform
 terraform {
   required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.11.0"
-    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.23.0"
     }
     kubectl = {
-      source  = "gavinbunney/kubectl" # Было hashicorp/kubectl
+      source  = "gavinbunney/kubectl"
       version = "~> 1.14.0"
     }
-  }
-}
-
-# Prodiver - kubectl
-provider "kubectl" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.11.0"
+    }
   }
 }
 
@@ -36,6 +25,17 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
 
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
+  }
+}
+
+# Prodiver - kubectl
+provider "kubectl" {
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"

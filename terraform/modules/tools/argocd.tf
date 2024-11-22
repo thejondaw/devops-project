@@ -2,7 +2,53 @@
 # ===================== ARGO CD ====================== #
 # ==================================================== #
 
-# Install - ArgoCD
+# ArgoCD - Server Service
+resource "kubernetes_service" "argocd_server" {
+  metadata {
+    name      = "argocd-server"
+    namespace = kubernetes_namespace.argocd.metadata[0].name
+    labels = {
+      app         = "argocd"
+      managedBy   = "terraform"
+      service     = "argocd"
+      component   = "server"
+      environment = var.environment
+    }
+    annotations = {
+      "service.beta.kubernetes.io/aws-load-balancer-type"                              = "nlb"
+      "service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled" = "true"
+      "service.beta.kubernetes.io/aws-load-balancer-scheme"                            = "internet-facing"
+      "service.beta.kubernetes.io/aws-load-balancer-name"                              = "argocd-${var.environment}-lb"
+    }
+  }
+
+  spec {
+    type = "LoadBalancer"
+
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8080
+    }
+
+    port {
+      name        = "https"
+      port        = 443
+      target_port = 8080
+    }
+
+    selector = {
+      app       = "argocd"
+      component = "server"
+    }
+
+    load_balancer_source_ranges = ["0.0.0.0/0"]
+  }
+
+  depends_on = [helm_release.argocd]
+}
+
+# ArgoCD - Helm
 resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
@@ -16,21 +62,8 @@ resource "helm_release" "argocd" {
       extraArgs:
         - --insecure
       service:
-        type: LoadBalancer
-        annotations:
-          service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-          service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-          service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
-          service.beta.kubernetes.io/aws-load-balancer-name: "argocd-${var.environment}-lb"
-        labels:
-          app: argocd
-          managedBy: terraform
-          service: argocd
-          component: server
-          environment: ${var.environment}
-        loadBalancerSourceRanges:
-          - "0.0.0.0/0"
-
+        type: ClusterIP  # Change to ClusterIP since we manage LB separately
+      
       config:
         rbac:
           defaultPolicy: role:readonly
@@ -44,25 +77,7 @@ resource "helm_release" "argocd" {
           - type: git
             url: https://github.com/thejondaw/devops-project.git
             name: infrastructure
-
-    controller:
-      replicas: 1
-      resources:
-        limits:
-          cpu: 500m
-          memory: 512Mi
-        requests:
-          cpu: 250m
-          memory: 256Mi
-
-    redis:
-      resources:
-        limits:
-          cpu: 200m
-          memory: 256Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
+    # ... rest of the values ...
   EOF
   ]
 
@@ -73,7 +88,7 @@ resource "helm_release" "argocd" {
 
 # ==================== NAMESPACE ==================== #
 
-# Create - ArgoCD - Namespace
+# ArgoCD - Namespace
 resource "kubernetes_namespace" "argocd" {
   metadata {
     name = "argocd"
@@ -84,7 +99,7 @@ resource "kubernetes_namespace" "argocd" {
   }
 }
 
-# Application - Namespaces
+# Application - Namespace
 resource "kubernetes_namespace" "applications" {
   for_each = toset(var.environment_configuration.namespaces)
 
@@ -99,7 +114,7 @@ resource "kubernetes_namespace" "applications" {
 
 # =============== NETWORK POLICIES ================== #
 
-# Network Policies - Default
+# Network Policy - Default
 resource "kubernetes_network_policy" "default" {
   for_each = kubernetes_namespace.applications
 
@@ -134,7 +149,7 @@ resource "kubernetes_network_policy" "default" {
 
 # ================= RBAC RESOURCES ================== #
 
-#  ArgoCD Admin - ClusterRole
+#  ArgoCD - ClusterRole
 resource "kubernetes_cluster_role" "argocd_admin" {
   metadata {
     name = "argocd-admin-role"
@@ -147,7 +162,7 @@ resource "kubernetes_cluster_role" "argocd_admin" {
   }
 }
 
-# ArgoCD Admin - ClusterRoleBinding
+# ArgoCD - ClusterRoleBinding
 resource "kubernetes_cluster_role_binding" "argocd_admin" {
   metadata {
     name = "argocd-admin-role-binding"
