@@ -77,13 +77,18 @@ devops-project/
 │   │   │   ├── templates/secret.yaml
 │   │   │   └── templates/service.yaml
 │   │   │
-│   │   └── web/                      # WEB Chart
+│   │   ├── web/                      # WEB Chart
+│   │   │   ├── Chart.yaml
+│   │   │   ├── values.yaml
+│   │   │   ├── templates/configmap.yaml
+│   │   │   ├── templates/deployment.yaml
+│   │   │   ├── templates/ingress.yaml
+│   │   │   └── templates/service.yaml
+│   │   │
+│   │   └── monitoring/               # Grafana & Prometheus Chart
 │   │       ├── Chart.yaml
-│   │       ├── values.yaml
-│   │       ├── templates/configmap.yaml
-│   │       ├── templates/deployment.yaml
-│   │       ├── templates/ingress.yaml
-│   │       └── templates/service.yaml
+│   │       └── values.yaml
+│   │
 │   │
 │   └── environments/                # Configs Environments
 │       ├── develop/
@@ -108,9 +113,17 @@ devops-project/
 │       │   └── terraform.tfvars
 │       ├── stage/
 │       └── prod/
-|
+│
 ├── k8s
-|   └── infra/namespaces             # Namespaces manifest
+│   ├── infra/
+│   │   ├── namespaces.yaml          # Namespaces manifest
+│   │   └── monitoring-ingress.yaml  # Grafana & Prometheus manifest
+│   │
+│   └── argocd/applications          # # Apps manifests for ArgoCD dashboard
+│              └── develop/
+│                  ├── api.yaml
+│                  ├── web.yaml
+│                  └── monitoring.yaml
 │
 ├── ansible/                         # Ansible configurations
 │   ├── inventory/                   # Inventory files
