@@ -84,6 +84,12 @@ destroy-%:
 post-install:
 	chmod +x scripts/post-install.sh && ./scripts/post-install.sh
 
+# ALiases Script
+.PHONY: aliases
+aliases:
+    chmod +x scripts/aliases.sh
+    ./scripts/aliases.sh
+
 # Helper to configure backend
 .PHONY: configure-backend
 configure-backend:

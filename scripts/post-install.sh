@@ -14,6 +14,10 @@ aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/cloud/deploy.yaml
 kubectl -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/component=controller --timeout=300s
 
+# Install separate ingress controller for monitoring
+kubectl apply -f k8s/infra/monitoring-ingress.yaml
+kubectl -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/instance=monitoring-ingress-nginx --timeout=300s
+
 # ==================================================== #
 
 # Waiting for ArgoCD pods
@@ -92,9 +96,9 @@ echo "Installing Monitoring chart..."
 cd helm/charts/monitoring && helm dependency update && cd ../../..
 helm install monitoring ./helm/charts/monitoring \
   --namespace monitoring \
-  --values ./helm/environments/develop/values.yaml
+  --values ./helm/environments/develop/values.yaml \
   --create-namespace \
-  --timeout 10m \
+  --timeout 10m
 
 # ==================================================== #
 
