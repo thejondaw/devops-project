@@ -2,128 +2,65 @@ kube-prometheus-stack:
   fullnameOverride: "monitoring"
 
   prometheusOperator:
-    admissionWebhooks:
-      enabled: false # Отключаем вебхуки нахуй, они нам пока не нужны
-      certManager:
-        enabled: false
+    enabled: true
     tls:
       enabled: false
+    webTLS:
+      enabled: false
+    tlsProxy:
+      enabled: false
+    admissionWebhooks:
+      enabled: false
+      certManager:
+        enabled: false
+      patch:
+        enabled: false
     resources:
       limits:
         cpu: 50m
         memory: 64Mi
       requests:
-        cpu: 25m
-        memory: 32Mi
+        cpu: 50m
+        memory: 64Mi
 
   prometheus:
     enabled: true
     prometheusSpec:
       replicas: 1
-      retention: 1d
-      storageSpec: {} # Пока без персистентности, потом добавим если надо
-      resources:
-        limits:
-          cpu: 200m
-          memory: 512Mi
-        requests:
-          cpu: 50m
-          memory: 256Mi
-    ingress:
-      enabled: true
-      ingressClassName: monitoring-nginx # Меняем на наш новый класс
-      annotations:
-        nginx.ingress.kubernetes.io/ssl-redirect: "false"
-        nginx.ingress.kubernetes.io/rewrite-target: /$2
-        nginx.ingress.kubernetes.io/use-regex: "true"
-      path: /prometheus(/|$)(.*) # Изменённый паттерн пути
-      pathType: ImplementationSpecific
-      hosts:
-        - "*" # Принимаем все хосты, потом настроим конкретный домен
-
-  grafana:
-    fullnameOverride: "monitoring-grafana"
-    enabled: true
-    grafana.ini:
-      server:
-        root_url: "%(protocol)s://%(domain)s/grafana"
-        serve_from_sub_path: true
-    # Добавляем дефолтный дашборд для кластера
-    dashboards:
-      default:
-        cluster-monitoring:
-          gnetId: 315
-          revision: 3
-          datasource: Prometheus
-    # Настраиваем дефолтный datasource
-    datasources:
-      datasources.yaml:
-        apiVersion: 1
-        datasources:
-          - name: Prometheus
-            type: prometheus
-            url: http://monitoring-prometheus:9090
-            access: proxy
-            isDefault: true
-    resources:
-      limits:
-        cpu: 200m
-        memory: 256Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-    sidecar:
-      dashboards:
-        enabled: true # Включаем поддержку дашбордов
-      datasources:
-        enabled: true
-        resources:
-          limits:
-            memory: "64Mi"
-            cpu: "50m"
-          requests:
-            memory: "32Mi"
-            cpu: "25m"
-    ingress:
-      enabled: true
-      ingressClassName: monitoring-nginx # Меняем на наш новый класс
-      annotations:
-        nginx.ingress.kubernetes.io/ssl-redirect: "false"
-        nginx.ingress.kubernetes.io/rewrite-target: /$2
-        nginx.ingress.kubernetes.io/use-regex: "true"
-      path: /grafana(/|$)(.*) # Изменённый паттерн пути
-      pathType: ImplementationSpecific
-      hosts:
-        - "*" # Принимаем все хосты, потом настроим конкретный домен
-
-  # Отключаем node-exporter, т.к. он нам пока нахуй не нужен
-  nodeExporter:
-    enabled: false
-
-  # Оставляем kube-state-metrics для базовой метрики кластера
-  kubeStateMetrics:
-    enabled: true
-    resources:
-      limits:
-        cpu: 50m
-        memory: 64Mi
-      requests:
-        cpu: 25m
-        memory: 32Mi
-
-  # Добавляем настройки для алертменеджера
-  alertmanager:
-    enabled: true
-    alertmanagerSpec:
-      storage: {}
     ingress:
       enabled: true
       ingressClassName: monitoring-nginx
       annotations:
-        nginx.ingress.kubernetes.io/ssl-redirect: "false"
-        nginx.ingress.kubernetes.io/rewrite-target: /$2
-        nginx.ingress.kubernetes.io/use-regex: "true"
-      path: /alertmanager(/|$)(.*)
-      pathType: ImplementationSpecific
+        kubernetes.io/ingress.class: monitoring-nginx
+        nginx.ingress.kubernetes.io/rewrite-target: /
+      paths:
+        - /prometheus
       hosts:
-        - "*"
+        - ""
+
+  grafana:
+    enabled: true
+    sidecar:
+      dashboards:
+        enabled: true
+    service:
+      port: 80
+    ingress:
+      enabled: true
+      ingressClassName: monitoring-nginx
+      annotations:
+        kubernetes.io/ingress.class: monitoring-nginx
+        nginx.ingress.kubernetes.io/rewrite-target: /
+      paths:
+        - /grafana
+      hosts:
+        - ""
+      labels: {}
+      tls: []
+
+  alertmanager:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  kubeStateMetrics:
+    enabled: true

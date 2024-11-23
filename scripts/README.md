@@ -69,3 +69,19 @@ helm dependency build
 ```bash
 ./scripts/aliases.sh
 ```
+
+k delete -f k8s/infra/monitoring-ingress.yaml
+helm uninstall monitoring -n monitoring || true
+k delete namespace monitoring || true
+
+k apply -f k8s/infra/monitoring-ingress.yaml
+
+cd helm/charts/monitoring && helm dependency build && cd ../../..
+helm install monitoring ./helm/charts/monitoring \
+  --namespace monitoring \
+  --create-namespace \
+  --values ./helm/charts/monitoring/values.yaml
+
+k get all -n monitoring-ingress
+
+k get pods,svc -n monitoring && k get ing -A

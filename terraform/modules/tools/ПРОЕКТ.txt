@@ -8,3 +8,23 @@
 И ты хотел поменять конфиги и создать новый ингресс или хуй-знает-что
 
 Ты хотел вместо нян-кэта пиздануть забуксовавшего оксимирона
+
+
+
+
+
+k delete -f k8s/infra/monitoring-ingress.yaml
+helm uninstall monitoring -n monitoring || true
+k delete namespace monitoring || true
+
+k apply -f k8s/infra/monitoring-ingress.yaml
+
+cd helm/charts/monitoring && helm dependency build && cd ../../..
+helm install monitoring ./helm/charts/monitoring \
+  --namespace monitoring \
+  --create-namespace \
+  --values ./helm/charts/monitoring/values.yaml
+
+k get all -n monitoring-ingress
+
+k get pods,svc -n monitoring && k get ing -A
