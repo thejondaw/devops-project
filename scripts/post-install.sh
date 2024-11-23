@@ -93,11 +93,11 @@ helm install develop-web ./helm/charts/web \
 
 # Install - Grafana & Prometheus - Helm Chart
 echo "Installing Monitoring chart..."
-cd helm/charts/monitoring && helm dependency update && cd ../../..
+cd helm/charts/monitoring && helm dependency build && cd ../../..
 helm install monitoring ./helm/charts/monitoring \
   --namespace monitoring \
-  --values ./helm/environments/develop/values.yaml \
   --create-namespace \
+  --values ./helm/charts/monitoring/values.yaml \
   --timeout 10m
 
 # ==================================================== #

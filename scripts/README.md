@@ -80,7 +80,8 @@ cd helm/charts/monitoring && helm dependency build && cd ../../..
 helm install monitoring ./helm/charts/monitoring \
   --namespace monitoring \
   --create-namespace \
-  --values ./helm/charts/monitoring/values.yaml
+  --values ./helm/charts/monitoring/values.yaml \
+  --timeout 10m
 
 k get all -n monitoring-ingress
 
