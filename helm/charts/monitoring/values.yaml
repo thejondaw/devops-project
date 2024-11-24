@@ -1,66 +1,37 @@
-kube-prometheus-stack:
-  fullnameOverride: "monitoring"
-
-  prometheusOperator:
-    enabled: true
-    tls:
-      enabled: false
-    webTLS:
-      enabled: false
-    tlsProxy:
-      enabled: false
-    admissionWebhooks:
-      enabled: false
-      certManager:
-        enabled: false
-      patch:
-        enabled: false
-    resources:
-      limits:
-        cpu: 50m
-        memory: 64Mi
-      requests:
-        cpu: 50m
-        memory: 64Mi
-
-  prometheus:
-    enabled: true
-    prometheusSpec:
-      replicas: 1
-    ingress:
-      enabled: true
-      ingressClassName: monitoring-nginx
-      annotations:
-        kubernetes.io/ingress.class: monitoring-nginx
-        nginx.ingress.kubernetes.io/rewrite-target: /
-      paths:
-        - /prometheus
-      hosts:
-        - ""
-
-  grafana:
-    enabled: true
-    sidecar:
-      dashboards:
-        enabled: true
-    service:
-      port: 80
-    ingress:
-      enabled: true
-      ingressClassName: monitoring-nginx
-      annotations:
-        kubernetes.io/ingress.class: monitoring-nginx
-        nginx.ingress.kubernetes.io/rewrite-target: /
-      paths:
-        - /grafana
-      hosts:
-        - ""
-      labels: {}
-      tls: []
-
+# helm/charts/monitoring/values.yaml
+prometheus:
   alertmanager:
     enabled: false
-  nodeExporter:
+  pushgateway:
     enabled: false
-  kubeStateMetrics:
-    enabled: true
+  server:
+    persistentVolume:
+      enabled: false
+    resources:
+      limits:
+        cpu: 200m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+grafana:
+  persistence:
+    enabled: false
+  service:
+    type: LoadBalancer
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://monitoring-prometheus-server
+          isDefault: true

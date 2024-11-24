@@ -14,9 +14,9 @@ aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/cloud/deploy.yaml
 kubectl -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/component=controller --timeout=300s
 
-# # Install separate ingress controller for monitoring
-# kubectl apply -f k8s/infra/monitoring-ingress.yaml
-# kubectl -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/instance=monitoring-ingress-nginx --timeout=300s
+# Install separate ingress controller for monitoring
+kubectl apply -f k8s/infra/monitoring-ingress.yaml
+kubectl -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/instance=monitoring-ingress-nginx --timeout=300s
 
 # ==================================================== #
 
@@ -71,38 +71,38 @@ sleep 10
 
 # ==================================================== #
 
-# # Install - API - Helm Chart
-# echo "Installing API chart..."
-# helm uninstall develop-api -n develop || true
-# helm install develop-api ./helm/charts/api \
-#   --namespace develop \
-#   --values ./helm/environments/develop/values.yaml \
-#   --set database.host=$DB_ENDPOINT \
-#   --wait \
-#   --timeout 5m
+# Install - API - Helm Chart
+echo "Installing API chart..."
+helm uninstall develop-api -n develop || true
+helm install develop-api ./helm/charts/api \
+  --namespace develop \
+  --values ./helm/environments/develop/values.yaml \
+  --set database.host=$DB_ENDPOINT \
+  --wait \
+  --timeout 5m
 
-# # Install - WEB - Helm Chart
-# echo "Installing Web chart..."
-# helm uninstall develop-web -n develop || true
-# helm install develop-web ./helm/charts/web \
-#   --namespace develop \
-#   --values ./helm/environments/develop/values.yaml \
-#   --set api.host="http://develop-api" \
-#   --wait \
-#   --timeout 5m
+# Install - WEB - Helm Chart
+echo "Installing Web chart..."
+helm uninstall develop-web -n develop || true
+helm install develop-web ./helm/charts/web \
+  --namespace develop \
+  --values ./helm/environments/develop/values.yaml \
+  --set api.host="http://develop-api" \
+  --wait \
+  --timeout 5m
 
-# # Install - Grafana & Prometheus - Helm Chart
-# echo "Installing Monitoring chart..."
-# cd helm/charts/monitoring && helm dependency build && cd ../../..
-# helm install monitoring ./helm/charts/monitoring \
-#   --namespace monitoring \
-#   --create-namespace \
-#   --values ./helm/charts/monitoring/values.yaml \
-#   --timeout 10m
+# Install - Grafana & Prometheus - Helm Chart
+echo "Installing Monitoring chart..."
+cd helm/charts/monitoring && helm dependency build && cd ../../..
+helm install monitoring ./helm/charts/monitoring \
+  --namespace monitoring \
+  --create-namespace \
+  --values ./helm/charts/monitoring/values.yaml \
+  --timeout 10m
 
 # ==================================================== #
 
-# Install Applications from ArgoCD
+# Install Applications to ArgoCD dashboard
 echo "Installing ArgoCD applications..."
 kubectl apply -f k8s/argocd/applications/develop/api.yaml
 kubectl apply -f k8s/argocd/applications/develop/web.yaml

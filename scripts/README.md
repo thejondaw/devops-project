@@ -86,3 +86,66 @@ helm install monitoring ./helm/charts/monitoring \
 k get all -n monitoring-ingress
 
 k get pods,svc -n monitoring && k get ing -A
+
+
+
+## Grafana & Prometheus (Простой и рабочий)
+
+```shell
+# Добавляем репы
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+# Ставим заново Prometheus с отключенным хранилищем и меньшими ресурсами
+helm install prometheus prometheus-community/prometheus \
+  --namespace monitoring \
+  --create-namespace \
+  --set server.persistentVolume.enabled=false \
+  --set alertmanager.persistentVolume.enabled=false \
+  --set alertmanager.enabled=false \
+  --set pushgateway.enabled=false \
+  --set server.resources.requests.cpu=100m \
+  --set server.resources.requests.memory=256Mi \
+  --set server.resources.limits.cpu=200m \
+  --set server.resources.limits.memory=512Mi
+  
+# Ставим Grafana полегче
+helm install grafana grafana/grafana \
+  --namespace monitoring \
+  --set persistence.enabled=false \
+  --set service.type=LoadBalancer \
+  --set resources.requests.cpu=100m \
+  --set resources.requests.memory=128Mi \
+  --set resources.limits.cpu=200m \
+  --set resources.limits.memory=256Mi
+  
+# Получаем URL Grafana
+kubectl get svc -n monitoring grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'  
+
+# Пароль от Grafana (логин: admin)
+kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+# Внутренний эндпоинт будет такой:
+http://prometheus-server.monitoring.svc.cluster.local
+```
+
+## Grafana & Prometheus (Сложный и не рабочий)
+
+```
+k delete -f k8s/infra/monitoring-ingress.yaml
+helm uninstall monitoring -n monitoring || true
+k delete namespace monitoring || true
+
+k apply -f k8s/infra/monitoring-ingress.yaml
+
+cd helm/charts/monitoring && helm dependency build && cd ../../..
+helm install monitoring ./helm/charts/monitoring \
+  --namespace monitoring \
+  --create-namespace \
+  --values ./helm/charts/monitoring/values.yaml
+
+k get all -n monitoring-ingress
+
+k get pods,svc -n monitoring && k get ing -A
+```
