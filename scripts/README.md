@@ -27,39 +27,23 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 # ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
 
-# Run - INFRA - Namespaces
-kubectl apply -f k8s/infra/namespaces.yaml
-
 # Find DB Name & Patch 
 DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
 kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
 
 ```
 
-## HELM
+## HELM Install
 
 ```shell
-# Скачиваем скрипт установки
+# Download script of installation
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 
-# Делаем скрипт исполняемым
+# Access to script
 chmod 700 get_helm.sh
 
-# Запускаем установку
+# Run script
 ./get_helm.sh
-
-# Добавляем репозиторий prometheus-community
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-
-# Обновляем списки репозиториев
-helm repo update
-
-
-cd helm/charts/monitoring
-
-# Соберите зависимости
-helm dependency build
-
 ```
 
 ## ALIASES.SH
@@ -70,34 +54,13 @@ helm dependency build
 ./scripts/aliases.sh
 ```
 
-k delete -f k8s/infra/monitoring-ingress.yaml
-helm uninstall monitoring -n monitoring || true
-k delete namespace monitoring || true
-
-k apply -f k8s/infra/monitoring-ingress.yaml
-
-cd helm/charts/monitoring && helm dependency build && cd ../../..
-helm install monitoring ./helm/charts/monitoring \
-  --namespace monitoring \
-  --create-namespace \
-  --values ./helm/charts/monitoring/values.yaml \
-  --timeout 10m
-
-k get all -n monitoring-ingress
-
-k get pods,svc -n monitoring && k get ing -A
-
-
-
-## Grafana & Prometheus (Простой и рабочий)
+## Grafana & Prometheus (CLI)
 
 ```shell
-# Добавляем репы
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
-# Ставим заново Prometheus с отключенным хранилищем и меньшими ресурсами
 helm install prometheus prometheus-community/prometheus \
   --namespace monitoring \
   --create-namespace \
@@ -110,7 +73,6 @@ helm install prometheus prometheus-community/prometheus \
   --set server.resources.limits.cpu=200m \
   --set server.resources.limits.memory=512Mi
   
-# Ставим Grafana полегче
 helm install grafana grafana/grafana \
   --namespace monitoring \
   --set persistence.enabled=false \
@@ -120,32 +82,47 @@ helm install grafana grafana/grafana \
   --set resources.limits.cpu=200m \
   --set resources.limits.memory=256Mi
   
-# Получаем URL Grafana
+# URL - Grafana
 kubectl get svc -n monitoring grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'  
 
-# Пароль от Grafana (логин: admin)
+# PASSWORD - Grafana (Login: admin)
 kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
-# Внутренний эндпоинт будет такой:
+# Inside - Endpoint
 http://prometheus-server.monitoring.svc.cluster.local
 ```
 
-## Grafana & Prometheus (Сложный и не рабочий)
+## Grafana & Prometheus (Helm Chart)
 
-```
-k delete -f k8s/infra/monitoring-ingress.yaml
-helm uninstall monitoring -n monitoring || true
-k delete namespace monitoring || true
-
-k apply -f k8s/infra/monitoring-ingress.yaml
-
+```shell
 cd helm/charts/monitoring && helm dependency build && cd ../../..
-helm install monitoring ./helm/charts/monitoring \
-  --namespace monitoring \
-  --create-namespace \
-  --values ./helm/charts/monitoring/values.yaml
+k apply -f k8s/argocd/applications/develop/monitoring.yaml
 
-k get all -n monitoring-ingress
+k get -all -n monitoring
 
-k get pods,svc -n monitoring && k get ing -A
+# URL
+k get svc -n monitoring develop-monitoring-grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname
+
+# Password
+k get secret -n monitoring develop-monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+================================================
+Connect to Prometheus:
+URL: http://develop-monitoring-prometheus-server
+Skip TLS Verify: ON
+
+Dashboards -> Import
+ID: 1860 (Node Exporter Full)
+Datasource: Prometheus
+Import
+================================================
+
+```shell
+# URL - Prometheus (Optional)
+k patch svc develop-monitoring-prometheus-server -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+
+k get svc -n monitoring develop-monitoring-prometheus-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+
+# P.S. In real work environment, better not create Load Balancer for Prometheus, but for test it's ok.
 ```
