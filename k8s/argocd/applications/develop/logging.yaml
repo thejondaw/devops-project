@@ -12,13 +12,25 @@ spec:
     helm:
       values: |
         loki:
+          enabled: true
           persistence:
             enabled: true
             size: "2Gi"
+          config:
+            auth_enabled: false
+              limits_config:
+                retention_period: 72h
+            storage:
+              type: local
+          resources:
+            requests:
+               cpu: 100m
+               memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
         promtail:
-          tolerations:
-            - effect: "NoSchedule"
-              operator: "Exists"
+          enabled: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

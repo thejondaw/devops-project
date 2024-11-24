@@ -1,9 +1,5 @@
 # Notes of Post-Install process
 
-  aws:
-  accountId: "529088295850"
-  iamRole: "develop-cluster-20241124080604-node-group-role"
-
 ```shell
 # Alias of Kubernetes for Bash
 echo 'alias k="kubectl" && alias kc="kubectl config" && alias kcc="kubectl config current-context" && alias kcg="kubectl config get-contexts" && alias kcs="kubectl config set-context" && alias kcu="kubectl config use-context" && alias ka="kubectl apply -f" && alias kd="kubectl delete" && alias kdf="kubectl delete -f" && alias kdp="kubectl delete pod" && alias kg="kubectl get" && alias kga="kubectl get all" && alias kgaa="kubectl get all --all-namespaces" && alias kgn="kubectl get nodes" && alias kgno="kubectl get nodes -o wide" && alias kgp="kubectl get pods" && alias kgpa="kubectl get pods --all-namespaces" && alias kgpo="kubectl get pods -o wide" && alias kgs="kubectl get services" && alias kgsa="kubectl get services --all-namespaces" && alias kl="kubectl logs" && alias klf="kubectl logs -f" && alias kpf="kubectl port-forward" && alias kex="kubectl exec -it" && alias kdesc="kubectl describe" && alias ktp="kubectl top pod" && alias ktn="kubectl top node"' >> ~/.bashrc && source ~/.bashrc
@@ -19,10 +15,6 @@ aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2
 
 # Find DB Name & Patch 
 DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
-if [ -z "$DB_ENDPOINT" ]; then
-  echo "Error: Database endpoint not found!"
-  exit 1
-fi
 kubectl patch configmap api-cm -n develop -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
 
 # ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
@@ -32,6 +24,18 @@ kubectl -n argocd get svc argocd-server -o jsonpath='{.status.loadBalancer.ingre
 
 # Show - ArgoCD - PASSWORD
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+# ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
+
+# If needs to delete
+kubectl delete all --all -n develop
+kubectl delete all --all -n monitoring
+kubectl delete -f k8s/argocd/applications/develop/api.yaml
+kubectl delete -f k8s/argocd/applications/develop/web.yaml
+kubectl delete -f k8s/argocd/applications/develop/monitoring.yaml
+kubectl delete -f k8s/argocd/applications/develop/logging.yaml
+kubectl delete -f k8s/argocd/applications/develop/apparmor.yaml
+
 
 ```
 

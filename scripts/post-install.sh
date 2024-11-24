@@ -21,3 +21,7 @@ kubectl apply -f k8s/argocd/applications/develop/web.yaml
 kubectl apply -f k8s/argocd/applications/develop/monitoring.yaml
 kubectl apply -f k8s/argocd/applications/develop/logging.yaml
 kubectl apply -f k8s/argocd/applications/develop/apparmor.yaml
+
+# Find DB Name & Patch 
+DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
+kubectl patch configmap api-cm -n develop -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
