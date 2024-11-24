@@ -11,6 +11,9 @@ spec:
       {{- include "api.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
       labels:
         {{- include "api.selectorLabels" . | nindent 8 }}
     spec:

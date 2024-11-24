@@ -1,0 +1,11 @@
+apiVersion: v2
+name: logging
+description: Logging Stack with Loki and Promtail
+version: 0.1.0
+dependencies:
+  - name: loki
+    repository: https://grafana.github.io/helm-charts
+    version: 5.8.9
+  - name: promtail
+    repository: https://grafana.github.io/helm-charts
+    version: 6.15.3

@@ -34,3 +34,27 @@ grafana:
           type: prometheus
           url: http://monitoring-prometheus-server
           isDefault: true
+        - name: Loki
+          type: loki
+          url: http://logging-loki:3100
+          access: proxy
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards
+  dashboards:
+    default:
+      loki-logs:
+        url: https://grafana.com/api/dashboards/13639/revisions/1/download
+        datasource: Loki
+      k8s-logs:
+        url: https://grafana.com/api/dashboards/15141/revisions/1/download
+        datasource: Loki

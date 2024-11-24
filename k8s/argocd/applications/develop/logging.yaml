@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: Loki
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/thejondaw/devops-project.git
+    path: helm/charts/logging
+    targetRevision: develop
+    helm:
+      values:
+        loki:
+          persistence:
+            enabled: true
+            size: 10Gi
+        promtail:
+          tolerations:
+            - effect: NoSchedule
+              operator: Exists
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
