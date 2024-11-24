@@ -32,11 +32,11 @@ grafana:
       datasources:
         - name: Prometheus
           type: prometheus
-          url: http://monitoring-prometheus-server
+          url: http://grafana-prometheus-server
           isDefault: true
         - name: Loki
           type: loki
-          url: http://logging-loki:3100
+          url: http://loki.monitoring.svc.cluster.local:3100
           access: proxy
   dashboardProviders:
     dashboardproviders.yaml:

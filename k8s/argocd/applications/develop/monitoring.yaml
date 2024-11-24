@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: Grafana & Prometheus
+  name: grafana-prometheus
   namespace: argocd
 spec:
   project: default

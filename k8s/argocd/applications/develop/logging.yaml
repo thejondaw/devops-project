@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: Loki
+  name: loki-promtail
   namespace: argocd
 spec:
   project: default
@@ -10,15 +10,15 @@ spec:
     path: helm/charts/logging
     targetRevision: develop
     helm:
-      values:
+      values: |
         loki:
           persistence:
             enabled: true
-            size: 10Gi
+            size: "2Gi"
         promtail:
           tolerations:
-            - effect: NoSchedule
-              operator: Exists
+            - effect: "NoSchedule"
+              operator: "Exists"
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

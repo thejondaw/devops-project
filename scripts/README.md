@@ -1,12 +1,15 @@
 # Notes of Post-Install process
 
+  aws:
+  accountId: "529088295850"
+  iamRole: "develop-cluster-20241124080604-node-group-role"
+
 ```shell
 # Alias of Kubernetes for Bash
 echo 'alias k="kubectl" && alias kc="kubectl config" && alias kcc="kubectl config current-context" && alias kcg="kubectl config get-contexts" && alias kcs="kubectl config set-context" && alias kcu="kubectl config use-context" && alias ka="kubectl apply -f" && alias kd="kubectl delete" && alias kdf="kubectl delete -f" && alias kdp="kubectl delete pod" && alias kg="kubectl get" && alias kga="kubectl get all" && alias kgaa="kubectl get all --all-namespaces" && alias kgn="kubectl get nodes" && alias kgno="kubectl get nodes -o wide" && alias kgp="kubectl get pods" && alias kgpa="kubectl get pods --all-namespaces" && alias kgpo="kubectl get pods -o wide" && alias kgs="kubectl get services" && alias kgsa="kubectl get services --all-namespaces" && alias kl="kubectl logs" && alias klf="kubectl logs -f" && alias kpf="kubectl port-forward" && alias kex="kubectl exec -it" && alias kdesc="kubectl describe" && alias ktp="kubectl top pod" && alias ktn="kubectl top node"' >> ~/.bashrc && source ~/.bashrc
 
 # Aliases.sh
 ./scripts/aliases.sh
-
 
 # ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
 
@@ -16,12 +19,11 @@ aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2
 
 # Find DB Name & Patch 
 DB_ENDPOINT=$(aws rds describe-db-instances --query 'DBInstances[0].Endpoint.Address' --output text)
-kubectl patch configmap db-cm -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
-
-# ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
-
-# Install NGINX-CONTROLLER
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/cloud/deploy.yaml
+if [ -z "$DB_ENDPOINT" ]; then
+  echo "Error: Database endpoint not found!"
+  exit 1
+fi
+kubectl patch configmap api-cm -n develop -p "{\"data\":{\"DB_HOST\":\"$DB_ENDPOINT\"}}"
 
 # ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
 
@@ -49,20 +51,17 @@ chmod 700 get_helm.sh
 ## Grafana & Prometheus (Helm Chart)
 
 ```shell
-cd helm/charts/monitoring && helm dependency build && cd ../../..
-k apply -f k8s/argocd/applications/develop/monitoring.yaml
-
-k get -all -n monitoring
+k get all -n monitoring
 
 # URL
-k get svc -n monitoring develop-monitoring-grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname
+k get svc -n monitoring grafana-prometheus -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 
 # Password
-k get secret -n monitoring develop-monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+k get secret -n monitoring grafana-prometheus -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
 ╔================================================╗
-║Connect to Prometheus:                          ║
-║URL: http://develop-monitoring-prometheus-server║
+║Connection to Prometheus:                       ║
+║URL: http://grafana-prometheus-server           ║
 ║Skip TLS Verify: ON                             ║
 ║                                                ║
 ║Dashboards -> Import                            ║
@@ -72,7 +71,7 @@ k get secret -n monitoring develop-monitoring-grafana -o jsonpath="{.data.admin-
 ╚================================================╝
 
 # URL - Prometheus (Optional)
-k patch svc develop-monitoring-prometheus-server -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+k patch svc grafana-prometheus-server -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
 
-k get svc -n monitoring develop-monitoring-prometheus-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+k get svc -n monitoring grafana-prometheus-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
