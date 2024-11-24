@@ -11,7 +11,7 @@ backend_bucket = "alexsuff"
 # Set - Environment - Name
 environment = "develop"
 
-# Set - VPC & Subnetы - Configuration
+# Set - VPC & Subnets - Configuration
 vpc_configuration = {
   cidr = "10.0.0.0/16"
   subnets = {
@@ -38,8 +38,15 @@ vpc_configuration = {
 db_configuration = {
   name     = "devopsdb"
   username = "jondaw"
-  password = "password"
   port     = 5432
+}
+
+# Set - EKS Cluster - Condfiguration
+eks_configuration = {
+  version        = "1.28"
+  min_size       = 1
+  max_size       = 3 
+  instance_types = ["t3.small"]
 }
 
 # ==================================================== #

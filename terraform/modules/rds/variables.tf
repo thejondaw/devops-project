@@ -26,7 +26,6 @@ variable "db_configuration" {
   type = object({
     name     = string
     username = string
-    password = string
     port     = number
   })
   validation {

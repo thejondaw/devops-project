@@ -2,6 +2,12 @@
 # ================ VARIABLES Of TOOLS ================ #
 # ==================================================== #
 
+# Variable - AWS Region
+variable "region" {
+  description = "AWS Region"
+  type        = string
+}
+
 # Variable - Environment
 variable "environment" {
   description = "Environment name (develop, stage, prod)"

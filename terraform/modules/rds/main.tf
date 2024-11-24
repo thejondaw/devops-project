@@ -44,7 +44,7 @@ resource "aws_rds_cluster" "aurora_postgresql" {
   engine_version         = "15.3"
   database_name          = var.db_configuration.name
   master_username        = var.db_configuration.username
-  master_password        = var.db_configuration.password
+  master_password        = random_password.aurora_password.result
   port                   = var.db_configuration.port
   storage_encrypted      = true
   db_subnet_group_name   = aws_db_subnet_group.aurora_subnet_group.name
@@ -122,29 +122,46 @@ resource "aws_security_group" "sg_aurora" {
 
 # ================== SECRET MANAGER ================== #
 
-# # Secret Manager
-# resource "aws_secretsmanager_secret" "aurora_secret" {
-#   name = "aurora-secret-project" #! VARS
-# }
+# Timestamp - Unique Naming
+resource "time_static" "secret_timestamp" {}
 
-# # Create Random Password
-# resource "random_password" "aurora_password" {
-#   length  = 16
-#   special = true
-#   numeric = true
-#   upper   = true
-# }
+locals {
+  # Format: env-aurora-secret-YYYYMMDDHHMMSS
+  secret_name = "${var.environment}-aurora-secret-${formatdate("YYYYMMDDHHmmss", time_static.secret_timestamp.rfc3339)}"
 
-# # Attach - Credentials - Secret Manager
-# resource "aws_secretsmanager_secret_version" "aurora_credentials" {
-#   secret_id = aws_secretsmanager_secret.aurora_secret.id
-#   secret_string = jsonencode({
-#     username = aws_rds_cluster.aurora_postgresql.master_username
-#     password = random_password.aurora_password.result
-#     host     = aws_rds_cluster.aurora_postgresql.endpoint
-#     port     = aws_rds_cluster.aurora_postgresql.port
-#     dbname   = aws_rds_cluster.aurora_postgresql.database_name
-#   })
-# }
+  common_tags = {
+    Environment = var.environment
+    ManagedBy   = "terraform"
+    Project     = "devops-project"
+    CreatedAt   = time_static.secret_timestamp.rfc3339
+    Service     = "RDS"
+  }
+}
+
+# Secret Manager
+resource "aws_secretsmanager_secret" "aurora_secret" {
+  name = local.secret_name
+  tags = local.common_tags
+}
+
+# Random Password
+resource "random_password" "aurora_password" {
+  length  = 16
+  special = true
+  numeric = true
+  upper   = true
+}
+
+# Attach - Credentials - Secret Manager
+resource "aws_secretsmanager_secret_version" "aurora_credentials" {
+  secret_id = aws_secretsmanager_secret.aurora_secret.id
+  secret_string = jsonencode({
+    username = aws_rds_cluster.aurora_postgresql.master_username
+    password = random_password.aurora_password.result
+    host     = aws_rds_cluster.aurora_postgresql.endpoint
+    port     = aws_rds_cluster.aurora_postgresql.port
+    dbname   = aws_rds_cluster.aurora_postgresql.database_name
+  })
+}
 
 # ==================================================== #

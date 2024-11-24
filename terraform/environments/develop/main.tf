@@ -53,6 +53,7 @@ module "eks" {
 module "tools" {
   source = "../../modules/tools"
 
+  region      = var.region
   environment = var.environment
   environment_configuration = {
     namespaces = ["develop", "stage", "prod"]
