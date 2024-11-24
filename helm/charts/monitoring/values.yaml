@@ -1,4 +1,3 @@
-# helm/charts/monitoring/values.yaml
 prometheus:
   alertmanager:
     enabled: false

@@ -1,6 +1,6 @@
 # Localy PostgreSQL install
 
-``` Shell
+```shell
 sudo dnf install postgresql-server postgresql-contrib
 sudo systemctl enable postgresql
 sudo postgresql-setup --initdb --unit postgresql
@@ -9,21 +9,21 @@ sudo -u postgres psql
 ```
 
 ``` PG
-    CREATE USER jondaw WITH PASSWORD '550309666';
+    CREATE USER jondaw WITH PASSWORD '123456789';
     CREATE DATABASE test OWNER jondaw;
 ```
 
-``` Shell
+```shell
 psql test
 ```
 
 ## Change credential privileges
 
-``` Shell
+```shell
 sudo vim /var/lib/pgsql/data/pg_hba.conf
 ```
 
-``` Shell
+```shell
  # TYPE  DATABASE        USER            ADDRESS                 METHOD
 
 # "local" is for Unix domain socket connections only
@@ -41,12 +41,12 @@ host    replication     all             ::1/128                 password
 
 ## Set credentials
 
-``` JS
+```js
 var pg = require('pg');
 const conString = {
     user: 'jondaw',
     database: 'test',
-    password: '550309666',
+    password: '123456789',
     host: 'localhost',
     // port: process.env.DBPORT
 };

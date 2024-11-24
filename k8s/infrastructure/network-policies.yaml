@@ -1,0 +1,59 @@
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: default-deny
+    namespace: develop
+  spec:
+    podSelector: {}
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                environment: develop
+    egress:
+      - to:
+          - ipBlock:
+              cidr: 0.0.0.0/0
+---
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: default-deny
+    namespace: stage
+  spec:
+    podSelector: {}
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                environment: stage
+    egress:
+      - to:
+          - ipBlock:
+              cidr: 0.0.0.0/0
+---
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: default-deny
+    namespace: prod
+  spec:
+    podSelector: {}
+    policyTypes:
+      - Ingress
+      - Egress
+    ingress:
+      - from:
+          - namespaceSelector:
+              matchLabels:
+                environment: prod
+    egress:
+      - to:
+          - ipBlock:
+              cidr: 0.0.0.0/0

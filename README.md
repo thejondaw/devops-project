@@ -1,45 +1,45 @@
 # DevOps Project. CI/CD/CD Pipeline
 
 > 1. CI via GitHub Actions with linter, scanners and containerization
->    - ESLint
->    - Prettier
->    - Docker
->    - Trivy
->    - SonarQube
+>    ─ ESLint
+>    ─ Prettier
+>    ─ Docker
+>    ─ Trivy
+>    ─ SonarQube
 > 2. Applications based on Node.js
->    - API
->    - WEB
-> 3. CD/CD with Three-Tier Architecture on AWS, using Terraform
->    - VPC
->    - EKS
->      - ArgoCD
->      - Helm Charts
->      - Prometheus + Grafana
->    - RDS: Aurora PostgreSQL 15.3 (Serverless v2)
----
+>    ─ API
+>    ─ WEB
+> 3. CD/CD with Three─Tier Architecture on AWS, using Terraform
+>    ─ VPC
+>    ─ EKS
+>      ─ ArgoCD
+>      ─ Helm Charts
+>      ─ Prometheus + Grafana
+>    ─ RDS: Aurora PostgreSQL 15.3 (Serverless v2)
+───
 
-## Step I - Local testst
+## Step I ─ Local testst
 
 Developers gave me the code of applications without documentation:
 
-- Applications require **PostgreSQL** database to function correctly
-- Setting up a _Linux_ environment through **Docker**/**VirtualBox**
-- Installing **PostgreSQL** and successfully running applications within this setup **LOCALLY**
+─ Applications require **PostgreSQL** database to function correctly
+─ Setting up a _Linux_ environment through **Docker**/**VirtualBox**
+─ Installing **PostgreSQL** and successfully running applications within this setup **LOCALLY**
 
 
-## Step II - CI (Continuous Integration)
+## Step II ─ CI (Continuous Integration)
 
 Workflows for **API** & **WEB** applications:
 
-- Run **ESLint** linter
-- Run **Prettier**
-- _Node.js_ **dependencies**
-- Run **tests**
-- Build via **Docker**
-- **Trivy** vulnerability scann
-- **SonarQube** code scan
+─ Run **ESLint** linter
+─ Run **Prettier**
+─ _Node.js_ **dependencies**
+─ Run **tests**
+─ Build via **Docker**
+─ **Trivy** vulnerability scann
+─ **SonarQube** code scan
 
-## Step III - CD (Continuous Delivery)
+## Step III ─ CD (Continuous Delivery)
 
 1. Workflows for _creating/updating_ and _deleting_ of **VPC** module with Terraform
 2. Workflows for _creating/updating_ and _deleting_ of **EKS** module with Terraform
@@ -48,13 +48,13 @@ Workflows for **API** & **WEB** applications:
 ### Map of Project
 
 ```markdown
-devops-project/
+devops─project/
 ├── .github/workflows/                # GitHub Actions Workflow files
-│   ├── ci-api.yaml                   # CI for API
-│   ├── ci-web.yaml                   # CI for WEB
-|   ├── post-install.yaml             # CD sh-script
-│   ├── cd-infrastructure.yaml        # CD for infrastructure
-│   └── cd-applications.yaml          # CD for tools (Helm/ArgoCD)
+│   ├── ci─api.yaml                   # CI for API
+│   ├── ci─web.yaml                   # CI for WEB
+│   ├── post─install.yaml             # CD sh─script
+│   ├── cd─infrastructure.yaml        # CD for infrastructure
+│   └── cd─applications.yaml          # CD for tools (Helm/ArgoCD)
 │
 ├── apps/
 │   ├── api/                          # API Application
@@ -117,7 +117,7 @@ devops-project/
 ├── k8s
 │   ├── infra/
 │   │   ├── namespaces.yaml          # Namespaces manifest
-│   │   └── monitoring-ingress.yaml  # Grafana & Prometheus manifest
+│   │   └── monitoring─ingress.yaml  # Grafana & Prometheus manifest
 │   │
 │   └── argocd/applications          # # Apps manifests for ArgoCD dashboard
 │              └── develop/
@@ -131,100 +131,99 @@ devops-project/
 │   └── roles/                       # Ansible roles
 │
 ├── scripts/                         # Automatization Scripts
-│   └── post-install.sh              # Post install of Tools
+│   └── post─install.sh              # Post install of Tools
 │
 ├── docs/                            # Documentation of Project
 │
 ├── .gitignore
 ├── Makefile
 ├── README.md
-└── sonar-project.properties         # Configuration of SonarQube
+└── sonar─project.properties         # Configuration of SonarQube
 ```
 
 ### Diagram
 
-```markdown
-                +----------------------------------------------------------+
-                |                           "VPC"                          |
-                | +------------------------------------------------------+ |
-                | |                  (2 Private Subnets)                 | |
-                | |   +----------------------------------------------+   | |
-                | |   |               "Tier 1: DATABASE"             |   | |
-                | |   +----+-----------+------------+-----------+----+   | |
-                | |        |           |            |           |        | |
-                | |        |           |            |           |        | |
-                | |     DB_NAME     DB_PORT      DB_USER     DB_PASS     | |
-                | |        |           |            |           |        | |
-                | |        v           v            v           v        | |
-                | | +====== =========== ============ =========== ======+ | |
-                | | ║                                                  ║ | |
-                | | ║               (KUBERNETES CLUSTER)               ║ | |
-                | | ║                                                  ║ | |
-                | | ║  +---+-----------+------------+-----------+---+  ║ | |
-                | | ║  |               "Tier 2: API"                |  ║ | |
-                | | ║  +----------+----------------------+----------+  ║ | |
-                | | ║             ^                      ^             ║ | |
-                | | ║             |                      |             ║ | |
-                | +-║-------------|----------------------|-------------║-+ |
-                |   ║             |                      |             ║   |
-                |   ║          API_HOST               API_PORT         ║   |
-                |   ║             |                      |             ║   |
-                | +-║-------------|----------------------|-------------║-+ |
-                | | ║             |  (2 Public Subnets)  |             ║ | |
-                | | ║  +----------+----------------------+----------+  ║ | |
-                | | ║  |                "Tier 3: WEB"               |  ║ | |
-                | | ║  +----------------------+---------------------+  ║ | |
-                | | ║                         |                        ║ | |
-                | | +=======================  |  ======================+ | |
-                | +------------------------+  |  +-----------------------+ |
-                |                          |  |  |                         |
-                +--------------------------+  |  +-------------------------+
-                                              V
+```
+                ┌──────────────────────────────────────────────────────────┐
+                │                            VPC                           │
+                │ ┌──────────────────────────────────────────────────────┐ │
+                │ │                 (2x PRIVATE SUBNETS)                 │ │
+                │ │   ┌──────────────────────────────────────────────┐   │ │
+                │ │   │               TIER I ─ DATABASE              │   │ │
+                │ │   └───┐ ┌─────────┐ ┌──────────┐ ┌─────────┐ ┌───┘   │ │
+                │ │        │           │            │           │        │ │
+                │ │     DB_NAME     DB_PORT      DB_USER     DB_PASS     │ │
+                │ │        │           │            │           │        │ │
+                │ │        ▼           ▼            ▼           ▼        │ │
+                │ │ ╔=====╣ ╠=========╣ ╠==========╣ ╠=========╣ ╠=====╗ │ │
+                │ │ ║                                                  ║ │ │
+                │ │ ║               (KUBERNETES CLUSTER)               ║ │ │
+                │ │ ║                                                  ║ │ │
+                │ │ ║  ┌──┘ └─────────┘ └──────────┘ └─────────┘ └──┐  ║ │ │
+                │ │ ║  │               TIER II ─ API                │  ║ │ │
+                │ │ ║  └─────────┐ ┌────────────────────┐ ┌─────────┘  ║ │ │
+                │ │ ║             ▲                      ▲             ║ │ │
+                │ │ ║             │                      │             ║ │ │
+                │ └─║───────────┤ │ ├──────────────────┤ │ ├───────────║─┘ │
+                │   ║             │                      │             ║   │
+                │   ║          API_HOST               API_PORT         ║   │
+                │   ║             │                      │             ║   │
+                │ ┌─║───────────┤ │ ├──────────────────┤ │ ├───────────║─┐ │
+                │ │ ║             │ (2x PUBLIC  SUBNETS) │             ║ │ │
+                │ │ ║  ┌─────────┘ └────────────────────┘ └─────────┐  ║ │ │
+                │ │ ║  │                TIER III ─ WEB              │  ║ │ │
+                │ │ ║  └─────────────────────┐ ┌────────────────────┘  ║ │ │
+                │ │ ║                         │                        ║ │ │
+                │ │ ╚======================╣  │  ╠=====================╝ │ │
+                │ └────────────────────────┐  │  ┌───────────────────────┘ │
+                │                          │  │  │                         │
+                └──────────────────────────┘  │  └─────────────────────────┘
+                                              ▼
                                             CLIENT
 ```
 
 ### Variables for .TFVars
 
-```shell
-# Set - AWS Region
-region         = "your-region-number"
+```
+# Set ─ AWS Region
+region         = "your─region─number"
 
-# Set - S3 Bucket Name
-backend_bucket = "your-bucket-name"
+# Set ─ S3 Bucket Name
+backend_bucket = "your─bucket─name"
 
-# Set - Environment - Name
+# Set ─ Environment ─ Name
 environment    = "develop"
 
-# Set - IP Range of VPC & Subnets
+# Set ─ IP Range of VPC & Subnets
 vpc_configuration = {
   cidr = "10.0.0.0/16"
   subnets = {
     web = {
       cidr_block = "10.0.1.0/24"
-      az         = "us-east-2a"
+      az         = "us─east─2a"
     }
     alb = {
       cidr_block = "10.0.2.0/24"
-      az         = "us-east-2b"
+      az         = "us─east─2b"
     }
     api = {
       cidr_block = "10.0.3.0/24"
-      az         = "us-east-2a"
+      az         = "us─east─2a"
     }
     db = {
       cidr_block = "10.0.4.0/24"
-      az         = "us-east-2c"
+      az         = "us─east─2c"
     }
   }
 }
 
-# Set - Database - Configuration
+# Set ─ Database ─ Configuration
 db_configuration = {
-  name     = "name-of-db"
+  name     = "name─of─db"
   username = "username"
   password = "password"
   port     = 5432
 }
 ```
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project═thejondaw_devops-project&metric═alert_status)](https://sonarcloud.io/summary/new_code?id═thejondaw_devops-project)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project═thejondaw_devops─project&metric═alert_status)](https://sonarcloud.io/summary/new_code?id═thejondaw_devops─project)

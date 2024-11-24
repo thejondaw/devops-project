@@ -1,6 +1,6 @@
 apiVersion: v2
 name: monitoring
-description: Simple monitoring stack
+description: Grafana & Prometheus
 version: 0.1.0
 dependencies:
   - name: prometheus
@@ -8,6 +8,6 @@ dependencies:
     version: 25.8.0
     alias: prometheus
   - name: grafana
-    repository: https://grafana.github.io/helm-charts 
+    repository: https://grafana.github.io/helm-charts
     version: 7.0.19
     alias: grafana
