@@ -1,44 +1,100 @@
 vault:
-  server:
-    affinity: ""
-    ha:
-      enabled: false
-
-    dataStorage:
-      size: 1Gi
-
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "100m"
-      limits:
-        memory: "256Mi"
-        cpu: "200m"
-
-    auditStorage:
-      enabled: true
-      size: 1Gi
-
-    serviceAccount:
-      create: false
-      name: "vault"
-
-    extraEnvironmentVars:
-      VAULT_ADDR: "http://127.0.0.1:8200"
-      VAULT_API_ADDR: "http://127.0.0.1:8200"
-
-  ui:
+  global:
     enabled: true
-    serviceType: LoadBalancer
-    externalPort: 8200
+    tlsDisable: true
 
   injector:
     enabled: true
     replicas: 1
     resources:
       requests:
-        memory: "64Mi"
-        cpu: "50m"
+        cpu: 50m
+        memory: 64Mi
       limits:
-        memory: "128Mi"
-        cpu: "100m"
+        cpu: 100m
+        memory: 128Mi
+
+  server:
+    # Основные настройки
+    annotations:
+      avp.kubernetes.io/path: "secret/data/vault"
+
+    # Хранилище
+    dataStorage:
+      enabled: true
+      size: 1Gi
+      storageClass: null
+      accessMode: ReadWriteOnce
+
+    # Standalone режим
+    standalone:
+      enabled: true
+      config: |
+        ui = true
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+        storage "file" {
+          path = "/vault/data"
+        }
+
+        # Включаем Audit логи
+        audit {
+          enabled = true
+          type    = "file"
+          options = {
+            file_path = "/vault/logs/audit.log"
+          }
+        }
+
+    # Настройки Service
+    service:
+      enabled: true
+      type: LoadBalancer # Для доступа извне
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      port: 8200
+
+    # Ресурсы
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+    # ServiceAccount с IAM ролью
+    serviceAccount:
+      create: true
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::529088295850:role/develop-vault-role
+
+    # Переменные окружения
+    extraEnvironmentVars:
+      VAULT_ADDR: "http://127.0.0.1:8200"
+      VAULT_API_ADDR: "http://127.0.0.1:8200"
+      VAULT_LOG_LEVEL: "debug" # Для лучшего дебага
+
+  # UI настройки
+  ui:
+    enabled: true
+    serviceType: LoadBalancer # Меняем на LoadBalancer для прямого доступа
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    externalPort: 8200
+    targetPort: 8200
+
+  # CSI драйвер для K8s секретов
+  csi:
+    enabled: true
+    daemonSet:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi

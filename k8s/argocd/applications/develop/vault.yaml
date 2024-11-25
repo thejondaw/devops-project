@@ -9,9 +9,8 @@ spec:
     repoURL: https://github.com/thejondaw/devops-project.git
     path: helm/charts/vault
     targetRevision: develop
-    helm:
-      valueFiles:
-        - ../../environments/develop/values.yaml
+    plugin:
+      name: argocd-vault-plugin-helm
   destination:
     server: https://kubernetes.default.svc
     namespace: vault

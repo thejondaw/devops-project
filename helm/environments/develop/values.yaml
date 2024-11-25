@@ -33,4 +33,4 @@ monitoring:
 vault:
   server:
     serviceAccount:
-      roleArn: "arn:aws:iam::ACCOUNT_ID:role/develop-vault-role"
+      roleArn: "arn:aws:iam::529088295850:role/develop-vault-role"
