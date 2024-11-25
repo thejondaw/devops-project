@@ -59,7 +59,6 @@ resource "helm_release" "vault" {
   EOF
   ]
 
-  depends_on = [kubernetes_service_account.vault]
 }
 
 # =============== IAM ROLES & POLICIES =============== #
