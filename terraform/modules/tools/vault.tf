@@ -16,10 +16,10 @@
 #       affinity: ""
 #       ha:
 #         enabled: false
-        
+
 #       dataStorage:
 #         size: 1Gi
-      
+
 #       resources:
 #         requests:
 #           memory: "128Mi"
@@ -41,12 +41,12 @@
 #         VAULT_ADDR: "http://127.0.0.1:8200"
 #         VAULT_API_ADDR: "http://127.0.0.1:8200"
 #         AWS_REGION: "${var.region}"
-    
+
 #     ui:
 #       enabled: true
 #       serviceType: LoadBalancer
 #       externalPort: 8200
-    
+
 #     injector:
 #       enabled: true
 #       replicas: 1
