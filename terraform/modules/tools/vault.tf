@@ -66,7 +66,7 @@ resource "helm_release" "vault" {
 resource "kubernetes_namespace" "vault" {
   metadata {
     name = "vault"
-    
+
     labels = {
       environment = var.environment
       service     = "vault"
