@@ -87,8 +87,8 @@ post-install:
 # ALiases Script
 .PHONY: aliases
 aliases:
-    chmod +x scripts/aliases.sh
-    ./scripts/aliases.sh
+	chmod +x scripts/aliases.sh
+	./scripts/aliases.sh
 
 # Helper to configure backend
 .PHONY: configure-backend
