@@ -2,64 +2,64 @@
 # ================= HASHICORP VAULT ================== #
 # ==================================================== #
 
-resource "helm_release" "vault" {
-  name             = "vault"
-  repository       = "https://helm.releases.hashicorp.com"
-  chart            = "vault"
-  version          = "0.25.0"
-  namespace        = "vault"
-  create_namespace = true
+# # Install - HashiCorp Vault
+# resource "helm_release" "vault" {
+#   name             = "vault"
+#   repository       = "https://helm.releases.hashicorp.com"
+#   chart            = "vault"
+#   version          = "0.25.0"
+#   namespace        = "vault"
+#   create_namespace = true
 
-  values = [<<-EOF
-    server:
-      affinity: ""
-      ha:
-        enabled: false
+#   values = [<<-EOF
+#     server:
+#       affinity: ""
+#       ha:
+#         enabled: false
         
-      dataStorage:
-        size: 1Gi
+#       dataStorage:
+#         size: 1Gi
       
-      resources:
-        requests:
-          memory: "128Mi"
-          cpu: "100m"
-        limits:
-          memory: "256Mi"
-          cpu: "200m"
+#       resources:
+#         requests:
+#           memory: "128Mi"
+#           cpu: "100m"
+#         limits:
+#           memory: "256Mi"
+#           cpu: "200m"
 
-      auditStorage:
-        enabled: true
-        size: 1Gi
+#       auditStorage:
+#         enabled: true
+#         size: 1Gi
 
-      serviceAccount:
-        create: false
-        name: "vault"
-        annotations: {}
+#       serviceAccount:
+#         create: false
+#         name: "vault"
+#         annotations: {}
 
-      extraEnvironmentVars:
-        VAULT_ADDR: "http://127.0.0.1:8200"
-        VAULT_API_ADDR: "http://127.0.0.1:8200"
-        AWS_REGION: "${var.region}"
+#       extraEnvironmentVars:
+#         VAULT_ADDR: "http://127.0.0.1:8200"
+#         VAULT_API_ADDR: "http://127.0.0.1:8200"
+#         AWS_REGION: "${var.region}"
     
-    ui:
-      enabled: true
-      serviceType: LoadBalancer
-      externalPort: 8200
+#     ui:
+#       enabled: true
+#       serviceType: LoadBalancer
+#       externalPort: 8200
     
-    injector:
-      enabled: true
-      replicas: 1
-      resources:       
-        requests:
-          memory: "64Mi"
-          cpu: "50m"
-        limits:
-          memory: "128Mi"
-          cpu: "100m"
-  EOF
-  ]
-
-}
+#     injector:
+#       enabled: true
+#       replicas: 1
+#       resources:       
+#         requests:
+#           memory: "64Mi"
+#           cpu: "50m"
+#         limits:
+#           memory: "128Mi"
+#           cpu: "100m"
+#   EOF
+#   ]
+# }
 
 # =============== IAM ROLES & POLICIES =============== #
 
@@ -79,11 +79,6 @@ resource "aws_iam_role" "vault" {
       }
     ]
   })
-
-  tags = {
-    Environment = var.environment
-    Service     = "vault"
-  }
 }
 
 # IAM Policy - Secrets Manager

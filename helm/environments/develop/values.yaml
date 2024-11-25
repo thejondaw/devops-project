@@ -29,3 +29,8 @@ monitoring:
     ingress:
       hosts:
         - alertmanager.develop.local
+
+vault:
+  server:
+    serviceAccount:
+      roleArn: "arn:aws:iam::ACCOUNT_ID:role/develop-vault-role"
