@@ -62,6 +62,31 @@ resource "helm_release" "vault" {
   depends_on = [kubernetes_service_account.vault]
 }
 
+# Namespace - Vault
+resource "kubernetes_namespace" "vault" {
+  metadata {
+    name = "vault"
+    
+    labels = {
+      environment = var.environment
+      service     = "vault"
+      managed-by  = "terraform"
+    }
+  }
+}
+
+# Service Account - Vault
+resource "kubernetes_service_account" "vault" {
+  metadata {
+    name      = "vault"
+    namespace = kubernetes_namespace.vault.metadata[0].name
+    annotations = {
+      "eks.amazonaws.com/role-arn" = aws_iam_role.vault.arn
+    }
+  }
+  depends_on = [kubernetes_namespace.vault]
+}
+
 # =============== IAM ROLES & POLICIES =============== #
 
 # IAM Role - Vault
@@ -105,17 +130,6 @@ resource "aws_iam_role_policy" "vault_secrets" {
       }
     ]
   })
-}
-
-# Service Account - Vault
-resource "kubernetes_service_account" "vault" {
-  metadata {
-    name      = "vault"
-    namespace = "vault"
-    annotations = {
-      "eks.amazonaws.com/role-arn" = aws_iam_role.vault.arn
-    }
-  }
 }
 
 # ==================================================== #
