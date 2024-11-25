@@ -13,6 +13,8 @@ kubectl apply -f k8s/infrastructure/namespaces.yaml
 kubectl apply -f k8s/infrastructure/network-policies.yaml
 
 # Install Applications via ArgoCD
+kubectl apply -f k8s/argocd/config/plugin-config.yaml
+kubectl apply -f k8s/argocd/config/argocd-repo-server-deploy.yaml
 kubectl apply -f k8s/argocd/applications/develop/ingress-nginx.yaml
 kubectl apply -f k8s/argocd/applications/develop/vault.yaml
 kubectl apply -f k8s/argocd/applications/develop/api.yaml
