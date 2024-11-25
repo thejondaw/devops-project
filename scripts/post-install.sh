@@ -14,6 +14,7 @@ kubectl apply -f k8s/argocd/applications/develop/ingress-nginx.yaml
 # Create Namespaces & Network Policies
 kubectl apply -f k8s/infrastructure/namespaces.yaml
 kubectl apply -f k8s/infrastructure/network-policies.yaml
+kubectl apply -f k8s/infrastructure/vault.yaml
 
 # Install Applications via ArgoCD
 kubectl apply -f k8s/argocd/applications/develop/api.yaml
