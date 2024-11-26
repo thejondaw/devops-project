@@ -29,13 +29,6 @@ variable "cluster_configuration" {
     disk_size      = number
     instance_types = list(string)
   })
-  default = {
-    version        = "1.28"
-    min_size       = 2
-    max_size       = 3
-    disk_size      = 20
-    instance_types = ["t3.small"]
-  }
   validation {
     condition     = can(regex("^1\\.(2[3-8])$", var.cluster_configuration.version))
     error_message = "Kubernetes version must be between 1.23 and 1.28."

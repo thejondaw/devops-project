@@ -47,6 +47,7 @@ eks_configuration = {
   min_size       = 3
   max_size       = 3
   instance_types = ["t3.medium"]
+  disk_size      = 20
 }
 
 # ==================================================== #

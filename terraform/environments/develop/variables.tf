@@ -66,12 +66,6 @@ variable "eks_configuration" {
     max_size       = number
     instance_types = list(string)
   })
-  default = {
-    version        = "1.28"
-    min_size       = 1
-    max_size       = 3
-    instance_types = ["t3.small"]
-  }
 }
 
 # ==================================================== #
