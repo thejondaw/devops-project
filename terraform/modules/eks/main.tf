@@ -208,7 +208,7 @@ resource "aws_cloudwatch_log_group" "eks" {
 resource "aws_eks_cluster" "study" {
   name     = local.cluster_name
   role_arn = aws_iam_role.eks_cluster.arn
-  version  = var.cluster_configuration.version
+  version  = var.eks_configuration.version
 
   vpc_config {
     subnet_ids = [
@@ -230,7 +230,7 @@ resource "aws_eks_cluster" "study" {
   tags = merge(local.common_tags, local.network_tags, {
     Name         = local.cluster_name
     ClusterType  = "EKS"
-    Version      = var.cluster_configuration.version
+    Version      = var.eks_configuration.version
     Architecture = "Multi-AZ"
   })
 }
@@ -247,13 +247,13 @@ resource "aws_eks_node_group" "study" {
   subnet_ids = [data.aws_subnet.web.id, data.aws_subnet.api.id]
 
   scaling_config {
-    desired_size = var.cluster_configuration.min_size
-    max_size     = var.cluster_configuration.max_size
-    min_size     = var.cluster_configuration.min_size
+    desired_size = var.eks_configuration.min_size
+    max_size     = var.eks_configuration.max_size
+    min_size     = var.eks_configuration.min_size
   }
 
-  instance_types = var.cluster_configuration.instance_types
-  disk_size      = var.cluster_configuration.disk_size
+  instance_types = var.eks_configuration.instance_types
+  disk_size      = var.eks_configuration.disk_size
 
   update_config {
     max_unavailable = 1
@@ -266,8 +266,8 @@ resource "aws_eks_node_group" "study" {
   tags = merge(local.common_tags, local.compute_tags, {
     Name          = "${local.cluster_name}-node-group"
     NodeGroupType = "Application"
-    InstanceType  = join(",", var.cluster_configuration.instance_types)
-    DiskSize      = "${var.cluster_configuration.disk_size}GB"
+    InstanceType  = join(",", var.eks_configuration.instance_types)
+    DiskSize      = "${var.eks_configuration.disk_size}GB"
     AutoScaling   = "Enabled"
   })
 }
