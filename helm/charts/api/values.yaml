@@ -27,9 +27,3 @@ service:
   port: 80
   targetPort: 3000
 
-database:
-  host: ""
-  port: "5432"
-  name: "devopsdb"
-  username: "jondaw"
-  password: "password"

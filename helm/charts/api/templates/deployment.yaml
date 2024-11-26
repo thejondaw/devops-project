@@ -12,6 +12,9 @@ spec:
   template:
     metadata:
       annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-database: "database/creds/api"
+        vault.hashicorp.com/role: "api"
         prometheus.io/scrape: "true"
         prometheus.io/port: "3000"
       labels:
