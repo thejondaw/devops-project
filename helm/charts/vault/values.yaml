@@ -15,18 +15,15 @@ vault:
         memory: 128Mi
 
   server:
-    # Основные настройки
     annotations:
       avp.kubernetes.io/path: "secret/data/vault"
 
-    # Хранилище
     dataStorage:
       enabled: true
       size: 1Gi
       storageClass: "gp2"
       accessMode: ReadWriteOnce
 
-    # Standalone режим
     standalone:
       enabled: true
       config: |
@@ -49,15 +46,13 @@ vault:
           }
         }
 
-    # Настройки Service
     service:
       enabled: true
-      type: LoadBalancer # Для доступа извне
+      type: LoadBalancer
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
       port: 8200
 
-    # Ресурсы
     resources:
       requests:
         cpu: 100m
@@ -66,28 +61,24 @@ vault:
         cpu: 200m
         memory: 256Mi
 
-    # ServiceAccount с IAM ролью
     serviceAccount:
       create: true
       annotations:
         eks.amazonaws.com/role-arn: arn:aws:iam::529088295850:role/develop-vault-role
 
-    # Переменные окружения
     extraEnvironmentVars:
       VAULT_ADDR: "http://127.0.0.1:8200"
       VAULT_API_ADDR: "http://127.0.0.1:8200"
-      VAULT_LOG_LEVEL: "debug" # Для лучшего дебага
+      VAULT_LOG_LEVEL: "debug"
 
-  # UI настройки
   ui:
     enabled: true
-    serviceType: LoadBalancer # Меняем на LoadBalancer для прямого доступа
+    serviceType: LoadBalancer
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     externalPort: 8200
     targetPort: 8200
 
-  # CSI драйвер для K8s секретов
   csi:
     enabled: true
     daemonSet:
