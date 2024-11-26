@@ -165,7 +165,10 @@ resource "aws_iam_role_policy" "node_group_ebs" {
           "ec2:DescribeVolumes",
           "ec2:CreateSnapshot",
           "ec2:DeleteSnapshot",
-          "ec2:DescribeSnapshots"
+          "ec2:DescribeSnapshots",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
+          "ec2:DescribeTags"
         ]
         Resource = "*"
       }
@@ -241,7 +244,7 @@ resource "aws_eks_node_group" "study" {
   node_role_arn   = aws_iam_role.node_group.arn
   capacity_type   = "SPOT"
 
-  subnet_ids = [data.aws_subnet.web.id]
+  subnet_ids = [data.aws_subnet.web.id,data.aws_subnet.api.id]
 
   scaling_config {
     desired_size = var.cluster_configuration.min_size
