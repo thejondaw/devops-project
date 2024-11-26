@@ -13,7 +13,7 @@ cd helm/charts/aws-ebs-csi-driver && helm dependency build && cd ../../..
 cd helm/charts/ingress-nginx && helm dependency build && cd ../../..
 cd helm/charts/vault && helm dependency build && cd ../../..
 cd helm/charts/monitoring && helm dependency build && cd ../../..
-cd helm/charts/logging && helm dependency build && cd ../../..
+cd helm/charts/loki && helm dependency build && cd ../../..
 
 # Create Infrastructure
 kubectl apply -f k8s/infrastructure/namespaces.yaml
