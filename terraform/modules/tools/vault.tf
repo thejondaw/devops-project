@@ -20,9 +20,9 @@ resource "aws_iam_role" "vault" {
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub": [
+            "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub" : [
               "system:serviceaccount:vault:vault",
-              "system:serviceaccount:kube-system:ebs-csi-controller-sa"  
+              "system:serviceaccount:kube-system:ebs-csi-controller-sa"
             ]
           }
         }
