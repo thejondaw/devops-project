@@ -244,7 +244,7 @@ resource "aws_eks_node_group" "study" {
   node_role_arn   = aws_iam_role.node_group.arn
   capacity_type   = "SPOT"
 
-  subnet_ids = [data.aws_subnet.web.id,data.aws_subnet.api.id]
+  subnet_ids = [data.aws_subnet.web.id, data.aws_subnet.api.id]
 
   scaling_config {
     desired_size = var.cluster_configuration.min_size
