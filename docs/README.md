@@ -55,11 +55,11 @@ k get svc -n monitoring grafana-prometheus-server -o jsonpath='{.status.loadBala
 ## Login - HashiCorp Vault
 
 ```shell
-# Show IP/URL of Service
-kubectl get svc -n vault
-
 # Forvarding of port
 kubectl port-forward service/vault 8200:8200 -n vault
+
+# Website after forwarding
+http://localhost:8200
 
 # Exec Pod and Init
 kubectl exec -n vault vault-0 -- vault operator init
