@@ -1,0 +1,55 @@
+promtail:
+  daemonset:
+    enabled: true
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  tolerations:
+    - operator: Exists
+
+  config:
+    serverPort: 9080
+    lokiAddress: http://loki.monitoring.svc:3100/loki/api/v1/push
+
+    positions:
+      filename: /run/promtail/positions.yaml
+
+    snippets:
+      extraRelabelConfigs:
+        - action: replace
+          replacement: dev-eks
+          targetLabel: cluster
+
+    scrapeConfigs:
+      - job_name: kubernetes-pods
+        pipeline_stages:
+          - docker: {}
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels:
+              - __meta_kubernetes_pod_node_name
+            target_label: node_name
+          - source_labels:
+              - __meta_kubernetes_pod_container_name
+            target_label: container
+          - source_labels:
+              - __meta_kubernetes_namespace
+            target_label: namespace
+          - source_labels:
+              - __meta_kubernetes_pod_name
+            target_label: pod
+          - source_labels:
+              - __meta_kubernetes_pod_label_app_kubernetes_io_name
+              - __meta_kubernetes_pod_label_app
+            target_label: app
+            regex: ^;*([^;]+)(;.*)?$
+          - source_labels:
+              - __meta_kubernetes_pod_label_app_kubernetes_io_instance
+            target_label: instance
