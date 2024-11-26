@@ -9,6 +9,9 @@ spec:
     repoURL: https://github.com/thejondaw/devops-project.git
     path: helm/charts/loki
     targetRevision: develop
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
