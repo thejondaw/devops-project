@@ -33,7 +33,7 @@ k get svc -n monitoring grafana-prometheus -o jsonpath='{.status.loadBalancer.in
 # Password
 k get secret -n monitoring grafana-prometheus -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
-╔================================================╗
+╔════════════════════════════════════════════════╗
 ║Connection to Prometheus:                       ║
 ║URL: http://grafana-prometheus-server           ║
 ║Skip TLS Verify: ON                             ║
@@ -42,7 +42,7 @@ k get secret -n monitoring grafana-prometheus -o jsonpath="{.data.admin-password
 ║ID: 1860 (Node Exporter Full)                   ║
 ║Datasource: Prometheus                          ║
 ║Import                                          ║
-╚================================================╝
+╚════════════════════════════════════════════════╝
 
 # URL - Prometheus (Optional)
 k patch svc grafana-prometheus-server -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
