@@ -8,11 +8,11 @@ prometheus:
       enabled: false
     resources:
       limits:
-        cpu: 50m
+        cpu: 100m
         memory: 128Mi
       requests:
-        cpu: 25m
-        memory: 64Mi
+        cpu: 50m
+        memory: 128Mi
 
 grafana:
   persistence:
@@ -21,11 +21,11 @@ grafana:
     type: LoadBalancer
   resources:
     limits:
-      cpu: 50m
-      memory: 64Mi
+      cpu: 100m
+      memory: 256Mi
     requests:
-      cpu: 25m
-      memory: 32Mi
+      cpu: 50m
+      memory: 128Mi
   datasources:
     datasources.yaml:
       apiVersion: 1

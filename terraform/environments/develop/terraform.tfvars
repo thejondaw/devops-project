@@ -44,8 +44,8 @@ db_configuration = {
 # Set - EKS Cluster - Condfiguration
 eks_configuration = {
   version        = "1.28"
-  min_size       = 2
-  max_size       = 3
+  min_size       = 4
+  max_size       = 4
   instance_types = ["t3.medium"]
 }
 
