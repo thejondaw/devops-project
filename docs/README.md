@@ -99,16 +99,17 @@ kubectl exec -it vault-0 -n vault -- vault kv put secret/database/rds \
 kubectl exec -it vault-0 -n vault -- vault kv get secret/database/rds
 ```
 
-### Delete
+### Delete & Re-Apply
 
 ```shell
 # 1. Delete - IAM Role of Vault - Manually
+# 2. Delete - EC2 - Volumes - Manually
 
-# 2. This
+# 3. This
 helm uninstall argocd -n argocd
 k delete namespace argocd
 
-# 3. Only after that
+# 4. Only after that
 make apply-tools
 bash scripts/post-install.sh
 

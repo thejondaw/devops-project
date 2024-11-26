@@ -2,11 +2,11 @@ ingress-nginx:
   controller:
     resources:
       requests:
-        cpu: 50m
-        memory: 64Mi
+        cpu: 25m
+        memory: 48Mi
       limits:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 50m
+        memory: 96Mi
     service:
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"

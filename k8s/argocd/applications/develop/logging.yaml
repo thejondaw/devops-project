@@ -15,22 +15,23 @@ spec:
           enabled: true
           persistence:
             enabled: true
-            size: "2Gi"
+            size: 2Gi
           config:
             auth_enabled: false
-              limits_config:
-                retention_period: 72h
-            storage:
-              type: local
+            limits_config:
+              retention_period: 72h
+            compactor:
+              retention_enabled: true
+            ruler:
+              storage:
+                type: local
           resources:
             requests:
-               cpu: 50m
-               memory: 64Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
               cpu: 100m
               memory: 128Mi
-        promtail:
-          enabled: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

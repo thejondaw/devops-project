@@ -4,6 +4,7 @@ loki:
     enabled: true
     size: 2Gi
   config:
+    auth_enabled: false
     limits_config:
       retention_period: 72h
     compactor:

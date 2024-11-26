@@ -8,22 +8,20 @@ vault:
     replicas: 1
     resources:
       requests:
+        cpu: 25m
+        memory: 32Mi
+      limits:
         cpu: 50m
         memory: 64Mi
-      limits:
-        cpu: 100m
-        memory: 128Mi
 
   server:
     annotations:
       avp.kubernetes.io/path: "secret/data/vault"
-
     dataStorage:
       enabled: true
       size: 1Gi
       storageClass: "gp2"
       accessMode: ReadWriteOnce
-
     standalone:
       enabled: true
       config: |
@@ -36,8 +34,6 @@ vault:
         storage "file" {
           path = "/vault/data"
         }
-
-        # Включаем Audit логи
         audit {
           enabled = true
           type    = "file"
@@ -45,22 +41,19 @@ vault:
             file_path = "/vault/logs/audit.log"
           }
         }
-
     service:
       enabled: true
       type: LoadBalancer
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
       port: 8200
-
     resources:
       requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
         cpu: 100m
         memory: 128Mi
-      limits:
-        cpu: 200m
-        memory: 256Mi
-
     serviceAccount:
       create: true
       annotations:
@@ -84,8 +77,8 @@ vault:
     daemonSet:
       resources:
         requests:
+          cpu: 25m
+          memory: 32Mi
+        limits:
           cpu: 50m
           memory: 64Mi
-        limits:
-          cpu: 100m
-          memory: 128Mi
