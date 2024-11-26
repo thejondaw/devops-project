@@ -65,13 +65,13 @@ kubectl port-forward service/vault 8200:8200 -n vault
 kubectl exec -n vault vault-0 -- vault operator init
 ```
 
-> Unseal Key 1: pCTZi4aO+rdGBaDX93G7dwiA5v4mpPe2Djy7mZbPtO+p
-> Unseal Key 2: JAzAFgq4zagwAWluGVC18t/UxdKPVobF4oWjgJEbbDry
-> Unseal Key 3: P+MIG/L+pitQwFrmsqQilXqt+fmOd4PkKjTUZEma/HPa
-> Unseal Key 4: vLk5YR7ybb9Cz9gjJPo4LoOfqcIYfSCIuWG53jtY77jx
-> Unseal Key 5: w4b14teHsZVyPEgJXyZWZ4J13EurYZXZ3x88D4lPhgtY
+> - Unseal Key 1: pCTZi4aO+rdGBaDX93G7dwiA5v4mpPe2Djy7mZbPtO+p
+> - Unseal Key 2: JAzAFgq4zagwAWluGVC18t/UxdKPVobF4oWjgJEbbDry
+> - Unseal Key 3: P+MIG/L+pitQwFrmsqQilXqt+fmOd4PkKjTUZEma/HPa
+> - Unseal Key 4: vLk5YR7ybb9Cz9gjJPo4LoOfqcIYfSCIuWG53jtY77jx
+> - Unseal Key 5: w4b14teHsZVyPEgJXyZWZ4J13EurYZXZ3x88D4lPhgtY
 >
-> Initial Root Token: <VAULT_TOKEN>
+> - Initial Root Token: <VAULT_TOKEN>
 
 ```shell
 # Exec Pod three times with Keys
