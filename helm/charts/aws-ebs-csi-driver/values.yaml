@@ -1,0 +1,11 @@
+aws-ebs-csi-driver:
+  controller:
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 40Mi

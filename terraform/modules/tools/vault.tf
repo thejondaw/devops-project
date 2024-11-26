@@ -2,66 +2,8 @@
 # ================= HASHICORP VAULT ================== #
 # ==================================================== #
 
-# # Install - HashiCorp Vault
-# resource "helm_release" "vault" {
-#   name             = "vault"
-#   repository       = "https://helm.releases.hashicorp.com"
-#   chart            = "vault"
-#   version          = "0.25.0"
-#   namespace        = "vault"
-#   create_namespace = true
-
-#   values = [<<-EOF
-#     server:
-#       affinity: ""
-#       ha:
-#         enabled: false
-
-#       dataStorage:
-#         size: 1Gi
-
-#       resources:
-#         requests:
-#           memory: "128Mi"
-#           cpu: "100m"
-#         limits:
-#           memory: "256Mi"
-#           cpu: "200m"
-
-#       auditStorage:
-#         enabled: true
-#         size: 1Gi
-
-#       serviceAccount:
-#         create: false
-#         name: "vault"
-#         annotations: {}
-
-#       extraEnvironmentVars:
-#         VAULT_ADDR: "http://127.0.0.1:8200"
-#         VAULT_API_ADDR: "http://127.0.0.1:8200"
-#         AWS_REGION: "${var.region}"
-
-#     ui:
-#       enabled: true
-#       serviceType: LoadBalancer
-#       externalPort: 8200
-
-#     injector:
-#       enabled: true
-#       replicas: 1
-#       resources:       
-#         requests:
-#           memory: "64Mi"
-#           cpu: "50m"
-#         limits:
-#           memory: "128Mi"
-#           cpu: "100m"
-#   EOF
-#   ]
-# }
-
-# =============== IAM ROLES & POLICIES =============== #
+# Fetch Account ID
+data "aws_caller_identity" "current" {}
 
 # IAM Role - Vault
 resource "aws_iam_role" "vault" {
@@ -73,15 +15,23 @@ resource "aws_iam_role" "vault" {
       {
         Effect = "Allow"
         Principal = {
-          Service = "eks.amazonaws.com"
+          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}"
         }
-        Action = "sts:AssumeRole"
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub": [
+              "system:serviceaccount:vault:vault",
+              "system:serviceaccount:kube-system:ebs-csi-controller-sa"  
+            ]
+          }
+        }
       }
     ]
   })
 }
 
-# IAM Policy - Secrets Manager
+# IAM Policy - Secrets Manager & EBS
 resource "aws_iam_role_policy" "vault_secrets" {
   name = "${var.environment}-vault-secrets-policy"
   role = aws_iam_role.vault.id
@@ -93,9 +43,19 @@ resource "aws_iam_role_policy" "vault_secrets" {
         Effect = "Allow"
         Action = [
           "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret"
+          "secretsmanager:DescribeSecret",
+          "ec2:CreateSnapshot",
+          "ec2:AttachVolume",
+          "ec2:DetachVolume",
+          "ec2:ModifyVolume",
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeInstances",
+          "ec2:DescribeSnapshots",
+          "ec2:DescribeTags",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeVolumesModifications"
         ]
-        Resource = ["arn:aws:secretsmanager:${var.region}:*:secret:${var.environment}-aurora-*"]
+        Resource = "*"
       }
     ]
   })

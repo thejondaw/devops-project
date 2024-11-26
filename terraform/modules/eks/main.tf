@@ -147,6 +147,32 @@ resource "aws_iam_role" "node_group" {
   })
 }
 
+# Attach - EBS Policy - Node Group
+resource "aws_iam_role_policy" "node_group_ebs" {
+  name = "ebs-policy"
+  role = aws_iam_role.node_group.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateVolume",
+          "ec2:DeleteVolume",
+          "ec2:AttachVolume",
+          "ec2:DetachVolume",
+          "ec2:DescribeVolumes",
+          "ec2:CreateSnapshot",
+          "ec2:DeleteSnapshot",
+          "ec2:DescribeSnapshots"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # Attach - Required Policies - Node Group
 resource "aws_iam_role_policy_attachment" "node_group_minimum_policies" {
   for_each = toset([

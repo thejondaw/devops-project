@@ -37,6 +37,13 @@ kubectl delete -f k8s/argocd/applications/develop/logging.yaml
 kubectl delete -f k8s/argocd/applications/develop/apparmor.yaml
 
 
+# ПЕРЕД РЕАПЛАЕМ
+# УДАЛИТЬ IAM ROLE ВОЛТА
+
+helm uninstall argocd -n argocd
+kubectl delete namespace argocd
+
+
 ```
 
 ## HELM Install
