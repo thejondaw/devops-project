@@ -2,6 +2,27 @@ promtail:
   daemonset:
     enabled: true
 
+  defaultVolumes:
+    - name: run
+      hostPath:
+        path: /run/promtail
+    - name: containers
+      hostPath:
+        path: /var/lib/docker/containers
+    - name: pods
+      hostPath:
+        path: /var/log/pods
+
+  defaultVolumeMounts:
+    - name: run
+      mountPath: /run/promtail
+    - name: containers
+      mountPath: /var/lib/docker/containers
+      readOnly: true
+    - name: pods
+      mountPath: /var/log/pods
+      readOnly: true
+
   resources:
     limits:
       cpu: 200m
@@ -13,18 +34,18 @@ promtail:
   tolerations:
     - operator: Exists
 
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+
   config:
     serverPort: 9080
-    lokiAddress: http://loki.monitoring.svc:3100/loki/api/v1/push
+
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
 
     positions:
       filename: /run/promtail/positions.yaml
-
-    snippets:
-      extraRelabelConfigs:
-        - action: replace
-          replacement: dev-eks
-          targetLabel: cluster
 
     scrapeConfigs:
       - job_name: kubernetes-pods
