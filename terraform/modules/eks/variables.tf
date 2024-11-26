@@ -20,7 +20,7 @@ variable "environment" {
 
 # ============ EKS CLUSTER CONFIGURATION ============= #
 
-variable "cluster_configuration" {
+variable "eks_configuration" {
   description = "EKS cluster configuration"
   type = object({
     version        = string
@@ -30,7 +30,7 @@ variable "cluster_configuration" {
     instance_types = list(string)
   })
   validation {
-    condition     = can(regex("^1\\.(2[3-8])$", var.cluster_configuration.version))
+    condition     = can(regex("^1\\.(2[3-8])$", var.eks_configuration.version))
     error_message = "Kubernetes version must be between 1.23 and 1.28."
   }
 }
