@@ -28,6 +28,7 @@ kubectl apply -f k8s/infrastructure/network-policies.yaml
 kubectl apply -f k8s/argocd/applications/develop/loki.yaml
 kubectl apply -f k8s/argocd/applications/develop/promtail.yaml
 
+
 # kubectl apply -f k8s/argocd/applications/develop/api.yaml
 # kubectl apply -f k8s/argocd/applications/develop/web.yaml
 # kubectl apply -f k8s/argocd/applications/develop/apparmor.yaml
