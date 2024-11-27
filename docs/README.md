@@ -34,7 +34,9 @@ echo && \
 echo "Credentials:" && \
 echo "admin/"$(k get secret -n monitoring monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 --decode) && \
 echo
+```
 
+```shell
 ╔════════════════════════════════════════════════╗
 ║ Node Monitoring Setup:                         ║
 ║ 1. Grafana -> Dashboards -> Import             ║
