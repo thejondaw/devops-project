@@ -72,7 +72,7 @@ grafana:
           isDefault: true
         - name: Loki
           type: loki
-          url: http://monitoring-loki.monitoring.svc.cluster.local:3100
+          url: http://monitoring-loki:3100
           access: proxy
           jsonData:
             maxLines: 1000
@@ -98,25 +98,8 @@ loki:
 
   persistence:
     enabled: true
-    accessModes: ["ReadWriteOnce"]
     size: 10Gi
     storageClass: gp2
-
-  memberlist:
-    service:
-      headless:
-        enable: true
-
-  config:
-    memberlist:
-      join_members:
-        - monitoring-loki-memberlist.monitoring.svc.cluster.local:7946
-
-  storage:
-    type: filesystem
-    filesystem:
-      chunks_directory: /data/loki/chunks
-      rules_directory: /data/loki/rules
 
   loki:
     auth_enabled: false
@@ -128,11 +111,6 @@ loki:
 promtail:
   nameOverride: monitoring
   fullnameOverride: monitoring-promtail
-  
-  daemonset:
-    enabled: true
-    tolerations:
-      - operator: Exists
 
   resources:
     limits:
@@ -142,61 +120,11 @@ promtail:
       cpu: 100m
       memory: 128Mi
 
-  extraVolumes:
-    - name: varlog
-      hostPath:
-        path: /var/log
-    - name: varlibdockercontainers
-      hostPath:
-        path: /var/lib/docker/containers
-    - name: data
-      emptyDir: {}
-
-  extraVolumeMounts:
-    - name: varlog
-      mountPath: /var/log
-      readOnly: true
-    - name: varlibdockercontainers
-      mountPath: /var/lib/docker/containers
-      readOnly: true
-    - name: data
-      mountPath: /data
-
-  serviceMonitor:
-    enabled: true
-
   config:
-    serverPort: 3101
-    positions:
-      filename: /data/positions.yaml
-      
     clients:
-      - url: http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
-    
-    scrape_configs:
-      - job_name: kubernetes-pods
-        kubernetes_sd_configs:
-          - role: pod
-        pipeline_stages:
-          - docker: {}
-        relabel_configs:
-          - source_labels: 
-              - __meta_kubernetes_pod_node_name
-            target_label: node_name
-          - source_labels:
-              - __meta_kubernetes_namespace
-            target_label: namespace
-          - source_labels:
-              - __meta_kubernetes_pod_name
-            target_label: pod
-          - source_labels:
-              - __meta_kubernetes_pod_container_name
-            target_label: container
-          - action: labelmap
-            regex: __meta_kubernetes_pod_label_(.+)
-          - replacement: /var/log/pods/*$1/*.log
-            separator: /
-            source_labels:
-              - __meta_kubernetes_pod_uid
-              - __meta_kubernetes_pod_container_name
-            target_label: __path__
+      - url: http://monitoring-loki:3100/loki/api/v1/push
+    snippets:
+      extraRelabelConfigs:
+        - action: replace
+          replacement: dev-eks
+          target_label: cluster
