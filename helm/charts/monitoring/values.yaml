@@ -128,6 +128,11 @@ loki:
 promtail:
   nameOverride: monitoring
   fullnameOverride: monitoring-promtail
+  
+  daemonset:
+    enabled: true
+    tolerations:
+      - operator: Exists
 
   resources:
     limits:
@@ -157,50 +162,41 @@ promtail:
     - name: data
       mountPath: /data
 
+  serviceMonitor:
+    enabled: true
+
   config:
-    lokiAddress: http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
-    snippets:
-      scrapeConfigs: |
-        - job_name: kubernetes-pods-name
-          pipeline_stages:
-            - docker: {}
-          kubernetes_sd_configs:
-            - role: pod
-          relabel_configs:
-            - source_labels:
-                - __meta_kubernetes_pod_label_name
-              target_label: __service__
-            - source_labels:
-                - __meta_kubernetes_pod_node_name
-              target_label: __host__
-            - action: drop
-              regex: ''
-              source_labels:
-                - __service__
-            - action: labelmap
-              regex: __meta_kubernetes_pod_label_(.+)
-            - action: replace
-              replacement: $1
-              separator: /
-              source_labels:
-                - __meta_kubernetes_namespace
-                - __service__
-              target_label: job
-            - action: replace
-              source_labels:
-                - __meta_kubernetes_namespace
-              target_label: namespace
-            - action: replace
-              source_labels:
-                - __meta_kubernetes_pod_name
-              target_label: pod
-            - action: replace
-              source_labels:
-                - __meta_kubernetes_pod_container_name
-              target_label: container
-            - replacement: /var/log/pods/*$1/*.log
-              separator: /
-              source_labels:
-                - __meta_kubernetes_pod_uid
-                - __meta_kubernetes_pod_container_name
-              target_label: __path__
+    serverPort: 3101
+    positions:
+      filename: /data/positions.yaml
+      
+    clients:
+      - url: http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+    
+    scrape_configs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        pipeline_stages:
+          - docker: {}
+        relabel_configs:
+          - source_labels: 
+              - __meta_kubernetes_pod_node_name
+            target_label: node_name
+          - source_labels:
+              - __meta_kubernetes_namespace
+            target_label: namespace
+          - source_labels:
+              - __meta_kubernetes_pod_name
+            target_label: pod
+          - source_labels:
+              - __meta_kubernetes_pod_container_name
+            target_label: container
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - replacement: /var/log/pods/*$1/*.log
+            separator: /
+            source_labels:
+              - __meta_kubernetes_pod_uid
+              - __meta_kubernetes_pod_container_name
+            target_label: __path__
