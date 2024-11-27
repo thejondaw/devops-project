@@ -72,7 +72,7 @@ grafana:
           isDefault: true
         - name: Loki
           type: loki
-          url: http://monitoring-loki:3100
+          url: http://monitoring-loki.monitoring.svc.cluster.local:3100
           access: proxy
           jsonData:
             maxLines: 1000
@@ -98,8 +98,25 @@ loki:
 
   persistence:
     enabled: true
+    accessModes: ["ReadWriteOnce"]
     size: 10Gi
     storageClass: gp2
+
+  memberlist:
+    service:
+      headless:
+        enable: true
+
+  config:
+    memberlist:
+      join_members:
+        - monitoring-loki-memberlist.monitoring.svc.cluster.local:7946
+
+  storage:
+    type: filesystem
+    filesystem:
+      chunks_directory: /data/loki/chunks
+      rules_directory: /data/loki/rules
 
   loki:
     auth_enabled: false
@@ -121,10 +138,19 @@ promtail:
       memory: 128Mi
 
   config:
-    clients:
-      - url: http://monitoring-loki:3100/loki/api/v1/push
+    lokiAddress: http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
     snippets:
-      extraRelabelConfigs:
-        - action: replace
-          replacement: dev-eks
-          target_label: cluster
+      scrapeConfigs: |
+        - job_name: kubernetes-pods
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels:
+                - __meta_kubernetes_pod_node_name
+              target_label: node_name
+            - source_labels:
+                - __meta_kubernetes_namespace
+              target_label: namespace
+            - source_labels:
+                - __meta_kubernetes_pod_name
+              target_label: pod
