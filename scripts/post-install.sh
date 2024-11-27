@@ -22,7 +22,7 @@ kubectl apply -f k8s/infrastructure/network-policies.yaml
 kubectl apply -f k8s/argocd/applications/develop/aws-ebs-csi-driver.yaml
 kubectl apply -f k8s/argocd/applications/develop/ingress-nginx.yaml
 kubectl apply -f k8s/argocd/applications/develop/vault.yaml
-kubectl apply -f k8s/argocd/applications/develop/plg-stack.yaml.yaml
+kubectl apply -f k8s/argocd/applications/develop/plg-stack.yaml
 
 # kubectl apply -f k8s/argocd/applications/develop/api.yaml
 # kubectl apply -f k8s/argocd/applications/develop/web.yaml
