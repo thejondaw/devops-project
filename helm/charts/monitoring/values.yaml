@@ -1,6 +1,27 @@
 nameOverride: monitoring
 fullnameOverride: monitoring
 
+mysql:
+  enabled: true
+  fullnameOverride: monitoring-mysql
+  auth:
+    database: grafana
+    username: grafana
+    password: grafana-pass
+    rootPassword: mysql-root-pass
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: gp2
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
 prometheus:
   nameOverride: monitoring
   fullnameOverride: monitoring-prometheus
@@ -38,18 +59,26 @@ prometheus:
 grafana:
   nameOverride: monitoring
   fullnameOverride: monitoring-grafana
+
+  database:
+    type: mysql
+    host: monitoring-mysql
+    name: grafana
+    user: grafana
+    password: grafana-pass
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
   service:
     type: LoadBalancer
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-
-  resources:
-    limits:
-      cpu: 200m
-      memory: 256Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
 
   persistence:
     enabled: true

@@ -31,7 +31,7 @@ echo
 echo "URL:" && \
 k get svc -n monitoring monitoring-grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' && \
 echo && \
-echo "Password:" && \
+echo "Credentials:" && \
 echo "admin/"$(k get secret -n monitoring monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 --decode) && \
 echo
 
