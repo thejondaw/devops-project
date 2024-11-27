@@ -4,7 +4,20 @@ fullnameOverride: plg
 prometheus:
   nameOverride: plg
   fullnameOverride: plg-prometheus
+  alertmanager:
+    enabled: true
+    persistentVolume:
+      enabled: true
+      size: 5Gi
   server:
+    persistentVolume:
+      enabled: true
+      size: 8Gi
+    service:
+      type: LoadBalancer
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
     resources:
       limits:
         cpu: 250m
@@ -16,6 +29,17 @@ prometheus:
 grafana:
   nameOverride: plg
   fullnameOverride: plg-grafana
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: gp2
+
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -45,6 +69,9 @@ grafana:
           editable: true
           options:
             path: /var/lib/grafana/dashboards
+
+  adminUser: admin
+  adminPassword: admin
 
 loki:
   nameOverride: plg
@@ -90,8 +117,21 @@ promtail:
       - url: http://plg-loki:3100/loki/api/v1/push
 
     snippets:
+      extraRelabelConfigs:
+        - action: replace
+          replacement: dev-eks
+          target_label: cluster
       pipelineStages:
         - docker: {}
+        - json:
+            expressions:
+              level: level
+              msg: msg
+        - labels:
+            level:
+        - timestamp:
+            source: timestamp
+            format: RFC3339
 
   tolerations:
     - operator: Exists
