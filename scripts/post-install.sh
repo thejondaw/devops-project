@@ -19,6 +19,7 @@ cd helm/charts/monitoring && helm dependency build && cd ../../..
 cd helm/charts/vault && helm dependency build && cd ../../..
 
 # Install Applications via ArgoCD
+# kubectl apply -f k8s/argocd/applications/develop/metrics-server.yaml
 # kubectl apply -f k8s/argocd/applications/develop/aws-ebs-csi-driver.yaml
 # kubectl apply -f k8s/argocd/applications/develop/ingress-nginx.yaml
 kubectl apply -f k8s/argocd/applications/develop/monitoring.yaml
