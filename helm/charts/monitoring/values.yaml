@@ -57,6 +57,8 @@ prometheus:
         memory: 128Mi
 
 grafana:
+  strategy:
+    type: Recreate
   nameOverride: monitoring
   fullnameOverride: monitoring-grafana
 
