@@ -15,11 +15,11 @@ prometheus:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     resources:
       limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
         cpu: 250m
         memory: 512Mi
-      requests:
-        cpu: 100m
-        memory: 256Mi
 
   alertmanager:
     enabled: true
@@ -27,6 +27,13 @@ prometheus:
     persistentVolume:
       enabled: true
       size: 5Gi
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
 grafana:
   nameOverride: monitoring
@@ -35,6 +42,14 @@ grafana:
     type: LoadBalancer
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
   persistence:
     enabled: true
@@ -73,6 +88,14 @@ loki:
   singleBinary:
     replicas: 1
 
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+
   persistence:
     enabled: true
     size: 10Gi
@@ -88,6 +111,15 @@ loki:
 promtail:
   nameOverride: monitoring
   fullnameOverride: monitoring-promtail
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
   config:
     clients:
       - url: http://monitoring-loki:3100/loki/api/v1/push
