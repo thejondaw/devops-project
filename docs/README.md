@@ -27,27 +27,24 @@ k -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}
 ## Login - Grafana
 
 ```shell
-# URL
-k get svc -n monitoring grafana-prometheus -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+# Grafana - URL
+k get svc -n monitoring plg-grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 
-# Password
-k get secret -n monitoring grafana-prometheus -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+# Grafana - Password (admin/admin)
+k get secret -n monitoring plg-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
-╔════════════════════════════════════════════════╗
-║Connection to Prometheus:                       ║
-║URL: http://grafana-prometheus-server           ║
-║Skip TLS Verify: ON                             ║
-║                                                ║
-║Dashboards -> Import                            ║
-║ID: 1860 (Node Exporter Full)                   ║
-║Datasource: Prometheus                          ║
-║Import                                          ║
-╚════════════════════════════════════════════════╝
+╔═════════════════════════════════════════════════════════════════════╗
+║ Node Monitoring Setup:                                              ║
+║ 1. Grafana -> Dashboards -> Import                                  ║
+║ 2. Import ID: 1860 (Node Exporter Full)                             ║
+║    - URL: http://plg-prometheus-server.monitoring.svc.cluster.local ║
+║    - Datasource: Prometheus                                         ║
+║ 3. Import & Configure                                               ║
+╚═════════════════════════════════════════════════════════════════════╝
 
-# URL - Prometheus (Optional)
-k patch svc grafana-prometheus-server -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
-
-k get svc -n monitoring grafana-prometheus-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+# Prometheus - URL (Optional)
+k patch svc plg-prometheus-server -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+k get svc -n monitoring plg-prometheus-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
 ---

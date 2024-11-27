@@ -24,7 +24,6 @@ kubectl apply -f k8s/argocd/applications/develop/ingress-nginx.yaml
 kubectl apply -f k8s/argocd/applications/develop/vault.yaml
 kubectl apply -f k8s/argocd/applications/develop/plg-stack.yaml
 
-
 # kubectl apply -f k8s/argocd/applications/develop/api.yaml
 # kubectl apply -f k8s/argocd/applications/develop/web.yaml
 # kubectl apply -f k8s/argocd/applications/develop/apparmor.yaml

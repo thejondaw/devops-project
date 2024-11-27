@@ -46,12 +46,14 @@ grafana:
       datasources:
         - name: Prometheus
           type: prometheus
-          url: http://plg-prometheus-server
+          url: http://plg-prometheus-server.monitoring.svc.cluster.local
           access: proxy
           isDefault: true
+          jsonData:
+            timeInterval: 30s
         - name: Loki
           type: loki
-          url: http://plg-loki:3100
+          url: http://plg-loki.monitoring.svc.cluster.local:3100
           access: proxy
           jsonData:
             maxLines: 1000
