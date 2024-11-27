@@ -146,10 +146,11 @@ resource "aws_secretsmanager_secret" "aurora_secret" {
 
 # Random Password
 resource "random_password" "aurora_password" {
-  length  = 16
-  special = true
-  numeric = true
-  upper   = true
+  length           = 16
+  special          = true
+  numeric          = true
+  upper            = true
+  override_special = "!#$%&*+-=.:<>?^_~"
 }
 
 # Attach - Credentials - Secret Manager
