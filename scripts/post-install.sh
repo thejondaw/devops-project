@@ -8,33 +8,39 @@ if [ -z "$CLUSTER_NAME" ]; then
 fi
 aws eks update-kubeconfig --name $CLUSTER_NAME --region us-east-2
 
-# Build Helm dependencies
-cd helm/charts/aws-ebs-csi-driver && helm dependency build && cd ../../..
-cd helm/charts/ingress-nginx && helm dependency build && cd ../../..
-cd helm/charts/vault && helm dependency build && cd ../../..
-cd helm/charts/plg-stack && helm dependency build && cd ../../..
-
 # Create Infrastructure
 kubectl apply -f k8s/infrastructure/namespaces.yaml
 kubectl apply -f k8s/infrastructure/network-policies.yaml
 
+# Build Helm dependencies
+cd helm/charts/aws-ebs-csi-driver && helm dependency build && cd ../../..
+cd helm/charts/ingress-nginx && helm dependency build && cd ../../..
+cd helm/charts/monitoring && helm dependency build && cd ../../..
+cd helm/charts/vault && helm dependency build && cd ../../..
+
 # Install Applications via ArgoCD
 kubectl apply -f k8s/argocd/applications/develop/aws-ebs-csi-driver.yaml
 kubectl apply -f k8s/argocd/applications/develop/ingress-nginx.yaml
+kubectl apply -f k8s/argocd/applications/develop/monitoring.yaml
 kubectl apply -f k8s/argocd/applications/develop/vault.yaml
-kubectl apply -f k8s/argocd/applications/develop/plg-stack.yaml
+
 
 # kubectl apply -f k8s/argocd/applications/develop/api.yaml
 # kubectl apply -f k8s/argocd/applications/develop/web.yaml
+
 # kubectl apply -f k8s/argocd/applications/develop/apparmor.yaml
 
-# Colors Variables
+
+
+# ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
+
+
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Print Fucntions
 print_header() {
     echo -e "\n${GREEN}=== $1 ===${NC}\n"
 }
@@ -47,19 +53,14 @@ print_error() {
     echo -e "${RED}ERROR: $1${NC}"
 }
 
-# ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== #
-
-# Shell Setup
 setup_shell_aliases() {
     print_header "Setting up shell aliases"
 
-    # Check if aliases already exist
     if grep -q "# === KUBERNETES ALIASES ===" ~/.bashrc; then
         print_info "Kubernetes aliases already exist in .bashrc"
         return 0
     fi
 
-    # Add Kubernetes aliases to .bashrc
     cat << 'EOF' >> ~/.bashrc
 
 # Basic kubectl
@@ -88,7 +89,7 @@ alias kgpo="kubectl get pods -o wide"
 alias kgs="kubectl get services"
 alias kgsa="kubectl get services --all-namespaces"
 
-# Debugging and Monitoring
+# Debugging & Monitoring
 alias kl="kubectl logs"
 alias klf="kubectl logs -f"
 alias kpf="kubectl port-forward"
@@ -97,12 +98,12 @@ alias kdesc="kubectl describe"
 alias ktp="kubectl top pod"
 alias ktn="kubectl top node"
 
-# AWS Aliases
+# AWS - Aliases
 alias awsid="aws sts get-caller-identity"
 alias awsreg="aws configure get region"
 alias awsls="aws ec2 describe-instances"
 
-# Terraform Aliases
+# Terraform - Aliases
 alias tf="terraform"
 alias tfi="terraform init"
 alias tfp="terraform plan"
@@ -110,7 +111,7 @@ alias tfa="terraform apply"
 alias tfd="terraform destroy"
 alias tfw="terraform workspace"
 
-# Git Aliases
+# Git - Aliases
 alias gs="git status"
 alias gp="git pull"
 alias gf="git fetch"
@@ -120,16 +121,13 @@ alias gl="git log --oneline --graph --decorate --all"
 
 EOF
 
-    # Reload .bashrc
     source ~/.bashrc
     print_info "Shell aliases have been added to .bashrc and activated"
 }
 
-# Main Execution
 main() {
     print_header "Starting developer environment setup"
     
-    # Setup shell aliases
     setup_shell_aliases
     
     print_header "Setup completed successfully!"

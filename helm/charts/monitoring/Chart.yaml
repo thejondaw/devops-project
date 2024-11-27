@@ -1,16 +1,14 @@
 apiVersion: v2
-name: plg-stack
-description: PLG Stack (Prometheus, Loki, Grafana) for observability
+name: monitoring # теперь просто monitoring
+description: Monitoring Stack (Prometheus, Loki, Grafana) for Kubernetes
 version: 0.1.0
 dependencies:
   - name: prometheus
     repository: https://prometheus-community.github.io/helm-charts
     version: 25.8.0
-    alias: prometheus
   - name: grafana
     repository: https://grafana.github.io/helm-charts
     version: 7.0.19
-    alias: grafana
   - name: loki
     repository: https://grafana.github.io/helm-charts
     version: 2.16.0

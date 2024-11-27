@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: plg-stack
+  name: monitoring
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/thejondaw/devops-project.git
-    path: helm/charts/plg-stack
+    path: helm/charts/monitoring
     targetRevision: develop
   destination:
     server: https://kubernetes.default.svc

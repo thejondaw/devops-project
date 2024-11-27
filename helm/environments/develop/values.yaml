@@ -16,20 +16,6 @@ web:
   api:
     host: "http://develop-api-svc"
 
-monitoring:
-  grafana:
-    ingress:
-      hosts:
-        - grafana.develop.local
-  prometheus:
-    ingress:
-      hosts:
-        - prometheus.develop.local
-  alertmanager:
-    ingress:
-      hosts:
-        - alertmanager.develop.local
-
 vault:
   server:
     serviceAccount:
