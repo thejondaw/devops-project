@@ -1,17 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: grafana-prometheus
+  name: plg-stack
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
     repoURL: https://github.com/thejondaw/devops-project.git
-    path: helm/charts/monitoring
+    path: helm/charts/plg-stack
     targetRevision: develop
-    helm:
-      valueFiles:
-        - ../../environments/develop/values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

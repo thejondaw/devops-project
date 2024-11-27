@@ -1,6 +1,6 @@
 apiVersion: v2
-name: monitoring
-description: Grafana & Prometheus & Loki stack
+name: plg-stack
+description: PLG Stack (Prometheus, Loki, Grafana) for observability
 version: 0.1.0
 dependencies:
   - name: prometheus
