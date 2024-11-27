@@ -8,32 +8,32 @@ prometheus:
     fullnameOverride: monitoring-prometheus-server
     persistentVolume:
       enabled: true
-      size: 2Gi
+      size: 4Gi
     service:
       type: LoadBalancer
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     resources:
       limits:
-        cpu: 500m
-        memory: 1Gi
-      requests:
-        cpu: 250m
+        cpu: 300m
         memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
 
   alertmanager:
     enabled: true
     fullnameOverride: monitoring-alertmanager
     persistentVolume:
-      enabled: false
-      size: 5Gi
+      enabled: true
+      size: 2Gi
     resources:
       limits:
-        cpu: 200m
-        memory: 256Mi
-      requests:
         cpu: 100m
         memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
 
 grafana:
   nameOverride: monitoring
@@ -53,7 +53,7 @@ grafana:
 
   persistence:
     enabled: true
-    size: 2Gi
+    size: 5Gi
     storageClass: gp2
 
   datasources:
@@ -90,15 +90,15 @@ loki:
 
   resources:
     limits:
-      cpu: 500m
-      memory: 1Gi
-    requests:
-      cpu: 200m
+      cpu: 300m
       memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
 
   persistence:
     enabled: true
-    size: 2Gi
+    size: 5Gi
     storageClass: gp2
 
   loki:
