@@ -1,8 +1,0 @@
-apiVersion: v2
-name: promtail
-description: Promtail for log collection
-version: 0.1.0
-dependencies:
-  - name: promtail
-    repository: https://grafana.github.io/helm-charts
-    version: 6.15.3
