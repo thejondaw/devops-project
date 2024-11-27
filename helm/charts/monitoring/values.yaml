@@ -8,7 +8,7 @@ prometheus:
     fullnameOverride: monitoring-prometheus-server
     persistentVolume:
       enabled: true
-      size: 8Gi
+      size: 2Gi
     service:
       type: LoadBalancer
       annotations:
@@ -25,7 +25,7 @@ prometheus:
     enabled: true
     fullnameOverride: monitoring-alertmanager
     persistentVolume:
-      enabled: true
+      enabled: false
       size: 5Gi
     resources:
       limits:
@@ -53,7 +53,7 @@ grafana:
 
   persistence:
     enabled: true
-    size: 10Gi
+    size: 2Gi
     storageClass: gp2
 
   datasources:
@@ -98,7 +98,7 @@ loki:
 
   persistence:
     enabled: true
-    size: 10Gi
+    size: 2Gi
     storageClass: gp2
 
   loki:

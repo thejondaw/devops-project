@@ -125,12 +125,14 @@ bash scripts/post-install.sh
 # If needs to delete
 k delete all --all -n develop
 
+k delete -f k8s/argocd/applications/develop/monitoring.yaml
 k delete all --all -n monitoring
 k delete cm --all -n monitoring
 k delete secret --all -n monitoring
 k delete serviceaccount --all -n monitoring
 k delete rolebinding --all -n monitoring
 k delete role --all -n monitoring
+# k delete pv --all -n monitoring
 k delete pvc --all -n monitoring
 k delete clusterrolebinding --selector=release=grafana-prometheus
 k delete clusterrole --selector=release=grafana-prometheus
