@@ -52,9 +52,6 @@ grafana:
           type: loki
           url: http://monitoring-loki:3100
           access: proxy
-          jsonData:
-            maxLines: 5000
-            timeout: 60
 
   adminUser: admin
   adminPassword: admin
@@ -69,59 +66,21 @@ grafana:
 
 loki:
   enabled: true
-
   singleBinary:
     replicas: 1
 
   memberlist:
     enabled: false
 
-  config:
-    auth_enabled: false
-    common:
-      path_prefix: /data/loki
-      storage:
-        filesystem:
-          chunks_directory: /data/loki/chunks
-          rules_directory: /data/loki/rules
-
-    ingester:
-      lifecycler:
-        ring:
-          kvstore:
-            store: inmemory
-          replication_factor: 1
-
-    schema_config:
-      configs:
-        - from: 2020-10-24
-          store: boltdb-shipper
-          object_store: filesystem
-          schema: v11
-          index:
-            prefix: index_
-            period: 24h
-
-    storage_config:
-      boltdb_shipper:
-        active_index_directory: /data/loki/boltdb-shipper-active
-        cache_location: /data/loki/boltdb-shipper-cache
-        shared_store: filesystem
-      filesystem:
-        directory: /data/loki/chunks
-
-    limits_config:
-      retention_period: 744h
+  service:
+    type: ClusterIP
+    port: 3100
+    targetPort: 3100
 
   persistence:
     enabled: true
     size: 5Gi
     storageClass: gp2
-
-  service:
-    type: ClusterIP
-    port: 3100
-    annotations: {}
 
   resources:
     limits:
@@ -130,6 +89,16 @@ loki:
     requests:
       cpu: 100m
       memory: 128Mi
+
+  loki:
+    auth_enabled: false
+    commonConfig:
+      path_prefix: /data/loki
+      replication_factor: 1
+      storage:
+        filesystem:
+          chunks_directory: /data/loki/chunks
+          rules_directory: /data/loki/rules
 
 promtail:
   enabled: true
@@ -144,42 +113,5 @@ promtail:
   config:
     clients:
       - url: http://monitoring-loki:3100/loki/api/v1/push
-        tls_config:
-          insecure_skip_verify: true
-        external_labels:
-          cluster: dev-eks
-
-    positions:
-      filename: /run/promtail/positions.yaml
-
-    scrape_configs:
-      - job_name: kubernetes-pods
-        kubernetes_sd_configs:
-          - role: pod
-        relabel_configs:
-          - source_labels:
-              - __meta_kubernetes_pod_controller_name
-            regex: ([0-9a-z-.]+?)(-[0-9a-f]{8,10})?
-            target_label: __tmp_controller_name
-          - source_labels:
-              - __meta_kubernetes_pod_label_app_kubernetes_io_name
-              - __meta_kubernetes_pod_label_app
-              - __tmp_controller_name
-              - __meta_kubernetes_pod_name
-            regex: ^;*([^;]+)(;.*)?$
-            target_label: app
-          - source_labels:
-              - __meta_kubernetes_pod_node_name
-            target_label: node_name
-          - source_labels:
-              - __meta_kubernetes_namespace
-            target_label: namespace
-          - source_labels:
-              - __meta_kubernetes_pod_name
-            target_label: pod
-          - source_labels:
-              - __meta_kubernetes_pod_container_name
-            target_label: container
-          - source_labels:
-              - __meta_kubernetes_pod_label_app_kubernetes_io_component
-            target_label: component
+    snippets:
+      extraRelabelConfigs: []
