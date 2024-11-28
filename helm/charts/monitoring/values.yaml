@@ -38,6 +38,16 @@ prometheus:
 grafana:
   nameOverride: monitoring
   fullnameOverride: monitoring-grafana
+
+  # Добавляем настройки БД и секьюрити
+  env:
+    GF_DATABASE_WAL: "true"
+    GF_DATABASE_CACHE_MODE: "shared"
+    GF_DATABASE_BUSY_TIMEOUT: "10000"
+    GF_SECURITY_ALLOW_EMBEDDING: "true"
+    GF_SECURITY_COOKIE_SECURE: "false"
+    GF_AUTH_ANONYMOUS_ENABLED: "false"
+
   service:
     type: LoadBalancer
     annotations:
