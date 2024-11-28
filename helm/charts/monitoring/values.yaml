@@ -40,8 +40,9 @@ grafana:
   fullnameOverride: monitoring-grafana
 
   env:
-    GF_DATABASE_TYPE: "memory"
-    GF_DATABASE_PATH: ""
+    GF_DATABASE_CACHE_MODE: "shared"
+    GF_DATABASE_WAL: "true"
+    GF_DATABASE_BUSY_TIMEOUT: "15000"
     GF_DATABASE_LOG_QUERIES: "false"
     GF_SERVER_ENABLE_GZIP: "true"
     GF_SERVER_HTTP_READ_TIMEOUT: "0"
@@ -65,8 +66,15 @@ grafana:
       cpu: 100m
       memory: 128Mi
 
-  persistence:
+  livenessProbe:
     enabled: false
+  readinessProbe:
+    enabled: false
+
+  persistence:
+    enabled: true
+    type: pvc
+    size: 2Gi
 
   datasources:
     datasources.yaml:
