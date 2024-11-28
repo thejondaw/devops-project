@@ -39,14 +39,13 @@ grafana:
   nameOverride: monitoring
   fullnameOverride: monitoring-grafana
 
-  # Добавляем настройки БД и секьюрити
   env:
-    GF_DATABASE_WAL: "true"
-    GF_DATABASE_CACHE_MODE: "shared"
-    GF_DATABASE_BUSY_TIMEOUT: "10000"
+    GF_DATABASE_TYPE: "sqlite3"
+    GF_DATABASE_MODE: "memory"
     GF_SECURITY_ALLOW_EMBEDDING: "true"
-    GF_SECURITY_COOKIE_SECURE: "false"
     GF_AUTH_ANONYMOUS_ENABLED: "false"
+    GF_AUTH_BASIC_ENABLED: "true"
+    GF_SERVER_ROUTER_LOGGING: "true"
 
   service:
     type: LoadBalancer
@@ -62,9 +61,7 @@ grafana:
       memory: 128Mi
 
   persistence:
-    enabled: true
-    size: 5Gi
-    storageClass: gp2
+    enabled: false
 
   datasources:
     datasources.yaml:
