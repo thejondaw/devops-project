@@ -2,10 +2,7 @@ nameOverride: monitoring
 fullnameOverride: monitoring
 
 prometheus:
-  nameOverride: monitoring
-  fullnameOverride: monitoring-prometheus
   server:
-    fullnameOverride: monitoring-prometheus-server
     persistentVolume:
       enabled: true
       size: 4Gi
@@ -21,40 +18,16 @@ prometheus:
         cpu: 100m
         memory: 256Mi
 
-  alertmanager:
-    enabled: true
-    fullnameOverride: monitoring-alertmanager
-    persistentVolume:
-      enabled: true
-      size: 2Gi
-    resources:
-      limits:
-        cpu: 100m
-        memory: 128Mi
-      requests:
-        cpu: 50m
-        memory: 64Mi
-
 grafana:
-  nameOverride: monitoring
-  fullnameOverride: monitoring-grafana
-
-  env:
-    GF_DATABASE_CACHE_MODE: "shared"
-    GF_DATABASE_WAL: "true"
-    GF_DATABASE_BUSY_TIMEOUT: "15000"
-    GF_DATABASE_LOG_QUERIES: "false"
-    GF_SERVER_ENABLE_GZIP: "true"
-    GF_SERVER_HTTP_READ_TIMEOUT: "0"
-    GF_SERVER_ROUTER_LOGGING: "false"
-    GF_AUTH_SIGV4_LOGGING: "false"
-    GF_LOG_LEVEL: "warn"
-    GF_SECURITY_ALLOW_EMBEDDING: "true"
-    GF_SECURITY_COOKIE_SECURE: "false"
-    GF_AUTH_ANONYMOUS_ENABLED: "false"
+  persistence:
+    type: pvc
+    enabled: true
+    size: 2Gi
 
   service:
     type: LoadBalancer
+    port: 80
+    targetPort: 3000
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 
@@ -66,24 +39,9 @@ grafana:
       cpu: 100m
       memory: 128Mi
 
-  livenessProbe:
-    enabled: false
-  readinessProbe:
-    enabled: false
-
-  persistence:
-    enabled: true
-    type: pvc
-    size: 2Gi
-
   datasources:
     datasources.yaml:
       apiVersion: 1
-      deleteDatasources:
-        - name: Prometheus
-          orgId: 1
-        - name: Loki
-          orgId: 1
       datasources:
         - name: Prometheus
           type: prometheus
@@ -94,43 +52,27 @@ grafana:
           type: loki
           url: http://monitoring-loki:3100
           access: proxy
-          jsonData:
-            maxLines: 1000
-            timeout: 30
 
   adminUser: admin
   adminPassword: admin
 
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s/"
+    auth:
+      disable_login_form: false
+    security:
+      allow_embedding: true
+
 loki:
-  nameOverride: monitoring
-  fullnameOverride: monitoring-loki
   enabled: true
   singleBinary:
     replicas: 1
-
-  resources:
-    limits:
-      cpu: 300m
-      memory: 512Mi
-    requests:
-      cpu: 100m
-      memory: 256Mi
 
   persistence:
     enabled: true
     size: 5Gi
     storageClass: gp2
-
-  loki:
-    auth_enabled: false
-    commonConfig:
-      replication_factor: 1
-    storage:
-      type: filesystem
-
-promtail:
-  nameOverride: monitoring
-  fullnameOverride: monitoring-promtail
 
   resources:
     limits:
@@ -140,11 +82,23 @@ promtail:
       cpu: 100m
       memory: 128Mi
 
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    storage:
+      type: filesystem
+
+promtail:
+  enabled: true
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
   config:
     clients:
       - url: http://monitoring-loki:3100/loki/api/v1/push
-    snippets:
-      extraRelabelConfigs:
-        - action: replace
-          replacement: dev-eks
-          target_label: cluster
