@@ -50,7 +50,7 @@ grafana:
           isDefault: true
         - name: Loki
           type: loki
-          url: http://monitoring-loki:3100
+          url: http://monitoring-loki.monitoring.svc.cluster.local:3100
           access: proxy
 
   adminUser: admin
@@ -68,6 +68,17 @@ loki:
   enabled: true
   singleBinary:
     replicas: 1
+    extraArgs:
+      - -memberlist.bind-addr=0.0.0.0:7946
+
+  memberlist:
+    enabled: false
+    ringName: ingester
+
+  service:
+    port: 3100
+    targetPort: http-metrics
+    annotations: {}
 
   persistence:
     enabled: true
@@ -85,9 +96,12 @@ loki:
   loki:
     auth_enabled: false
     commonConfig:
+      path_prefix: /data/loki
       replication_factor: 1
-    storage:
-      type: filesystem
+      storage:
+        filesystem:
+          chunks_directory: /data/loki/chunks
+          rules_directory: /data/loki/rules
 
 promtail:
   enabled: true
@@ -101,4 +115,6 @@ promtail:
 
   config:
     clients:
-      - url: http://monitoring-loki:3100/loki/api/v1/push
+      - url: http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+    snippets:
+      extraRelabelConfigs: []
