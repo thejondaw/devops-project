@@ -40,12 +40,17 @@ grafana:
   fullnameOverride: monitoring-grafana
 
   env:
-    GF_DATABASE_TYPE: "sqlite3"
-    GF_DATABASE_MODE: "memory"
+    GF_DATABASE_TYPE: "memory"
+    GF_DATABASE_PATH: ""
+    GF_DATABASE_LOG_QUERIES: "false"
+    GF_SERVER_ENABLE_GZIP: "true"
+    GF_SERVER_HTTP_READ_TIMEOUT: "0"
+    GF_SERVER_ROUTER_LOGGING: "false"
+    GF_AUTH_SIGV4_LOGGING: "false"
+    GF_LOG_LEVEL: "warn"
     GF_SECURITY_ALLOW_EMBEDDING: "true"
+    GF_SECURITY_COOKIE_SECURE: "false"
     GF_AUTH_ANONYMOUS_ENABLED: "false"
-    GF_AUTH_BASIC_ENABLED: "true"
-    GF_SERVER_ROUTER_LOGGING: "true"
 
   service:
     type: LoadBalancer
