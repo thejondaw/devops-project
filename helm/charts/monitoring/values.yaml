@@ -79,11 +79,41 @@ loki:
   singleBinary:
     replicas: 1
 
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: 3100
+    initialDelaySeconds: 45
+    timeoutSeconds: 1
+    periodSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 3100
+    initialDelaySeconds: 45
+    timeoutSeconds: 1
+    periodSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+
   service:
+    type: ClusterIP
     name: monitoring-loki
     port: 3100
     targetPort: 3100
     annotations: {}
+
+  containerSecurityContext:
+    runAsUser: 10001
+    runAsGroup: 10001
+    runAsNonRoot: true
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
 
   ports:
     - name: http-metrics
@@ -180,7 +210,7 @@ promtail:
       log_level: debug
 
     clients:
-      - url: "http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+      - url: "http://monitoring-loki:3100/loki/api/v1/push"
         tenant_id: fake
         external_labels:
           cluster: eks
