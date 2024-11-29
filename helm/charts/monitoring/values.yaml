@@ -50,7 +50,7 @@ grafana:
           isDefault: true
         - name: Loki
           type: loki
-          url: http://monitoring-loki.monitoring.svc.cluster.local:3100
+          url: http://monitoring-loki:3100
           access: proxy
 
   adminUser: admin
@@ -95,6 +95,8 @@ loki:
 
   loki:
     auth_enabled: false
+    server:
+      http_listen_port: 3100
     commonConfig:
       path_prefix: /data/loki
       replication_factor: 1
