@@ -78,13 +78,11 @@ loki:
   enabled: true
   singleBinary:
     replicas: 1
-    extraArgs:
-      - -memberlist.bind-addr=0.0.0.0:7946
+    extraArgs: []  # Убрал memberlist args
 
   memberlist:
-    enabled: false
-    ringName: ingester
-
+    enabled: false # Отключил memberlist нахрен
+    
   service:
     port: 3100
     targetPort: http-metrics
@@ -127,6 +125,6 @@ promtail:
 
   config:
     clients:
-      - url: http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+      - url: http://monitoring-loki:3100/loki/api/v1/push  # Упростил DNS путь
     snippets:
       extraRelabelConfigs: []
