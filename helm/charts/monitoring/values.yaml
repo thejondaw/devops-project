@@ -78,11 +78,7 @@ loki:
   enabled: true
   singleBinary:
     replicas: 1
-    extraArgs: []  # Убрал memberlist args
 
-  memberlist:
-    enabled: false # Отключил memberlist нахрен
-    
   service:
     name: monitoring-loki
     port: 3100
@@ -102,19 +98,57 @@ loki:
       cpu: 100m
       memory: 128Mi
 
-  loki:
+  config:
     auth_enabled: false
     server:
       http_listen_port: 3100
-      http_listen_address: 0.0.0.0  # Критично! Иначе будет слушать только localhost
-      grpc_listen_address: 0.0.0.0  # Тоже нужно для внутренней коммуникации
-    commonConfig:
-      path_prefix: /data/loki
-      replication_factor: 1
-      storage:
-        filesystem:
-          chunks_directory: /data/loki/chunks
-          rules_directory: /data/loki/rules
+      http_listen_address: "0.0.0.0"
+      grpc_listen_port: 9095
+      grpc_listen_address: "0.0.0.0"
+
+    ingester:
+      lifecycler:
+        address: 127.0.0.1
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+      chunk_idle_period: 3m
+      chunk_block_size: 262144
+      chunk_retain_period: 1m
+      max_transfer_retries: 0
+      wal:
+        dir: /data/loki/wal
+
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /data/loki/index
+        cache_location: /data/loki/boltdb-cache
+        cache_ttl: 24h
+        shared_store: filesystem
+      filesystem:
+        directory: /data/loki/chunks
+
+    schema_config:
+      configs:
+        - from: "2020-10-24"
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+
+    compactor:
+      shared_store: filesystem
+      working_directory: /data/loki/boltdb-shipper-compactor
+      retention_enabled: false
+
+    limits_config:
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      max_entries_limit_per_query: 5000
 
 promtail:
   enabled: true
@@ -128,6 +162,7 @@ promtail:
 
   config:
     clients:
-      - url: http://monitoring-loki:3100/loki/api/v1/push  # Упростил DNS путь
+      - url: http://monitoring-loki:3100/loki/api/v1/push
+        tenant_id: fake
     snippets:
       extraRelabelConfigs: []
