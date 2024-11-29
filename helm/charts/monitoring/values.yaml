@@ -84,6 +84,7 @@ loki:
     enabled: false # Отключил memberlist нахрен
     
   service:
+    name: monitoring-loki
     port: 3100
     targetPort: http-metrics
     annotations: {}
@@ -105,6 +106,8 @@ loki:
     auth_enabled: false
     server:
       http_listen_port: 3100
+      http_listen_address: 0.0.0.0  # Критично! Иначе будет слушать только localhost
+      grpc_listen_address: 0.0.0.0  # Тоже нужно для внутренней коммуникации
     commonConfig:
       path_prefix: /data/loki
       replication_factor: 1
