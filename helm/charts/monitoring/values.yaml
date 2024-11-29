@@ -82,8 +82,18 @@ loki:
   service:
     name: monitoring-loki
     port: 3100
-    targetPort: http-metrics
+    targetPort: 3100
     annotations: {}
+
+  ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: 3100
+    - name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: 9095
 
   persistence:
     enabled: true
@@ -105,10 +115,11 @@ loki:
       http_listen_address: "0.0.0.0"
       grpc_listen_port: 9095
       grpc_listen_address: "0.0.0.0"
+      log_level: "debug"
 
     ingester:
       lifecycler:
-        address: 127.0.0.1
+        address: "0.0.0.0"
         ring:
           kvstore:
             store: inmemory
@@ -150,6 +161,10 @@ loki:
       reject_old_samples_max_age: 168h
       max_entries_limit_per_query: 5000
 
+    table_manager:
+      retention_deletes_enabled: false
+      retention_period: 0s
+
 promtail:
   enabled: true
   resources:
@@ -161,8 +176,20 @@ promtail:
       memory: 64Mi
 
   config:
+    server:
+      log_level: debug
+
     clients:
-      - url: http://monitoring-loki:3100/loki/api/v1/push
+      - url: "http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
         tenant_id: fake
+        external_labels:
+          cluster: eks
+          environment: monitoring
+        batchwait: "1s"
+        batchsize: 102400
+        timeout: "10s"
+        backoff_config:
+          min_period: "100ms"
+          max_period: "5s"
     snippets:
       extraRelabelConfigs: []
