@@ -42,6 +42,7 @@ grafana:
   datasources:
     datasources.yaml:
       apiVersion: 1
+      deleteDatasources: []
       datasources:
         - name: Prometheus
           type: prometheus
@@ -50,8 +51,17 @@ grafana:
           isDefault: true
         - name: Loki
           type: loki
-          url: http://monitoring-loki:3100
           access: proxy
+          url: http://monitoring-loki:3100
+          jsonData:
+            maxLines: 1000
+            timeout: 30
+            featureToggles:
+              live: true
+            liveEnabled: true
+          version: 1
+          editable: true
+          basicAuth: false
 
   adminUser: admin
   adminPassword: admin
