@@ -78,26 +78,28 @@ loki:
   enabled: true
   singleBinary:
     replicas: 1
+    extraArgs:
+      - -memberlist.bind-addr=0.0.0.0:7946
 
   livenessProbe:
     httpGet:
       path: /ready
-      port: 3100
-    initialDelaySeconds: 45
-    timeoutSeconds: 1
-    periodSeconds: 10
+      port: http-metrics
+    initialDelaySeconds: 120
+    timeoutSeconds: 5
+    periodSeconds: 20
     successThreshold: 1
-    failureThreshold: 3
+    failureThreshold: 6
 
   readinessProbe:
     httpGet:
       path: /ready
-      port: 3100
-    initialDelaySeconds: 45
-    timeoutSeconds: 1
-    periodSeconds: 10
+      port: http-metrics
+    initialDelaySeconds: 90
+    timeoutSeconds: 5
+    periodSeconds: 20
     successThreshold: 1
-    failureThreshold: 3
+    failureThreshold: 6
 
   service:
     type: ClusterIP
@@ -132,11 +134,11 @@ loki:
 
   resources:
     limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
       cpu: 200m
       memory: 256Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
 
   config:
     auth_enabled: false
@@ -145,7 +147,7 @@ loki:
       http_listen_address: "0.0.0.0"
       grpc_listen_port: 9095
       grpc_listen_address: "0.0.0.0"
-      log_level: "debug"
+      log_level: "info"
 
     ingester:
       lifecycler:
@@ -154,10 +156,8 @@ loki:
           kvstore:
             store: inmemory
           replication_factor: 1
-      chunk_idle_period: 3m
-      chunk_block_size: 262144
-      chunk_retain_period: 1m
-      max_transfer_retries: 0
+      chunk_idle_period: 30m
+      chunk_retain_period: 15m
       wal:
         dir: /data/loki/wal
 
@@ -165,7 +165,6 @@ loki:
       boltdb_shipper:
         active_index_directory: /data/loki/index
         cache_location: /data/loki/boltdb-cache
-        cache_ttl: 24h
         shared_store: filesystem
       filesystem:
         directory: /data/loki/chunks
