@@ -207,9 +207,10 @@ promtail:
   config:
     server:
       log_level: debug
+      http_listen_port: 3101
 
     clients:
-      - url: "http://monitoring-loki:3100/loki/api/v1/push"
+      - url: "http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
         tenant_id: fake
         external_labels:
           cluster: eks
@@ -220,5 +221,25 @@ promtail:
         backoff_config:
           min_period: "100ms"
           max_period: "5s"
+
+    positions:
+      filename: /run/promtail/positions.yaml
+
+    scrape_configs:
+      - job_name: kubernetes-pods
+        pipeline_stages:
+          - cri: {}
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: ['__meta_kubernetes_pod_container_name']
+            target_label: container
+          - source_labels: ['__meta_kubernetes_pod_name']
+            target_label: pod
+          - source_labels: ['__meta_kubernetes_namespace']
+            target_label: namespace
+          - source_labels: ['__meta_kubernetes_pod_node_name']
+            target_label: node
+
     snippets:
       extraRelabelConfigs: []
