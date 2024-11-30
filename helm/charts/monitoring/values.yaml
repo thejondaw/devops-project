@@ -17,6 +17,18 @@ prometheus:
       requests:
         cpu: 100m
         memory: 256Mi
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                      - prometheus
+              topologyKey: "kubernetes.io/hostname"
 
 grafana:
   persistence:
@@ -39,6 +51,19 @@ grafana:
       cpu: 100m
       memory: 128Mi
 
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - grafana
+            topologyKey: "kubernetes.io/hostname"
+
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -52,7 +77,7 @@ grafana:
         - name: Loki
           type: loki
           access: proxy
-          url: http://monitoring-loki:3100
+          url: http://monitoring-loki.monitoring.svc.cluster.local:3100
           jsonData:
             maxLines: 1000
             timeout: 30
@@ -80,6 +105,19 @@ loki:
     replicas: 1
     extraArgs:
       - -memberlist.bind-addr=0.0.0.0:7946
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - loki
+            topologyKey: "kubernetes.io/hostname"
 
   livenessProbe:
     httpGet:
@@ -116,16 +154,6 @@ loki:
       drop:
         - ALL
     readOnlyRootFilesystem: true
-
-  ports:
-    - name: http-metrics
-      port: 3100
-      protocol: TCP
-      targetPort: 3100
-    - name: grpc
-      port: 9095
-      protocol: TCP
-      targetPort: 9095
 
   persistence:
     enabled: true
@@ -204,6 +232,22 @@ promtail:
       cpu: 50m
       memory: 64Mi
 
+  tolerations:
+    - operator: Exists
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - promtail
+            topologyKey: "kubernetes.io/hostname"
+
   config:
     server:
       log_level: debug
@@ -232,14 +276,11 @@ promtail:
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
-          - source_labels: ['__meta_kubernetes_pod_container_name']
+          - source_labels: ["__meta_kubernetes_pod_container_name"]
             target_label: container
-          - source_labels: ['__meta_kubernetes_pod_name']
+          - source_labels: ["__meta_kubernetes_pod_name"]
             target_label: pod
-          - source_labels: ['__meta_kubernetes_namespace']
+          - source_labels: ["__meta_kubernetes_namespace"]
             target_label: namespace
-          - source_labels: ['__meta_kubernetes_pod_node_name']
+          - source_labels: ["__meta_kubernetes_pod_node_name"]
             target_label: node
-
-    snippets:
-      extraRelabelConfigs: []
