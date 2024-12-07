@@ -39,37 +39,41 @@ jobs:
          npm run lint
          npm run format:check
 
- test:
-   needs: lint
-   runs-on: ubuntu-latest
-   timeout-minutes: 10
-   strategy:
-     fail-fast: false
-     matrix:
-       test-type: [unit, integration]
-   steps:
-     - uses: actions/checkout@v3
-     
-     - uses: actions/setup-node@v3
-       with:
-         node-version: "14"
-         cache: 'npm'
-         cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
+test:
+  needs: lint
+  runs-on: ubuntu-latest
+  timeout-minutes: 10
+  strategy:
+    fail-fast: false
+    matrix:
+      test-type: [unit, integration]
+  steps:
+    - uses: actions/checkout@v3
+    
+    - uses: actions/setup-node@v3
+      with:
+        node-version: "14"
+        cache: 'npm'
+        cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
 
-     - name: Test with Coverage
-       working-directory: ${{ env.WORKING_DIRECTORY }}
-       continue-on-error: true # Don't stop when one of tests fails
-       run: |
-         npm ci
-         npm test -- --coverage --testMatch='**/${{ matrix.test-type }}/**/*.test.js'
+    - name: Test with Coverage
+      working-directory: ${{ env.WORKING_DIRECTORY }}
+      continue-on-error: true # Don't stop when one of tests fails
+      env:
+        JEST_JUNIT_OUTPUT_DIR: "coverage"
+        JEST_JUNIT_OUTPUT_NAME: "junit.xml"
+      run: |
+        npm ci
+        npm install --save-dev jest-junit
+        npm test -- --coverage --testMatch='**/${{ matrix.test-type }}/**/*.test.js' --reporters=default --reporters=jest-junit
 
-     - name: Test Report
-       uses: dorny/test-reporter@v1
-       if: success() || failure()
-       with:
-         name: API ${{ matrix.test-type }} Tests
-         path: ${{ env.WORKING_DIRECTORY }}/coverage/jest-*.xml
-         reporter: jest-junit
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: API ${{ matrix.test-type }} Tests
+        path: ${{ env.WORKING_DIRECTORY }}/coverage/junit.xml
+        reporter: jest-junit
 
  sonarcloud:
    needs: test
