@@ -124,7 +124,7 @@ jobs:
          cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:buildcache
          cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:buildcache,mode=max
 
- trivy-scan:
+ trivy:
    needs: build
    runs-on: ubuntu-latest
    timeout-minutes: 10
