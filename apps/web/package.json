@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "start": "node ./src/bin/www",
-    "lint": "eslint ./src || true",
-    "lint:fix": "eslint ./src --fix || true",
-    "format": "prettier --write \"src/**/*.{js,jsx}\" || true",
-    "format:check": "prettier --check \"src/**/*.{js,jsx}\" || true"
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx}\"",
+    "test": "jest"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
@@ -27,6 +28,9 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "prettier": "3.3.3"
+    "prettier": "3.3.3",
+    "jest": "^29.7.0",
+    "jest-junit": "^15.0.0",
+    "supertest": "^6.3.3"
   }
 }
