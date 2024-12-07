@@ -67,7 +67,7 @@ jobs:
           npm install --save-dev jest jest-junit
           npm test -- --coverage --testMatch='**/${{ matrix.test-type }}/**/*.test.js' --reporters=default --reporters=jest-junit
 
-  sonarcloud:
+  sonarqube:
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -96,7 +96,7 @@ jobs:
             ${{ github.ref_name != 'master' && format('-Dsonar.branch.target={0}', 'master') || '' }}
 
   build:
-    needs: sonarcloud
+    needs: sonarqube
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
